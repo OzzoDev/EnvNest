@@ -9,6 +9,12 @@ export const authOptions: NextAuthOptions = {
     Github({
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          scope: "read:org repo user:email",
+          prompt: "consent",
+        },
+      },
     }),
   ],
   callbacks: {
@@ -24,6 +30,8 @@ export const authOptions: NextAuthOptions = {
     },
     async signIn({ user }) {
       try {
+        console.log("user", user);
+
         await dbClient.profile.create(user as GithubUser);
       } catch (err) {
         console.error("Error in signIn callback:", err);
