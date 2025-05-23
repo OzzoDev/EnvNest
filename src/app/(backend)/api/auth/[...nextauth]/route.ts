@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import Github from "next-auth/providers/github";
 import type { NextAuthOptions } from "next-auth";
+import { executeQuery } from "@/lib/db";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -12,6 +13,22 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async session({ session, token }) {
       return session;
+    },
+    async signIn({ user }) {
+      try {
+        await executeQuery(
+          `
+          INSERT INTO profile (email, name, image)
+          VALUES ($1, $2, $3)
+          ON CONFLICT (email) DO NOTHING  
+        `,
+          [user.email, user.name, user.image]
+        );
+      } catch (err) {
+        console.error("DB error:", err);
+        return false;
+      }
+      return true;
     },
   },
 };
