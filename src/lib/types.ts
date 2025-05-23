@@ -3,6 +3,7 @@ export type GithubUser = {
   name: string;
   email: string;
   image: string;
+  github_token: string;
 };
 
 // Base user table

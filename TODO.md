@@ -8,15 +8,15 @@
 - [x] Install `next-auth`, `pg`
 - [x] Setup GitHub OAuth App & `NEXTAUTH` config
 - [x] Create `.env.local` file with secrets
-- [ ] Create reusable DB client (`pg`)
+- [x] Create reusable DB client (`pg`)
 
 ---
 
 ## 🔐 Auth Flow
 
 - [x] GitHub login with `next-auth`
-- [ ] Store GitHub user in `users` table (if new)
-- [ ] Save GitHub access token for repo/org access
+- [x] Store GitHub user in `users` table (if new)
+- [x] Save GitHub access token for repo/org access
 
 ---
 

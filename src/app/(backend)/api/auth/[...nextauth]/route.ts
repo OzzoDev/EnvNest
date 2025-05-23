@@ -12,14 +12,16 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, token }) {
+    async session({ session }) {
       return session;
     },
-    async signIn({ user }) {
+    async signIn({ user, account }) {
       try {
-        await dbClient.profile.create(user as GithubUser);
-      } catch (err) {
-        console.error("DB error:", err);
+        await dbClient.profile.create({
+          ...user,
+          github_token: account?.access_token,
+        } as GithubUser);
+      } catch {
         return false;
       }
       return true;
