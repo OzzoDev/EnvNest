@@ -35,7 +35,6 @@ async function initDB() {
       email TEXT UNIQUE NOT NULL,
       name TEXT,
       image TEXT,
-      github_token TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `);

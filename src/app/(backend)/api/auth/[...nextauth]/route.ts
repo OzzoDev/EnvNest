@@ -12,17 +12,23 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ session }) {
+    async jwt({ token, account }) {
+      if (account) {
+        token.accessToken = account.access_token;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      session.accessToken = token.accessToken as string;
       return session;
     },
-    async signIn({ user, account }) {
+    async signIn({ user }) {
       try {
-        await dbClient.profile.create({
-          ...user,
-          github_token: account?.access_token,
-        } as GithubUser);
-      } catch {
-        return false;
+        await dbClient.profile.create(user as GithubUser);
+      } catch (err) {
+        console.error("Error in signIn callback:", err);
+        // Optional: redirect to custom error page
+        throw new Error("Database error on sign-in");
       }
       return true;
     },

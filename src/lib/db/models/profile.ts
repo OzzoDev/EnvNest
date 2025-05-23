@@ -5,12 +5,12 @@ const profile = {
   create: async function (user: GithubUser): Promise<Profile> {
     const result = await executeQuery<Profile>(
       `
-        INSERT INTO profile (email, name, image, github_token)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO profile (email, name, image)
+        VALUES ($1, $2, $3)
         ON CONFLICT (email) DO NOTHING
         RETURNING *;  
     `,
-      [user.email, user.name, user.image, user.github_token]
+      [user.email, user.name, user.image]
     );
 
     return result[0];
