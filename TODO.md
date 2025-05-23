@@ -22,11 +22,11 @@
 
 ## 🧩 Core Models (DB Schema)
 
-- [ ] Create `users` table
-- [ ] Create `organizations` + `organization_members`
-- [ ] Create `projects` + `project_members`
-- [ ] Create `env_files` table (with encrypted content)
-- [ ] Create `env_history` table (with commit message)
+- [x] Create `users` table
+- [x] Create `organizations` + `organization_members`
+- [x] Create `projects` + `project_members`
+- [x] Create `env_files` table (with encrypted content)
+- [x] Create `env_history` table (with commit message)
 
 ---
 
