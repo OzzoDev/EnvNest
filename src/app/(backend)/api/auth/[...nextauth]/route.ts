@@ -1,7 +1,8 @@
 import NextAuth from "next-auth";
 import Github from "next-auth/providers/github";
 import type { NextAuthOptions } from "next-auth";
-import { executeQuery } from "@/lib/db";
+import dbClient from "../../../../../lib/db/models";
+import { GithubUser } from "@/lib/types";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -16,14 +17,7 @@ export const authOptions: NextAuthOptions = {
     },
     async signIn({ user }) {
       try {
-        await executeQuery(
-          `
-          INSERT INTO profile (email, name, image)
-          VALUES ($1, $2, $3)
-          ON CONFLICT (email) DO NOTHING  
-        `,
-          [user.email, user.name, user.image]
-        );
+        await dbClient.profile.create(user as GithubUser);
       } catch (err) {
         console.error("DB error:", err);
         return false;

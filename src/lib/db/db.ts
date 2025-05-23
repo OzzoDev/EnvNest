@@ -13,13 +13,13 @@ export const sanitizeValues = (values: any[]) => {
   });
 };
 
-export const executeQuery = async (queryText: string, values: any[] = []) => {
+export const executeQuery = async <T>(queryText: string, values: unknown[] = []): Promise<T[]> => {
   const sanitizedValues = sanitizeValues(values);
   const client = await pool.connect();
 
   try {
     const response = await client.query(queryText, sanitizedValues);
-    return response.rows;
+    return response.rows as T[];
   } catch (err) {
     console.error("Database query error:", err);
     throw err;
