@@ -1,6 +1,6 @@
 import axios from "axios";
 import { fetchAllPages } from "../api";
-import { GithubOrg, GithubRepo } from "@/lib/types";
+import { GithubOrg, GithubRepo } from "../../../../types/types";
 
 export const getRepos = async (accessToken: string): Promise<GithubRepo[]> => {
   try {

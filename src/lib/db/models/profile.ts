@@ -1,4 +1,4 @@
-import { GithubUser, GithubUserNoId, Profile } from "@/lib/types";
+import { GithubUser, GithubUserNoId, Profile } from "../../../../types/types";
 import { executeQuery } from "../db";
 
 const profile = {
