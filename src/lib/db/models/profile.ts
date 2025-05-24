@@ -3,14 +3,22 @@ import { executeQuery } from "../db";
 
 const profile = {
   create: async function (user: GithubUser): Promise<Profile> {
+    const values = Object.values(user).filter(Boolean);
+    const keys = Object.keys(user)
+      .map((key, index) => (index === values.length - 1 ? `${key}` : `${key}, `))
+      .join("");
+    const placeHolders = values
+      .map((_, index) => (index === values.length - 1 ? `$${index + 1}` : `$${index + 1}, `))
+      .join("");
+
     const result = await executeQuery<Profile>(
       `
-        INSERT INTO profile (email, name, image)
-        VALUES ($1, $2, $3)
-        ON CONFLICT (email) DO NOTHING
+        INSERT INTO profile (${keys})
+        VALUES (${placeHolders})
+        ON CONFLICT (name) DO NOTHING
         RETURNING *;  
     `,
-      [user.email, user.name, user.image]
+      values
     );
 
     return result[0];

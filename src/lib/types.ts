@@ -1,8 +1,9 @@
 // Github-authenticated user shape
 export type GithubUser = {
+  github_id: string;
   name: string;
-  email: string;
-  image: string;
+  email?: string;
+  image?: string;
 };
 
 // Base user table

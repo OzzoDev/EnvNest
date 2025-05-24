@@ -19,7 +19,7 @@ const DashboardPage = async () => {
 
   const repos = await getRepos(session.accessToken);
 
-  console.log("Repos: ", repos);
+  // console.log("Repos: ", repos);
 
   return (
     <div>

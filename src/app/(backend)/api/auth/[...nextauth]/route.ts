@@ -30,12 +30,15 @@ export const authOptions: NextAuthOptions = {
     },
     async signIn({ user }) {
       try {
-        console.log("user", user);
+        const githubUser: GithubUser = {
+          github_id: user.id,
+          name: user.name!,
+          email: !user.email ? undefined : user.email,
+          image: !user.image ? undefined : user.image,
+        };
 
-        await dbClient.profile.create(user as GithubUser);
+        await dbClient.profile.create(githubUser);
       } catch (err) {
-        console.error("Error in signIn callback:", err);
-        // Optional: redirect to custom error page
         throw new Error("Database error on sign-in");
       }
       return true;

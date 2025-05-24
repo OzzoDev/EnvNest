@@ -32,8 +32,9 @@ async function initDB() {
   await executeQuery(`
     CREATE TABLE IF NOT EXISTS profile (
       id SERIAL PRIMARY KEY,
-      email TEXT UNIQUE NOT NULL,
-      name TEXT,
+      github_id TEXT UNIQUE NOT NULL,
+      email TEXT,
+      name TEXT UNIQUE NOT NULL,
       image TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
