@@ -1,7 +1,8 @@
+import { TDbClient } from "../../../../types/db-models-types";
 import profileModel from "./profile";
 
-const dbClient = {
-  profile: profileModel,
+export const getDbClient = (): TDbClient => {
+  return {
+    profile: profileModel,
+  };
 };
-
-export default dbClient;

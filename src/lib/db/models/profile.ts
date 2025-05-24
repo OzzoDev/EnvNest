@@ -12,7 +12,6 @@ const profile = {
 
     return result[0];
   },
-
   create: async (user: GithubUser): Promise<Profile> => {
     const entries = Object.entries(user).filter(([_, value]) => value !== undefined);
     const keys = entries.map(([key]) => key).join(", ");
@@ -31,7 +30,6 @@ const profile = {
 
     return result[0];
   },
-
   update: async <K extends keyof Profile>(
     user: GithubUserNoId,
     whereKey: K,
@@ -55,7 +53,6 @@ const profile = {
 
     return result[0];
   },
-
   upsert: async <K extends keyof Profile>(
     where: Record<K, Profile[K]>,
     update: GithubUserNoId,

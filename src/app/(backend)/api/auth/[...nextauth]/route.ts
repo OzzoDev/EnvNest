@@ -1,8 +1,8 @@
 import NextAuth from "next-auth";
 import Github from "next-auth/providers/github";
 import type { NextAuthOptions } from "next-auth";
-import dbClient from "../../../../../lib/db/models";
 import { GithubUser } from "../../../../../../types/types";
+import { getDbClient } from "@/lib/db/models";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -39,7 +39,9 @@ export const authOptions: NextAuthOptions = {
 
         const { github_id, ...rest } = githubUser;
 
-        await dbClient.profile.upsert({ github_id }, rest, githubUser);
+        const db = getDbClient();
+
+        await db.profile.upsert({ github_id }, rest, githubUser);
       } catch (err) {
         throw new Error("Database error on sign-in");
       }
