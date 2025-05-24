@@ -89,3 +89,27 @@ export type AuditLog<T = unknown> = {
   metadata: Record<string, T>; // JSONB metadata
   created_at: string;
 };
+
+//Github organization
+export type GithubOrg = {
+  login: string;
+};
+
+//Github repo
+export type GithubRepo = {
+  name: string;
+  full_name: string;
+  owner: GithubOwner;
+  fork: boolean;
+  disabled: boolean;
+  archived: boolean;
+  private: false;
+  html_url: string;
+  created_at: string;
+};
+
+//Github owner
+export type GithubOwner = {
+  login?: string;
+  type: string;
+};

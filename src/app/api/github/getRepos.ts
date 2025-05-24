@@ -1,28 +1,8 @@
 import axios from "axios";
+import { fetchAllPages } from "../api";
+import { GithubOrg, GithubRepo } from "@/lib/types";
 
-export const fetchAllPages = async (url: string, headers: any) => {
-  let results: any[] = [];
-  let page = 1;
-  const perPage = 100;
-
-  while (true) {
-    const response = await axios.get(`${url}?per_page=${perPage}&page=${page}`, {
-      headers,
-    });
-
-    results = results.concat(response.data);
-
-    if (response.data.length < perPage) {
-      break;
-    }
-
-    page++;
-  }
-
-  return results;
-};
-
-export const getRepos = async (accessToken: string) => {
+export const getRepos = async (accessToken: string): Promise<GithubRepo[]> => {
   try {
     const headers = {
       Authorization: `Bearer ${accessToken}`,
@@ -35,14 +15,40 @@ export const getRepos = async (accessToken: string) => {
     const orgs = orgResponse.data;
 
     const orgReposResults = await Promise.all(
-      orgs.map((org: any) =>
+      orgs.map((org: GithubOrg) =>
         fetchAllPages(`https://api.github.com/orgs/${org.login}/repos`, headers)
       )
     );
 
     const orgRepos = orgReposResults.flat();
 
-    return [...userRepos, ...orgRepos];
+    const allRepos: GithubRepo[] = [...userRepos, ...orgRepos];
+
+    const sessionUser = await axios.get("https://api.github.com/user", { headers });
+    const yourLogin = sessionUser.data.login;
+    const orgLogins = orgs.map((org: GithubOrg) => org.login);
+
+    const filteredRepos: GithubRepo[] = allRepos.filter(
+      (repo: GithubRepo) =>
+        (repo.owner?.login === yourLogin || orgLogins.includes(repo.owner?.login)) &&
+        !repo.archived &&
+        !repo.disabled &&
+        !repo.fork
+    );
+
+    const cleandRepos: GithubRepo[] = filteredRepos.map((repo) => ({
+      name: repo.name,
+      full_name: repo.full_name,
+      owner: { login: repo.owner.login, type: repo.owner.type },
+      fork: repo.fork,
+      disabled: repo.disabled,
+      archived: repo.archived,
+      private: repo.private,
+      html_url: repo.html_url,
+      created_at: repo.created_at,
+    }));
+
+    return cleandRepos;
   } catch (err) {
     console.log(err);
     throw err;
