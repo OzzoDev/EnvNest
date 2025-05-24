@@ -2,6 +2,9 @@ import { GithubUser, GithubUserNoId, Profile } from "../../../../types/types";
 import { executeQuery } from "../db";
 
 const profile = {
+  getAll: async (): Promise<Profile[]> => {
+    return await executeQuery<Profile>(`SELECT * FROM profile`);
+  },
   getByField: async <K extends keyof Profile>(
     where: Record<K, Profile[K]>
   ): Promise<Profile | undefined> => {

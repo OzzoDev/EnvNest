@@ -30,6 +30,14 @@
 
 ---
 
+## DB-integration and repo access
+
+- [x] Get user's repos also those in organizations
+- [x] Created the db client and add types (as of now there is only profile model)
+- [] Install and set up trpc client for frontend/backend communication
+
+---
+
 ## 🖥️ UI Pages (ShadCN + App Router)
 
 - [ ] Dashboard after login
