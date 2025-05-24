@@ -33,11 +33,13 @@ export const authOptions: NextAuthOptions = {
         const githubUser: GithubUser = {
           github_id: user.id,
           name: user.name!,
-          email: !user.email ? undefined : user.email,
-          image: !user.image ? undefined : user.image,
+          email: user.email || undefined,
+          image: user.image || undefined,
         };
 
-        await dbClient.profile.create(githubUser);
+        const { github_id, ...rest } = githubUser;
+
+        await dbClient.profile.upsert({ github_id }, rest, githubUser);
       } catch (err) {
         throw new Error("Database error on sign-in");
       }

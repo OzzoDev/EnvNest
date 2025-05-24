@@ -6,6 +6,8 @@ export type GithubUser = {
   image?: string;
 };
 
+export type GithubUserNoId = Omit<GithubUser, "github_id">;
+
 // Base user table
 export type Profile = GithubUser & {
   id: number;
