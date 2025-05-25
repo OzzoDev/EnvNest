@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
+import { randomBytes } from "crypto";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -12,4 +13,12 @@ export const sanitizeValues = (values: unknown[]): unknown[] => {
     }
     return value;
   });
+};
+
+export const generateAESKey = (): { key: Buffer; hex: string } => {
+  const key = randomBytes(32);
+  return {
+    key,
+    hex: key.toString("hex"),
+  };
 };
