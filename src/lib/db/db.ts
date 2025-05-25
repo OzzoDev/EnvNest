@@ -28,7 +28,7 @@ export const executeQuery = async <T>(queryText: string, values: unknown[] = [])
   }
 };
 
-async function initDB() {
+export const initDB = async () => {
   await executeQuery(`
     CREATE TABLE IF NOT EXISTS profile (
       id SERIAL PRIMARY KEY,
@@ -135,6 +135,4 @@ async function initDB() {
   `);
 
   console.log("✅ Database initialized");
-}
-
-initDB().catch(console.error);
+};

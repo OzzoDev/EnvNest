@@ -1,6 +1,7 @@
 "use client";
 
 import { trpc } from "@/trpc/client";
+import { Profile } from "@/types/types";
 
 const Home = () => {
   const { data: profiles } = trpc.profile.getAll.useQuery();
@@ -9,7 +10,7 @@ const Home = () => {
     <div>
       <h1>Profiles: </h1>
       <ul>
-        {profiles?.map((profile) => (
+        {profiles?.map((profile: Profile) => (
           <li key={profile.id}>{profile.name}</li>
         ))}
       </ul>

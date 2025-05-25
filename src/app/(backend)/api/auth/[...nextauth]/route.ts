@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import Github from "next-auth/providers/github";
 import type { NextAuthOptions } from "next-auth";
-import { GithubUser } from "../../../../../../types/types";
+import { GithubUser } from "../../../../../types/types";
 import { getDbClient } from "@/lib/db/models";
 
 export const authOptions: NextAuthOptions = {
@@ -39,7 +39,7 @@ export const authOptions: NextAuthOptions = {
 
         const { github_id, ...rest } = githubUser;
 
-        const db = getDbClient();
+        const db = await getDbClient();
 
         await db.profile.upsert({ github_id }, rest, githubUser);
       } catch (err) {
