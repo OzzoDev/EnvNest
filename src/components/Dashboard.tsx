@@ -1,9 +1,14 @@
 "use client";
 
-import { signOut } from "next-auth/react";
+import { GithubRepo } from "@/types/types";
+import NewProjectForm from "./NewProjectForm";
 
-const Dashboard = () => {
-  return <button onClick={() => signOut({ callbackUrl: "/auth" })}>Log out</button>;
+type DashboardProps = {
+  repos: GithubRepo[];
+};
+
+const Dashboard = ({ repos }: DashboardProps) => {
+  return <NewProjectForm repos={repos} />;
 };
 
 export default Dashboard;

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { fetchAllPages } from "../api";
-import { GithubOrg, GithubRepo } from "../../../../types/types";
+import { GithubRepo, GithubOrg } from "@/types/types";
 
 export const getRepos = async (accessToken: string): Promise<GithubRepo[]> => {
   try {
@@ -37,6 +37,7 @@ export const getRepos = async (accessToken: string): Promise<GithubRepo[]> => {
     );
 
     const cleandRepos: GithubRepo[] = filteredRepos.map((repo) => ({
+      id: repo.id,
       name: repo.name,
       full_name: repo.full_name,
       owner: { login: repo.owner.login, type: repo.owner.type },

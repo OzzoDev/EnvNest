@@ -1,5 +1,4 @@
 import { authOptions } from "@/app/(backend)/api/auth/[...nextauth]/route";
-import MaxWidthWrapper from "@/components/utils/MaxWidthWrapper";
 import { getServerSession } from "next-auth";
 import NavControls from "./NavControls";
 import Link from "next/link";

@@ -17,8 +17,7 @@ const DashboardPage = async () => {
 
   return (
     <div>
-      hello {session.user?.username}
-      <Dashboard />
+      <Dashboard repos={repos} />
     </div>
   );
 };
