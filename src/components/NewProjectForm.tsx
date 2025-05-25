@@ -4,6 +4,7 @@ import { GithubRepo } from "@/types/types";
 import Combobox from "./utils/Combobox";
 import { FormEvent, useState } from "react";
 import { Button } from "./ui/button";
+import { trpc } from "@/trpc/client";
 
 type NewProjectFormProps = {
   repos: GithubRepo[];
@@ -12,8 +13,12 @@ type NewProjectFormProps = {
 const NewProjectForm = ({ repos }: NewProjectFormProps) => {
   const [projectName, setProject] = useState<string>("");
 
+  const { data: key } = trpc.aes.getEncryptedProjectKey.useQuery();
+
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    console.log(key);
 
     //generate encryption key
 

@@ -4,7 +4,7 @@ import { privateProcedure, router } from "../trpc";
 export const profileRouter = router({
   getAll: privateProcedure.query(async () => {
     try {
-      const db = getDbClient();
+      const db = await getDbClient();
 
       return await db.profile.getAll();
     } catch (err) {
