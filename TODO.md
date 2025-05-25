@@ -38,6 +38,12 @@
 
 ---
 
+## Dashboard
+
+- [] Create new project form
+
+---
+
 ## 🖥️ UI Pages (ShadCN + App Router)
 
 - [ ] Dashboard after login

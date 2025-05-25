@@ -13,7 +13,7 @@ const NavControls = ({ user }: NavbarControlsProps) => {
   return (
     <>
       {user ? (
-        <Button onClick={() => signOut({ callbackUrl: "/auth" })} variant="ghost">
+        <Button onClick={() => signOut({ callbackUrl: "/auth" })} variant="default">
           Sign out
         </Button>
       ) : (

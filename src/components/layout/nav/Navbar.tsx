@@ -22,7 +22,7 @@ const NavBar = async () => {
 
             {user && (
               <div>
-                <Link href="/dashboard" className={buttonVariants({ variant: "secondary" })}>
+                <Link href="/dashboard" className={buttonVariants({ variant: "link" })}>
                   Dashboard
                 </Link>
               </div>

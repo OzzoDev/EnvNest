@@ -23,10 +23,16 @@ const buttonVariants = cva(
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",
       },
+      textSize: {
+        default: "text-base",
+        lg: "text-lg",
+        sm: "text-sm",
+      },
     },
     defaultVariants: {
       variant: "default",
       size: "default",
+      textSize: "default",
     },
   }
 );
