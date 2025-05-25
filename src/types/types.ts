@@ -8,7 +8,8 @@ export type NextAuthUser = {
 // Github-authenticated user shape
 export type GithubUser = {
   github_id: string;
-  name: string;
+  username: string;
+  name?: string;
   email?: string;
   image?: string;
 };

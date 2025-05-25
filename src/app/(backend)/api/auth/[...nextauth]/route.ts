@@ -18,21 +18,28 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, account }) {
-      if (account) {
+    async jwt({ token, account, profile }) {
+      if (account && profile) {
         token.accessToken = account.access_token;
+        token.username = (profile as { login: string }).login;
       }
       return token;
     },
     async session({ session, token }) {
+      if (session.user) {
+        session.user.username = token.username as string;
+      }
       session.accessToken = token.accessToken as string;
       return session;
     },
-    async signIn({ user }) {
+    async signIn({ user, profile }) {
+      const githubProfile = profile as { login: string };
+
       try {
         const githubUser: GithubUser = {
           github_id: user.id,
-          name: user.name!,
+          username: githubProfile.login,
+          name: user.name || undefined,
           email: user.email || undefined,
           image: user.image || undefined,
         };
