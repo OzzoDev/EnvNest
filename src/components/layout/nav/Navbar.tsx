@@ -10,11 +10,10 @@ const NavBar = async () => {
   const user = session?.user;
 
   return (
-    <div className="bg-background sticky z-50 top-0 inset-x-0 h-16">
+    <div className="bg-background sticky z-50 top-0 inset-x-0">
       <header className="relative bg-background">
-        {/* <MaxWidthWrapper> */}
         <div className="border-b border-muted px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between py-4">
             <Link href="/">
               <h1 className="text-2xl font-semibold text-text-color tracking-wide">
                 Env<span className="text-primary tracking-wide">Vault</span>
@@ -34,7 +33,6 @@ const NavBar = async () => {
             </div>
           </div>
         </div>
-        {/* </MaxWidthWrapper> */}
       </header>
     </div>
   );
