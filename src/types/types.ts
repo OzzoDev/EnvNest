@@ -1,3 +1,10 @@
+//User type form next/auth
+export type NextAuthUser = {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+};
+
 // Github-authenticated user shape
 export type GithubUser = {
   github_id: string;
