@@ -1,10 +1,8 @@
-"use client";
-
-import { trpc } from "@/trpc/client";
+import { getProfiles } from "@/api/db/profile";
 import { Profile } from "@/types/types";
 
-const Home = () => {
-  const { data: profiles } = trpc.profile.getAll.useQuery();
+const Home = async () => {
+  const profiles = await getProfiles();
 
   return (
     <div>
