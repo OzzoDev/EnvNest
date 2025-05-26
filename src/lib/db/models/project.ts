@@ -1,32 +1,34 @@
-import { Project, ProjectKey } from "@/types/types";
+import { CreateProject, Project, ProjectKey } from "@/types/types";
 import { executeQuery } from "../db";
 import { aesEncrypt, generateAESKey } from "@/lib/aes-helpers";
 
 const project = {
-  create: async (profileId: number, name: string, encryptionKey: string): Promise<Project> => {
+  create: async (projectData: CreateProject, encryptionKey: string): Promise<Project> => {
     try {
       await executeQuery("BEGIN");
 
-      const projectData = await project.addName(profileId, name);
+      const createdProjected = await project.addProject(projectData);
 
-      await project.addKey(projectData.id, aesEncrypt(generateAESKey().hex, encryptionKey));
+      await project.addKey(createdProjected.id, aesEncrypt(generateAESKey().hex, encryptionKey));
 
       await executeQuery("COMMIT");
 
-      return projectData;
+      return createdProjected;
     } catch (err) {
       await executeQuery("ROLLBACK");
       throw err;
     }
   },
-  addName: async (profileId: number, name: string): Promise<Project> => {
+  addProject: async (projectData: CreateProject): Promise<Project> => {
+    const { profile_id, repo_id, name, full_name, owner, url } = projectData;
+
     const result = await executeQuery<Project>(
       `
-        INSERT INTO project (profile_id, name)
-        VALUES ($1, $2)
+        INSERT INTO project (profile_id, repo_id, name, full_name, owner, url)
+        VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *;    
       `,
-      [profileId, name]
+      [profile_id, repo_id, name, full_name, owner, url]
     );
 
     return result[0];

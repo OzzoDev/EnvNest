@@ -16,14 +16,14 @@ import { useState } from "react";
 
 type ComboboxProps<T, L extends keyof T, V extends keyof T, M extends keyof T> = {
   data: T[];
-  value: string;
+  value: T | null;
   labelKey: L;
   valueKey: V;
   mapKey: M;
   searchMessage: string;
   selectMessage: string;
   emptyMessage: string;
-  setValue: (value: string) => void;
+  setValue: (value: T | null) => void;
 };
 
 const Combobox = <T, L extends keyof T, V extends keyof T, M extends keyof T>({
@@ -49,7 +49,7 @@ const Combobox = <T, L extends keyof T, V extends keyof T, M extends keyof T>({
           className="w-[260px] justify-between">
           {value
             ? (() => {
-                const foundItem = data.find((item) => item[valueKey] === value);
+                const foundItem = data.find((item) => item[valueKey] === value[valueKey]);
                 return foundItem ? (foundItem[labelKey] as string) : selectMessage;
               })()
             : selectMessage}
@@ -67,7 +67,7 @@ const Combobox = <T, L extends keyof T, V extends keyof T, M extends keyof T>({
                   key={(item[mapKey] as string) + index}
                   value={item[valueKey] as string}
                   onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue);
+                    setValue(currentValue === value ? null : item);
                     setOpen(false);
                   }}>
                   {item[labelKey] as string}

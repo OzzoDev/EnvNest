@@ -64,7 +64,11 @@ export const initDB = async () => {
     CREATE TABLE IF NOT EXISTS project (
       id SERIAL PRIMARY KEY,
       profile_id INTEGER REFERENCES profile(id) ON DELETE CASCADE,
+      repo_id INTEGER UNIQUE NOT NULL,
       name TEXT NOT NULL,
+      full_name TEXT NOT NULL,
+      owner TEXT NOT NULL,
+      url TEXT NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       UNIQUE(profile_id, name)
     );

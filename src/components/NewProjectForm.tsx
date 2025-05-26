@@ -1,6 +1,6 @@
 "use client";
 
-import { GithubRepo } from "@/types/types";
+import { GithubRepo, Project } from "@/types/types";
 import Combobox from "./utils/Combobox";
 import { FormEvent, useState } from "react";
 import { Button } from "./ui/button";
@@ -11,9 +11,7 @@ type NewProjectFormProps = {
 };
 
 const NewProjectForm = ({ repos }: NewProjectFormProps) => {
-  const [projectName, setProject] = useState<string>("");
-
-  // const { data: key } = trpc.aes.getEncryptedProjectKey.useQuery();
+  const [repo, setRepo] = useState<GithubRepo | null>(null);
 
   const { mutate } = trpc.project.createProject.useMutation({
     onError: (err) => {
@@ -27,7 +25,17 @@ const NewProjectForm = ({ repos }: NewProjectFormProps) => {
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    mutate({ name: projectName });
+    if (!repo) {
+      return;
+    }
+
+    mutate({
+      id: repo.id,
+      name: repo.name,
+      full_name: repo.full_name,
+      owner: repo.owner.login!,
+      url: repo.html_url,
+    });
 
     // console.log(key);
 
@@ -40,14 +48,14 @@ const NewProjectForm = ({ repos }: NewProjectFormProps) => {
     <form onSubmit={onSubmit} className="flex gap-x-6 p-6">
       <Combobox<GithubRepo, "full_name", "full_name", "id">
         data={repos}
-        value={projectName}
+        value={repo}
         labelKey="full_name"
         valueKey="full_name"
         mapKey="id"
         searchMessage="Search repositories..."
         selectMessage="Select a repository"
         emptyMessage="No repository found"
-        setValue={setProject}
+        setValue={setRepo}
       />
       <Button type="submit" variant="secondary">
         Create

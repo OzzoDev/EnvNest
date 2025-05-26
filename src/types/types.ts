@@ -42,9 +42,15 @@ export type OrgProfile = {
 export type Project = {
   id: number;
   profile_id: number;
+  repo_id: number;
   name: string;
+  full_name: string;
+  owner: string;
+  url: string;
   created_at: string;
 };
+
+export type CreateProject = Omit<Project, "id" | "created_at">;
 
 // Project encryption key (AES-256-GCM encrypted & base64 encoded)
 export type ProjectKey = {

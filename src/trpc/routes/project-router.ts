@@ -5,9 +5,17 @@ import { TRPCError } from "@trpc/server";
 
 export const projectRouter = router({
   createProject: privateProcedure
-    .input(z.object({ name: z.string() }))
+    .input(
+      z.object({
+        id: z.number(),
+        name: z.string(),
+        full_name: z.string(),
+        owner: z.string(),
+        url: z.string(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
-      const { name } = input;
+      const { name, id, full_name, owner, url } = input;
 
       const { user } = ctx;
       const { id: github_id } = user;
@@ -20,7 +28,10 @@ export const projectRouter = router({
         throw new TRPCError({ code: "NOT_FOUND" });
       }
 
-      const project = await db.project.create(profile.id, name, process.env.ENCRYPTION_ROOT_KEY!);
+      const project = await db.project.create(
+        { profile_id: profile.id, repo_id: id, name, full_name, owner, url },
+        process.env.ENCRYPTION_ROOT_KEY!
+      );
 
       return project;
     }),
