@@ -41,7 +41,7 @@ export type OrgProfile = {
 // Projects under an organization
 export type Project = {
   id: number;
-  org_id: number;
+  profile_id: number;
   name: string;
   created_at: string;
 };

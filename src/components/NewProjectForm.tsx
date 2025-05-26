@@ -13,12 +13,23 @@ type NewProjectFormProps = {
 const NewProjectForm = ({ repos }: NewProjectFormProps) => {
   const [projectName, setProject] = useState<string>("");
 
-  const { data: key } = trpc.aes.getEncryptedProjectKey.useQuery();
+  // const { data: key } = trpc.aes.getEncryptedProjectKey.useQuery();
+
+  const { mutate } = trpc.project.createProject.useMutation({
+    onError: (err) => {
+      console.log("err:", err);
+    },
+    onSuccess: (data) => {
+      console.log("Data:", data);
+    },
+  });
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log(key);
+    mutate({ name: projectName });
+
+    // console.log(key);
 
     //generate encryption key
 

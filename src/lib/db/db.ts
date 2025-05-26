@@ -63,10 +63,10 @@ export const initDB = async () => {
   await executeQuery(`
     CREATE TABLE IF NOT EXISTS project (
       id SERIAL PRIMARY KEY,
-      org_id INTEGER REFERENCES org(id) ON DELETE CASCADE,
+      profile_id INTEGER REFERENCES profile(id) ON DELETE CASCADE,
       name TEXT NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      UNIQUE(org_id, name)
+      UNIQUE(profile_id, name)
     );
   `);
 

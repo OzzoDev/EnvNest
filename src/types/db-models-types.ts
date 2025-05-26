@@ -1,4 +1,4 @@
-import { GithubUser, GithubUserNoId, Profile } from "./types";
+import { GithubUser, GithubUserNoId, Profile, Project, ProjectKey } from "./types";
 
 export type TProfileModel = {
   getAll: () => Promise<Profile[]>;
@@ -16,6 +16,13 @@ export type TProfileModel = {
   ): Promise<Profile>;
 };
 
+export type TProjectModel = {
+  create: (profileId: number, name: string, encryptionKey: string) => Promise<Project>;
+  addName: (profileId: number, name: string) => Promise<Project>;
+  addKey: (projectId: number, encryptedKey: string) => Promise<ProjectKey>;
+};
+
 export type TDbClient = {
   profile: TProfileModel;
+  project: TProjectModel;
 };

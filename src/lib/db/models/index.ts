@@ -1,6 +1,7 @@
 import { TDbClient } from "../../../types/db-models-types";
 import { initDB } from "../db";
 import profileModel from "./profile";
+import projectModel from "./project";
 
 let isDbInitialized = false;
 
@@ -17,5 +18,6 @@ export const getDbClient = async (): Promise<TDbClient> => {
 
   return {
     profile: profileModel,
+    project: projectModel,
   };
 };
