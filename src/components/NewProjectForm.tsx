@@ -16,9 +16,9 @@ const NewProjectForm = ({ repos }: NewProjectFormProps) => {
   const [filteredRepos, setFilteredRepos] = useState<GithubRepo[]>([]);
 
   const {
+    refetch,
     data: existingRepos,
     isLoading: isLoadingExistingRepos,
-    refetch,
   } = trpc.project.getAllProjects.useQuery();
 
   useEffect(() => {
@@ -53,14 +53,6 @@ const NewProjectForm = ({ repos }: NewProjectFormProps) => {
       url: repo.html_url,
     });
   };
-
-  if (isLoadingExistingRepos) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <span className="text-gray-500">Loading projects...</span>
-      </div>
-    );
-  }
 
   return (
     <form onSubmit={onSubmit} className="flex gap-x-6 p-6">
