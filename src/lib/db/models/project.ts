@@ -1,4 +1,4 @@
-import { CreateProject, Project, ProjectKey } from "@/types/types";
+import { CreateProject, Project, ProjectKey, UpdateProjectName } from "@/types/types";
 import { executeQuery } from "../db";
 import { aesEncrypt, generateAESKey } from "@/lib/aes-helpers";
 
@@ -53,6 +53,27 @@ const project = {
         RETURNING *;    
       `,
       [projectId, encryptedKey]
+    );
+
+    return result[0];
+  },
+  updateName: async (project: UpdateProjectName): Promise<Project | null> => {
+    if (!project) {
+      return null;
+    }
+
+    const { name, full_name, repo_id } = project;
+
+    const result = await executeQuery<Project>(
+      `
+      UPDATE project
+      SET 
+        name = $1, 
+        full_name = $2
+      WHERE repo_id = $3
+      RETURNING *; 
+    `,
+      [name, full_name, repo_id]
     );
 
     return result[0];

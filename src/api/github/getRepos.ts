@@ -1,8 +1,9 @@
 import axios from "axios";
 import { fetchAllPages } from "../api";
-import { GithubRepo, GithubOrg } from "@/types/types";
+import { GithubRepo, GithubOrg, UpdateProjectName } from "@/types/types";
+import { getDbClient } from "@/lib/db/models";
 
-export const getRepos = async (accessToken: string): Promise<GithubRepo[]> => {
+export const getRepos = async (accessToken: string, githubId: number): Promise<GithubRepo[]> => {
   try {
     const headers = {
       Authorization: `Bearer ${accessToken}`,
@@ -59,9 +60,45 @@ export const getRepos = async (accessToken: string): Promise<GithubRepo[]> => {
       return true;
     });
 
+    await updateProjectNames(uniqueRepos, githubId);
+
     return uniqueRepos;
   } catch (err) {
     console.log(err);
     throw err;
   }
+};
+
+export const updateProjectNames = async (repos: GithubRepo[], githubId: number) => {
+  const updates = await getUpdatedRepos(repos, githubId);
+
+  const db = await getDbClient();
+
+  const updatePromises = updates.map((update) => {
+    const updateData: UpdateProjectName = {
+      repo_id: update.repo_id,
+      name: update.newName!,
+      full_name: update.newFullName!,
+    };
+
+    return db.project.updateName(updateData);
+  });
+
+  return await Promise.all(updatePromises);
+};
+
+export const getUpdatedRepos = async (repos: GithubRepo[], githubId: number) => {
+  const db = await getDbClient();
+
+  const existingRepos = await db.project.getByProfile(githubId);
+
+  return existingRepos
+    .filter((exRepo) =>
+      repos.some((repo) => repo.id === exRepo.repo_id && exRepo.full_name !== repo.full_name)
+    )
+    .map((repo) => ({
+      repo_id: repo.repo_id,
+      newName: repos.find((r) => r.id === repo.repo_id)?.name,
+      newFullName: repos.find((r) => r.id === repo.repo_id)?.full_name,
+    }));
 };

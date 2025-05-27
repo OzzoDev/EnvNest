@@ -52,6 +52,8 @@ export type Project = {
 
 export type CreateProject = Omit<Project, "id" | "created_at">;
 
+export type UpdateProjectName = Omit<Project, "id" | "profile_id" | "owner" | "url" | "created_at">;
+
 // Project encryption key (AES-256-GCM encrypted & base64 encoded)
 export type ProjectKey = {
   id: number;

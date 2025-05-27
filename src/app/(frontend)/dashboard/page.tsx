@@ -11,7 +11,7 @@ const DashboardPage = async () => {
     redirect("/auth");
   }
 
-  const repos = await getRepos(session.accessToken);
+  const repos = await getRepos(session.accessToken, session.user?.id!);
 
   return (
     <div>
