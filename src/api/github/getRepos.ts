@@ -49,7 +49,17 @@ export const getRepos = async (accessToken: string): Promise<GithubRepo[]> => {
       created_at: repo.created_at,
     }));
 
-    return cleandRepos;
+    const seenIds = new Set();
+
+    const uniqueRepos: GithubRepo[] = cleandRepos.filter((repo) => {
+      if (seenIds.has(repo.id)) {
+        return false;
+      }
+      seenIds.add(repo.id);
+      return true;
+    });
+
+    return uniqueRepos;
   } catch (err) {
     console.log(err);
     throw err;

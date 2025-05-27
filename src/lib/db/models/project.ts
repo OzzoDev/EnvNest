@@ -3,6 +3,18 @@ import { executeQuery } from "../db";
 import { aesEncrypt, generateAESKey } from "@/lib/aes-helpers";
 
 const project = {
+  getByProfile: async (githubId: number): Promise<Project[]> => {
+    return await executeQuery<Project>(
+      `
+      SELECT * 
+      FROM project
+      INNER JOIN profile
+        ON profile.id = project.profile_id 
+      WHERE profile.github_id = $1
+    `,
+      [githubId]
+    );
+  },
   create: async (projectData: CreateProject, encryptionKey: string): Promise<Project> => {
     try {
       await executeQuery("BEGIN");

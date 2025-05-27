@@ -17,6 +17,7 @@ export type TProfileModel = {
 };
 
 export type TProjectModel = {
+  getByProfile: (githubId: number) => Promise<Project[]>;
   create: (projectData: CreateProject, encryptionKey: string) => Promise<Project>;
   addName: (projectData: CreateProject) => Promise<Project>;
   addKey: (projectId: number, encryptedKey: string) => Promise<ProjectKey>;

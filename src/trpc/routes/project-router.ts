@@ -4,6 +4,19 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
 export const projectRouter = router({
+  getAllProjects: privateProcedure.query(async ({ ctx }) => {
+    const { user } = ctx;
+    const { id: github_id } = user;
+
+    try {
+      const db = await getDbClient();
+
+      return await db.project.getByProfile(github_id);
+    } catch (err) {
+      console.log(err);
+    }
+  }),
+
   createProject: privateProcedure
     .input(
       z.object({
