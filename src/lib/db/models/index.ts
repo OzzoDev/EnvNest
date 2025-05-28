@@ -3,6 +3,7 @@ import { initDB } from "../db";
 import profileModel from "./profile";
 import projectModel from "./project";
 import environmentModel from "./environment";
+import secretModel from "./secret";
 
 let isDbInitialized = false;
 
@@ -21,5 +22,6 @@ export const getDbClient = async (): Promise<TDbClient> => {
     profile: profileModel,
     project: projectModel,
     environment: environmentModel,
+    secret: secretModel,
   };
 };
