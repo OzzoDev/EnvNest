@@ -6,6 +6,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { trpc } from "@/trpc/client";
 import React from "react";
+import { toast } from "sonner";
 
 type NewProjectFormProps = {
   repos: GithubRepo[];
@@ -15,11 +16,7 @@ const NewProjectForm = ({ repos }: NewProjectFormProps) => {
   const [repo, setRepo] = useState<GithubRepo | null>(null);
   const [filteredRepos, setFilteredRepos] = useState<GithubRepo[]>([]);
 
-  const {
-    refetch,
-    data: existingRepos,
-    isLoading: isLoadingExistingRepos,
-  } = trpc.project.getAllProjects.useQuery();
+  const { refetch, data: existingRepos } = trpc.project.getAllProjects.useQuery();
 
   useEffect(() => {
     setFilteredRepos(
@@ -30,11 +27,12 @@ const NewProjectForm = ({ repos }: NewProjectFormProps) => {
   const { mutate } = trpc.project.createProject.useMutation({
     onError: (err) => {
       console.log("err:", err);
+      toast.error("Error creating new project");
     },
     onSuccess: (data) => {
       setRepo(null);
       refetch();
-      console.log("Data:", data);
+      toast.success(`Project ${data.full_name} creatd successfully`);
     },
   });
 

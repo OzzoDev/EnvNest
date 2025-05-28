@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/trpc/Providers";
 import NavBar from "@/components/layout/nav/Navbar";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,6 +31,17 @@ export default function RootLayout({
         <Providers>
           <NavBar />
           {children}
+          <Toaster
+            position="bottom-center"
+            toastOptions={{
+              style: {
+                background: "#333",
+                color: "#fff",
+              },
+              duration: 5000,
+            }}
+            richColors
+          />
         </Providers>
       </body>
     </html>
