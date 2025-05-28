@@ -1,5 +1,7 @@
 import {
   CreateProject,
+  Environment,
+  EnvironmentName,
   GithubUser,
   GithubUserNoId,
   Profile,
@@ -27,12 +29,17 @@ export type TProfileModel = {
 export type TProjectModel = {
   getByProfile: (githubId: number) => Promise<Project[]>;
   create: (projectData: CreateProject, encryptionKey: string) => Promise<Project>;
-  addName: (projectData: CreateProject) => Promise<Project>;
+  addProject: (projectData: CreateProject) => Promise<Project>;
   addKey: (projectId: number, encryptedKey: string) => Promise<ProjectKey>;
   updateName: (project: UpdateProjectName) => Promise<Project | null>;
+};
+
+export type TEnvironmentModel = {
+  create: (projectId: number, environment: EnvironmentName) => Promise<Environment>;
 };
 
 export type TDbClient = {
   profile: TProfileModel;
   project: TProjectModel;
+  environment: TEnvironmentModel;
 };

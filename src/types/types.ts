@@ -70,6 +70,8 @@ export type Environment = {
   created_at: string;
 };
 
+export type EnvironmentName = "development" | "production";
+
 // Environment secrets (one row = one `.env` file)
 export type Secret = {
   id: number;
