@@ -53,7 +53,8 @@ const NewProjectForm = ({ repos }: NewProjectFormProps) => {
   };
 
   return (
-    <form onSubmit={onSubmit} className="flex gap-x-6 p-6">
+    <form onSubmit={onSubmit} className="flex flex-col gap-y-4">
+      <p className="text-lg text-text-color">Create a new project</p>
       <Combobox<GithubRepo, "full_name", "full_name", "id">
         data={filteredRepos}
         value={repo}
@@ -65,9 +66,11 @@ const NewProjectForm = ({ repos }: NewProjectFormProps) => {
         emptyMessage="No repository found"
         setValue={setRepo}
       />
-      <Button type="submit" variant="secondary">
-        Create
-      </Button>
+      {repo && (
+        <Button type="submit" variant="secondary">
+          Create
+        </Button>
+      )}
     </form>
   );
 };

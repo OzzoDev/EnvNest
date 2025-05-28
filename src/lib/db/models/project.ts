@@ -6,7 +6,14 @@ const project = {
   getByProfile: async (githubId: number): Promise<Project[]> => {
     return await executeQuery<Project>(
       `
-      SELECT * 
+      SELECT
+        project.id AS id,
+        profile.id AS profile_id,
+        project.repo_id AS repo_id,
+        project.name AS name,
+        project.full_name AS full_name,
+        project.url AS url,
+        project.created_at AS created_at
       FROM project
       INNER JOIN profile
         ON profile.id = project.profile_id 

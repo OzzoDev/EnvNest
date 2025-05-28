@@ -40,7 +40,8 @@
 
 ## Dashboard
 
-- [] Create new project form
+- [x] Create new project form
+- [] Project list
 
 ---
 
