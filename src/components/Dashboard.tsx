@@ -4,6 +4,7 @@ import { GithubRepo } from "@/types/types";
 import NewProjectForm from "./NewProjectForm";
 import ClientOnly from "./utils/ClientOnly";
 import ProjectList from "./ProjectList";
+import ProjectWatcher from "./ProjectWatcher";
 
 type DashboardProps = {
   repos: GithubRepo[];
@@ -18,6 +19,7 @@ const Dashboard = ({ repos }: DashboardProps) => {
         </div>
         <ProjectList />
       </div>
+      <ProjectWatcher />
     </ClientOnly>
   );
 };

@@ -7,6 +7,7 @@ import { Button } from "./ui/button";
 import { trpc } from "@/trpc/client";
 import React from "react";
 import { toast } from "sonner";
+import { useProjectStore } from "@/store/projectStore";
 
 type NewProjectFormProps = {
   repos: GithubRepo[];
@@ -15,6 +16,7 @@ type NewProjectFormProps = {
 const NewProjectForm = ({ repos }: NewProjectFormProps) => {
   const [repo, setRepo] = useState<GithubRepo | null>(null);
   const [filteredRepos, setFilteredRepos] = useState<GithubRepo[]>([]);
+  const setProjectId = useProjectStore((state) => state.setProjectId);
 
   const { refetch, data: existingRepos } = trpc.project.getAllProjects.useQuery();
 
@@ -31,6 +33,7 @@ const NewProjectForm = ({ repos }: NewProjectFormProps) => {
     },
     onSuccess: (data) => {
       setRepo(null);
+      setProjectId(data.id.toString());
       refetch();
       toast.success(`Project ${data.full_name} creatd successfully`);
     },
