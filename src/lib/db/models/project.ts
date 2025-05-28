@@ -1,6 +1,9 @@
 import { CreateProject, Project, ProjectKey, UpdateProjectName } from "@/types/types";
 import { executeQuery } from "../db";
 import { aesEncrypt, generateAESKey } from "@/lib/aes-helpers";
+import environmentModel from "./environment";
+import secretModel from "./secret";
+import secretVersionModel from "./secret-version";
 
 const project = {
   getByProfile: async (githubId: number): Promise<Project[]> => {
@@ -28,7 +31,15 @@ const project = {
 
       const createdProjected = await project.addProject(projectData);
 
-      await project.addKey(createdProjected.id, aesEncrypt(generateAESKey().hex, encryptionKey));
+      const projectId = createdProjected.id;
+
+      await project.addKey(projectId, aesEncrypt(generateAESKey().hex, encryptionKey));
+
+      const environment = await environmentModel.create(projectId, "development");
+
+      const secret = await secretModel.create(environment.id, "./", "");
+
+      await secretVersionModel.create(secret.id, "", 1);
 
       await executeQuery("COMMIT");
 

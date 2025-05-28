@@ -7,7 +7,7 @@ const secret = {
       `
         INSERT INTO secret (environment_id, path, content)
         VALUES ($1, $2, $3)
-        RETURNING;    
+        RETURNING *;    
       `,
       [environmentId, path, content]
     );

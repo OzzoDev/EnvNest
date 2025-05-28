@@ -6,7 +6,7 @@ const environment = {
     const result = await executeQuery<Environment>(
       `
         INSERT INTO environment (project_id, name)
-        VALUE ($1, $2)
+        VALUES ($1, $2)
         RETURNING *;    
     `,
       [projectId, environment]
