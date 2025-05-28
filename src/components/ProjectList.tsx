@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const ProjectList = () => {
-  const { data: projects, refetch, isLoading } = trpc.project.getAllProjects.useQuery();
+  const { data: projects, error, isLoading, refetch } = trpc.project.getAllProjects.useQuery();
   const projectId = useProjectStore((state) => state.projectId);
   const setProjectId = useProjectStore((state) => state.setProjectId);
 
@@ -30,7 +30,15 @@ const ProjectList = () => {
   };
 
   if (isLoading) {
-    return <p className="text-gray-500">Loading projects...</p>;
+    return <p className="text-text-color">Loading projects...</p>;
+  }
+
+  if (error) {
+    return <p className="text-destructive">Error loading projects</p>;
+  }
+
+  if (projects?.length === 0) {
+    return <p className="text-lg text-text-color mb-8">No projects created</p>;
   }
 
   return (
