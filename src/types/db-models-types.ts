@@ -8,6 +8,7 @@ import {
   Project,
   ProjectKey,
   Secret,
+  SecretVersion,
   UpdateProjectName,
 } from "./types";
 
@@ -43,9 +44,14 @@ export type TSecretModel = {
   create: (environmentId: number, path: string, content: string) => Promise<Secret>;
 };
 
+export type TSecretVersionModel = {
+  create: (secretId: number, content: string, version: number) => Promise<SecretVersion>;
+};
+
 export type TDbClient = {
   profile: TProfileModel;
   project: TProjectModel;
   environment: TEnvironmentModel;
   secret: TSecretModel;
+  secretVersion: TSecretVersionModel;
 };
