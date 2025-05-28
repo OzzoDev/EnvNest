@@ -41,7 +41,8 @@
 ## Dashboard
 
 - [x] Create new project form
-- [] Project list
+- [x] Project list
+- [] Env file editor (textarea)
 
 ---
 
