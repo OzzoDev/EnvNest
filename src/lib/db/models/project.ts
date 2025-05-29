@@ -25,6 +25,37 @@ const project = {
       [githubId]
     );
   },
+  getById: async (projectId: number): Promise<Project> => {
+    const result = await executeQuery<Project>(
+      `
+        SELECT 
+          p.id AS id,
+          p.profile_id AS profile_id,
+          p.repo_id AS repo_id,
+          p.name AS name,
+          p.full_name AS full_name,
+          p.owner AS owner,
+          p.url AS url,
+          p.created_at AS created_at,
+          pk.encrypted_key AS encrypted_key,
+          e.name AS enviorment,
+          s.path AS path,
+          s.content
+        FROM project p
+        LEFT JOIN project_key pk
+          ON pk.project_id = p.id
+        LEFT JOIN enviornment e
+          on e.project_id = p.id
+        LEFT JOIN secret s
+          on s.enviornment_id = e.id
+        LEFT JOIN secret_version sv
+          on sv.secret_id = s.id
+        WHERE p.id = $1
+    `,
+      [projectId]
+    );
+  },
+
   create: async (projectData: CreateProject, encryptionKey: string): Promise<Project> => {
     try {
       await executeQuery("BEGIN");

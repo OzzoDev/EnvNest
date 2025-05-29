@@ -98,8 +98,6 @@ export const initDB = async () => {
       id SERIAL PRIMARY KEY,
       environment_id INTEGER REFERENCES environment(id) ON DELETE CASCADE,
       path TEXT NOT NULL,
-      content TEXT NOT NULL,
-      version INTEGER DEFAULT 1,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       UNIQUE(environment_id, path)

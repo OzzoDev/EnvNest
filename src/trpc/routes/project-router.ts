@@ -16,7 +16,11 @@ export const projectRouter = router({
       console.log(err);
     }
   }),
-
+  getContent: privateProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input }) => {
+      const { projectId } = input;
+    }),
   createProject: privateProcedure
     .input(
       z.object({
