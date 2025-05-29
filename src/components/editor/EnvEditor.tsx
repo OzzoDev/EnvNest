@@ -25,6 +25,7 @@ const EnvEditor = ({ defaultValue, onSave }: EnvEditorProps) => {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsSaved(true);
     onSave(value);
   };
 

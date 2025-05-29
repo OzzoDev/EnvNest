@@ -8,6 +8,7 @@ import { trpc } from "@/trpc/client";
 import React from "react";
 import { toast } from "sonner";
 import { useProjectStore } from "@/store/projectStore";
+import AlertDialog from "./utils/AleartDialog";
 
 type NewProjectFormProps = {
   repos: GithubRepo[];
@@ -17,6 +18,8 @@ const NewProjectForm = ({ repos }: NewProjectFormProps) => {
   const [repo, setRepo] = useState<GithubRepo | null>(null);
   const [filteredRepos, setFilteredRepos] = useState<GithubRepo[]>([]);
   const setProjectId = useProjectStore((state) => state.setProjectId);
+  const setIsSaved = useProjectStore((state) => state.setIsSaved);
+  const isSaved = useProjectStore((state) => state.isSaved);
 
   const { refetch, data: existingRepos } = trpc.project.getAllProjects.useQuery();
 
@@ -33,18 +36,17 @@ const NewProjectForm = ({ repos }: NewProjectFormProps) => {
     },
     onSuccess: (data) => {
       setRepo(null);
-      setProjectId(data.id.toString());
+      setProjectId(data.id);
+      setIsSaved(true);
       refetch();
       toast.success(`Project ${data.full_name} creatd successfully`);
     },
   });
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit = (e?: FormEvent | React.MouseEvent) => {
+    e?.preventDefault();
 
-    if (!repo) {
-      return;
-    }
+    if (!repo) return;
 
     mutate({
       id: repo.id,
@@ -69,11 +71,20 @@ const NewProjectForm = ({ repos }: NewProjectFormProps) => {
         emptyMessage="No repository found"
         setValue={setRepo}
       />
-      {repo && (
-        <Button type="submit" variant="secondary">
-          Create
-        </Button>
-      )}
+      {repo &&
+        (isSaved ? (
+          <Button type="submit" variant="secondary">
+            Create
+          </Button>
+        ) : (
+          <AlertDialog
+            title="Create new project with unsaved changes?"
+            description="You current project is unsaved. Any unsaved changes will be lost. This action cannot be undone. Are you sure you want to continue?"
+            action="Continue"
+            actionFn={() => onSubmit()}>
+            <Button variant="secondary">Create</Button>
+          </AlertDialog>
+        ))}
     </form>
   );
 };

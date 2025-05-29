@@ -24,6 +24,7 @@ export const useProjectStore = create<ProjectStore>()(
       name: "project-store",
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
+        state?.setIsSaved(true);
       },
     }
   )

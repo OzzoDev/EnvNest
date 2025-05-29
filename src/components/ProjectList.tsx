@@ -34,8 +34,6 @@ const ProjectList = () => {
     return <p className="text-lg text-text-color mb-8">No projects created</p>;
   }
 
-  console.log("projectDI: ", projectId);
-
   return (
     <div>
       <p className="text-lg text-text-color mb-8">Your projects</p>
