@@ -23,8 +23,6 @@ export const projectRouter = router({
     .query(async ({ input }) => {
       const { projectId } = input;
 
-      console.log("ProejctId on the server:", projectId);
-
       if (!projectId) {
         throw new TRPCError({ code: "BAD_REQUEST" });
       }
@@ -52,8 +50,6 @@ export const projectRouter = router({
       const decrypted = { ...projectSecret, content: decryptedContent };
 
       const { encrypted_key, ...clientSideData } = decrypted;
-
-      console.log(clientSideData);
 
       return clientSideData as ProjectSecret;
     }),

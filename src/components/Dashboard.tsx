@@ -15,7 +15,8 @@ type DashboardProps = {
 };
 
 const Dashboard = ({ repos }: DashboardProps) => {
-  const { projectId, hasHydrated } = useProjectStore();
+  const projectId = useProjectStore((state) => state.projectId);
+  const hasHydrated = useProjectStore((state) => state.hasHydrated);
 
   const {
     data: projectSecret,

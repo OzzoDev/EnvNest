@@ -4,22 +4,14 @@ import { trpc } from "@/trpc/client";
 import { Button } from "./ui/button";
 import { useEffect } from "react";
 import { useProjectStore } from "@/store/projectStore";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import AlertDialog from "./utils/AleartDialog";
 
 const ProjectList = () => {
   const { data: projects, error, isLoading, refetch } = trpc.project.getAllProjects.useQuery();
   const projectId = useProjectStore((state) => state.projectId);
   const setProjectId = useProjectStore((state) => state.setProjectId);
+  const isSaved = useProjectStore((state) => state.isSaved);
+  const setIsSaved = useProjectStore((state) => state.setIsSaved);
 
   useEffect(() => {
     refetch();
@@ -27,6 +19,7 @@ const ProjectList = () => {
 
   const selectProject = (projectId: number) => {
     setProjectId(projectId);
+    setIsSaved(true);
   };
 
   if (isLoading) {
@@ -41,36 +34,36 @@ const ProjectList = () => {
     return <p className="text-lg text-text-color mb-8">No projects created</p>;
   }
 
+  console.log("projectDI: ", projectId);
+
   return (
     <div>
       <p className="text-lg text-text-color mb-8">Your projects</p>
       <ul className="flex flex-col gap-y-4">
-        {projects?.map((project) => (
-          <AlertDialog key={project.id}>
-            <AlertDialogTrigger asChild>
+        {projects?.map((project) => {
+          return isSaved ? (
+            <Button
+              key={project.id}
+              onClick={() => selectProject(project.id)}
+              variant={project.id == projectId ? "secondary" : "ghost"}
+              className="justify-start">
+              {project.full_name}
+            </Button>
+          ) : (
+            <AlertDialog
+              title="Are you sure you want to change project?"
+              description="Any unsaved changes will be lost. This action cannot be undone."
+              action="Continue"
+              actionFn={() => selectProject(project.id)}>
               <Button
                 key={project.id}
                 variant={project.id == projectId ? "secondary" : "ghost"}
                 className="justify-start">
                 {project.full_name}
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure you want to change project?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Any unsaved changes will be lost. This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => selectProject(project.id)}>
-                  Continue
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        ))}
+            </AlertDialog>
+          );
+        })}
       </ul>
     </div>
   );

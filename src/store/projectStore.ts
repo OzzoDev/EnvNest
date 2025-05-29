@@ -16,12 +16,15 @@ export const useProjectStore = create<ProjectStore>()(
       projectId: null,
       hasHydrated: false,
       isSaved: true,
-      setProjectId: (id: number) => set({ projectId: id }),
+      setProjectId: (projectId: number) => set({ projectId }),
       setHasHydrated: (hasHydrated: boolean) => set({ hasHydrated }),
       setIsSaved: (isSaved: boolean) => set({ isSaved }),
     }),
     {
       name: "project-store",
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );
