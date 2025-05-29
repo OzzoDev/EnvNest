@@ -5,7 +5,9 @@ type ProjectStore = {
   projectId: number | null;
   setProjectId: (id: number) => void;
   hasHydrated: boolean;
-  setHasHydrated: (value: boolean) => void;
+  setHasHydrated: (hasHydrated: boolean) => void;
+  isSaved: boolean;
+  setIsSaved: (isSaved: boolean) => void;
 };
 
 export const useProjectStore = create<ProjectStore>()(
@@ -13,8 +15,10 @@ export const useProjectStore = create<ProjectStore>()(
     (set) => ({
       projectId: null,
       hasHydrated: false,
+      isSaved: true,
       setProjectId: (id: number) => set({ projectId: id }),
-      setHasHydrated: (value) => set({ hasHydrated: value }),
+      setHasHydrated: (hasHydrated: boolean) => set({ hasHydrated }),
+      setIsSaved: (isSaved: boolean) => set({ isSaved }),
     }),
     {
       name: "project-store",
