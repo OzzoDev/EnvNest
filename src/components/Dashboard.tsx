@@ -2,18 +2,34 @@
 
 import { GithubRepo } from "@/types/types";
 import NewProjectForm from "./NewProjectForm";
-import ClientOnly from "./utils/ClientOnly";
 import ProjectList from "./ProjectList";
 import ProjectWatcher from "./ProjectWatcher";
 import EnvEditor from "./editor/EnvEditor";
+import { trpc } from "@/trpc/client";
+import { useSearchParams } from "next/navigation";
 
 type DashboardProps = {
   repos: GithubRepo[];
 };
 
 const Dashboard = ({ repos }: DashboardProps) => {
+  const searchParams = useSearchParams();
+  const projectId = searchParams.get("projectId");
+  const numericProjectId = Number(projectId);
+
+  const { data: projectSecret } = trpc.project.getProjectSecret.useQuery(
+    {
+      projectId: numericProjectId,
+    },
+    {
+      enabled: !!projectId && !isNaN(numericProjectId),
+    }
+  );
+
+  console.log("Project secret: ", projectSecret);
+
   return (
-    <ClientOnly>
+    <>
       <div className="grid grid-cols-[3fr_7fr] grid-rows-1 min-h-screen">
         <div className="flex flex-col gap-y-12 p-6 w-[300px]">
           <div className="pb-12 border-b border-muted-foreground">
@@ -27,7 +43,7 @@ const Dashboard = ({ repos }: DashboardProps) => {
         </div>
       </div>
       <ProjectWatcher />
-    </ClientOnly>
+    </>
   );
 };
 

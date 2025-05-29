@@ -1,4 +1,10 @@
-import { CreateProject, Project, ProjectKey, UpdateProjectName } from "@/types/types";
+import {
+  CreateProject,
+  Project,
+  ProjectKey,
+  ProjectSecret,
+  UpdateProjectName,
+} from "@/types/types";
 import { executeQuery } from "../db";
 import { aesEncrypt, generateAESKey } from "@/lib/aes-helpers";
 import environmentModel from "./environment";
@@ -25,35 +31,52 @@ const project = {
       [githubId]
     );
   },
-  getById: async (projectId: number): Promise<Project> => {
-    const result = await executeQuery<Project>(
+  getById: async (projectId: number): Promise<ProjectSecret> => {
+    const result = await executeQuery<ProjectSecret>(
       `
-        SELECT 
-          p.id AS id,
-          p.profile_id AS profile_id,
-          p.repo_id AS repo_id,
-          p.name AS name,
-          p.full_name AS full_name,
-          p.owner AS owner,
-          p.url AS url,
-          p.created_at AS created_at,
-          pk.encrypted_key AS encrypted_key,
-          e.name AS enviorment,
-          s.path AS path,
-          s.content
-        FROM project p
-        LEFT JOIN project_key pk
-          ON pk.project_id = p.id
-        LEFT JOIN enviornment e
-          on e.project_id = p.id
-        LEFT JOIN secret s
-          on s.enviornment_id = e.id
-        LEFT JOIN secret_version sv
-          on sv.secret_id = s.id
-        WHERE p.id = $1
+      WITH latest_versions AS (
+        SELECT DISTINCT ON (secret_id)
+          id,
+          secret_id,
+          content,
+          version,
+          created_at
+        FROM secret_version
+        ORDER BY secret_id, version DESC
+      )
+      SELECT
+        p.id AS project_id,
+        p.profile_id,
+        p.repo_id,
+        p.name,
+        p.full_name,
+        p.owner,
+        p.url,
+        p.created_at AS project_created_at,
+        pk.encrypted_key,
+        e.id AS environment_id,
+        e.name AS environment,
+        s.id AS secret_id,
+        s.path,
+        s.updated_at AS secret_updated_at,
+        lv.content,
+        lv.version AS secret_version
+      FROM project p
+      LEFT JOIN project_key pk
+        ON pk.project_id = p.id
+      LEFT JOIN environment e
+        ON e.project_id = p.id
+      LEFT JOIN secret s
+        ON s.environment_id = e.id
+      LEFT JOIN latest_versions lv
+        ON lv.secret_id = s.id
+      WHERE p.id = $1
+       
     `,
       [projectId]
     );
+
+    return result[0];
   },
 
   create: async (projectData: CreateProject, encryptionKey: string): Promise<Project> => {
@@ -68,7 +91,7 @@ const project = {
 
       const environment = await environmentModel.create(projectId, "development");
 
-      const secret = await secretModel.create(environment.id, "./", "");
+      const secret = await secretModel.create(environment.id, "./");
 
       await secretVersionModel.create(secret.id, "", 1);
 

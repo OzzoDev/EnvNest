@@ -54,6 +54,26 @@ export type CreateProject = Omit<Project, "id" | "created_at">;
 
 export type UpdateProjectName = Omit<Project, "id" | "profile_id" | "owner" | "url" | "created_at">;
 
+//All data for project and secret
+export type ProjectSecret = {
+  project_id: number;
+  profile_id: number;
+  repo_id: number;
+  name: string;
+  full_name: string;
+  owner: string;
+  url: string;
+  project_created_at: string;
+  encrypted_key: string | null;
+  environment_id: number | null;
+  environment: EnvironmentName | null;
+  secret_id: number | null;
+  path: string | null;
+  secret_updated_at: string | null;
+  content: string | null;
+  secret_version: number | null;
+};
+
 // Project encryption key (AES-256-GCM encrypted & base64 encoded)
 export type ProjectKey = {
   id: number;
@@ -77,8 +97,6 @@ export type Secret = {
   id: number;
   environment_id: number;
   path: string; // e.g. `.env`, `.env.production`
-  content: string; // encrypted full env file
-  version: number;
   created_at: string;
   updated_at: string;
 };

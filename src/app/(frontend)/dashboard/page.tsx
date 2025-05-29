@@ -3,6 +3,7 @@ import { getRepos } from "../../../api/github/getRepos";
 import Dashboard from "@/components/Dashboard";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import ClientOnly from "@/components/utils/ClientOnly";
 
 const DashboardPage = async () => {
   const session = await getServerSession(authOptions);
@@ -15,7 +16,9 @@ const DashboardPage = async () => {
 
   return (
     <div>
-      <Dashboard repos={repos} />
+      <ClientOnly>
+        <Dashboard repos={repos} />
+      </ClientOnly>
     </div>
   );
 };

@@ -16,10 +16,18 @@ export const projectRouter = router({
       console.log(err);
     }
   }),
-  getContent: privateProcedure
-    .input(z.object({ projectId: z.number() }))
+  getProjectSecret: privateProcedure
+    .input(z.object({ projectId: z.number().nullish() }))
     .query(async ({ input }) => {
       const { projectId } = input;
+
+      if (!projectId) {
+        throw new TRPCError({ code: "BAD_REQUEST" });
+      }
+
+      const db = await getDbClient();
+
+      return db.project.getById(projectId);
     }),
   createProject: privateProcedure
     .input(

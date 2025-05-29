@@ -7,6 +7,7 @@ import {
   Profile,
   Project,
   ProjectKey,
+  ProjectSecret,
   Secret,
   SecretVersion,
   UpdateProjectName,
@@ -30,6 +31,7 @@ export type TProfileModel = {
 
 export type TProjectModel = {
   getByProfile: (githubId: number) => Promise<Project[]>;
+  getById: (projectId: number) => Promise<ProjectSecret>;
   create: (projectData: CreateProject, encryptionKey: string) => Promise<Project>;
   addProject: (projectData: CreateProject) => Promise<Project>;
   addKey: (projectId: number, encryptedKey: string) => Promise<ProjectKey>;
@@ -41,7 +43,7 @@ export type TEnvironmentModel = {
 };
 
 export type TSecretModel = {
-  create: (environmentId: number, path: string, content: string) => Promise<Secret>;
+  create: (environmentId: number, path: string) => Promise<Secret>;
 };
 
 export type TSecretVersionModel = {
