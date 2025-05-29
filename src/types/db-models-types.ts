@@ -7,7 +7,7 @@ import {
   Profile,
   Project,
   ProjectKey,
-  ProjectSecret,
+  ServerProjectSecret,
   Secret,
   SecretVersion,
   UpdateProjectName,
@@ -31,7 +31,7 @@ export type TProfileModel = {
 
 export type TProjectModel = {
   getByProfile: (githubId: number) => Promise<Project[]>;
-  getById: (projectId: number) => Promise<ProjectSecret>;
+  getById: (projectId: number) => Promise<ServerProjectSecret>;
   create: (projectData: CreateProject, encryptionKey: string) => Promise<Project>;
   addProject: (projectData: CreateProject) => Promise<Project>;
   addKey: (projectId: number, encryptedKey: string) => Promise<ProjectKey>;

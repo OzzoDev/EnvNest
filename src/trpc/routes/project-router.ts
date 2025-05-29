@@ -2,6 +2,8 @@ import { getDbClient } from "@/lib/db/models";
 import { privateProcedure, router } from "../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { aesDecrypt } from "../../lib/aes-helpers";
+import { ProjectSecret } from "@/types/types";
 
 export const projectRouter = router({
   getAllProjects: privateProcedure.query(async ({ ctx }) => {
@@ -19,15 +21,45 @@ export const projectRouter = router({
   getProjectSecret: privateProcedure
     .input(z.object({ projectId: z.number().nullish() }))
     .query(async ({ input }) => {
-      const { projectId } = input;
+      try {
+        const { projectId } = input;
 
-      if (!projectId) {
-        throw new TRPCError({ code: "BAD_REQUEST" });
+        if (!projectId) {
+          throw new TRPCError({ code: "BAD_REQUEST" });
+        }
+
+        const db = await getDbClient();
+
+        const projectSecret = await db.project.getById(projectId);
+
+        const encryptedKey = projectSecret.encrypted_key;
+
+        console.log("Encrypted key: ", encryptedKey);
+
+        if (!encryptedKey) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Encryption key not found" });
+        }
+
+        const decryptedKey = aesDecrypt(encryptedKey, process.env.ENCRYPTION_ROOT_KEY!);
+
+        const content = projectSecret.content;
+
+        console.log("Encrypted text: ", content);
+
+        if (content === null) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Content not found" });
+        }
+
+        const decryptedContent = aesDecrypt(content, decryptedKey);
+
+        const decrypted = { ...projectSecret, content: decryptedContent };
+
+        const { encrypted_key, ...clientSideData } = decrypted;
+
+        return clientSideData as ProjectSecret;
+      } catch (err) {
+        console.log(err);
       }
-
-      const db = await getDbClient();
-
-      return db.project.getById(projectId);
     }),
   createProject: privateProcedure
     .input(

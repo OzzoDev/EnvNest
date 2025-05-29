@@ -55,7 +55,7 @@ export type CreateProject = Omit<Project, "id" | "created_at">;
 export type UpdateProjectName = Omit<Project, "id" | "profile_id" | "owner" | "url" | "created_at">;
 
 //All data for project and secret
-export type ProjectSecret = {
+export type ServerProjectSecret = {
   project_id: number;
   profile_id: number;
   repo_id: number;
@@ -73,6 +73,8 @@ export type ProjectSecret = {
   content: string | null;
   secret_version: number | null;
 };
+
+export type ProjectSecret = Omit<ServerProjectSecret, "encrypted_key">;
 
 // Project encryption key (AES-256-GCM encrypted & base64 encoded)
 export type ProjectKey = {

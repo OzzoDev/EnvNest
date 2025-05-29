@@ -2,7 +2,7 @@ import {
   CreateProject,
   Project,
   ProjectKey,
-  ProjectSecret,
+  ServerProjectSecret,
   UpdateProjectName,
 } from "@/types/types";
 import { executeQuery } from "../db";
@@ -31,8 +31,8 @@ const project = {
       [githubId]
     );
   },
-  getById: async (projectId: number): Promise<ProjectSecret> => {
-    const result = await executeQuery<ProjectSecret>(
+  getById: async (projectId: number): Promise<ServerProjectSecret> => {
+    const result = await executeQuery<ServerProjectSecret>(
       `
       WITH latest_versions AS (
         SELECT DISTINCT ON (secret_id)
@@ -78,8 +78,7 @@ const project = {
 
     return result[0];
   },
-
-  create: async (projectData: CreateProject, encryptionKey: string): Promise<Project> => {
+  create: async (projectData: CreateProject, rootEncryptionKey: string): Promise<Project> => {
     try {
       await executeQuery("BEGIN");
 
@@ -87,13 +86,15 @@ const project = {
 
       const projectId = createdProjected.id;
 
-      await project.addKey(projectId, aesEncrypt(generateAESKey().hex, encryptionKey));
+      const encryptionKey = generateAESKey().hex;
+
+      await project.addKey(projectId, aesEncrypt(encryptionKey, rootEncryptionKey));
 
       const environment = await environmentModel.create(projectId, "development");
 
       const secret = await secretModel.create(environment.id, "./");
 
-      await secretVersionModel.create(secret.id, "", 1);
+      await secretVersionModel.create(secret.id, aesEncrypt("", encryptionKey), 1);
 
       await executeQuery("COMMIT");
 
