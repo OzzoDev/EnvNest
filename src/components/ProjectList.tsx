@@ -25,7 +25,7 @@ const ProjectList = () => {
     refetch();
   }, [projectId]);
 
-  const selectProject = (projectId: string) => {
+  const selectProject = (projectId: number) => {
     setProjectId(projectId);
   };
 
@@ -50,7 +50,7 @@ const ProjectList = () => {
             <AlertDialogTrigger asChild>
               <Button
                 key={project.id}
-                variant={project.id.toString() == projectId ? "secondary" : "ghost"}
+                variant={project.id == projectId ? "secondary" : "ghost"}
                 className="justify-start">
                 {project.full_name}
               </Button>
@@ -64,7 +64,7 @@ const ProjectList = () => {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => selectProject(project.id.toString())}>
+                <AlertDialogAction onClick={() => selectProject(project.id)}>
                   Continue
                 </AlertDialogAction>
               </AlertDialogFooter>

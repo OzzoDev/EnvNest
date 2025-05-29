@@ -19,43 +19,43 @@ export const projectRouter = router({
     }
   }),
   getProjectSecret: privateProcedure
-    .input(z.object({ projectId: z.number().nullish() }))
+    .input(z.object({ projectId: z.number() }))
     .query(async ({ input }) => {
-      try {
-        const { projectId } = input;
+      const { projectId } = input;
 
-        if (!projectId) {
-          throw new TRPCError({ code: "BAD_REQUEST" });
-        }
+      console.log("ProejctId on the server:", projectId);
 
-        const db = await getDbClient();
-
-        const projectSecret = await db.project.getById(projectId);
-
-        const encryptedKey = projectSecret.encrypted_key;
-
-        if (!encryptedKey) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Encryption key not found" });
-        }
-
-        const decryptedKey = aesDecrypt(encryptedKey, process.env.ENCRYPTION_ROOT_KEY!);
-
-        const content = projectSecret.content;
-
-        if (content === null) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Content not found" });
-        }
-
-        const decryptedContent = aesDecrypt(content, decryptedKey);
-
-        const decrypted = { ...projectSecret, content: decryptedContent };
-
-        const { encrypted_key, ...clientSideData } = decrypted;
-
-        return clientSideData as ProjectSecret;
-      } catch (err) {
-        console.log(err);
+      if (!projectId) {
+        throw new TRPCError({ code: "BAD_REQUEST" });
       }
+
+      const db = await getDbClient();
+
+      const projectSecret = await db.project.getById(projectId);
+
+      const encryptedKey = projectSecret.encrypted_key;
+
+      if (!encryptedKey) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Encryption key not found" });
+      }
+
+      const decryptedKey = aesDecrypt(encryptedKey, process.env.ENCRYPTION_ROOT_KEY!);
+
+      const content = projectSecret.content;
+
+      if (content === null) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Content not found" });
+      }
+
+      const decryptedContent = aesDecrypt(content, decryptedKey);
+
+      const decrypted = { ...projectSecret, content: decryptedContent };
+
+      const { encrypted_key, ...clientSideData } = decrypted;
+
+      console.log(clientSideData);
+
+      return clientSideData as ProjectSecret;
     }),
   createProject: privateProcedure
     .input(

@@ -2,8 +2,8 @@
 
 import { GithubRepo } from "@/types/types";
 import { trpc } from "@/trpc/client";
-import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
+import { useProjectStore } from "@/store/projectStore";
 
 const ProjectList = dynamic(() => import("./ProjectList"), { ssr: false });
 const ProjectWatcher = dynamic(() => import("./ProjectWatcher"), { ssr: false });
@@ -15,21 +15,15 @@ type DashboardProps = {
 };
 
 const Dashboard = ({ repos }: DashboardProps) => {
-  const searchParams = useSearchParams();
-  const projectId = searchParams.get("projectId");
-  const numericProjectId = Number(projectId);
+  const { projectId, hasHydrated } = useProjectStore();
 
   const {
     data: projectSecret,
     isLoading: isFetchingProjectSecret,
     refetch: refetchProjectSecret,
   } = trpc.project.getProjectSecret.useQuery(
-    {
-      projectId: numericProjectId,
-    },
-    {
-      enabled: !!projectId && !isNaN(numericProjectId),
-    }
+    { projectId: Number(projectId) },
+    { enabled: !!projectId && hasHydrated, retry: false }
   );
 
   const { mutate: updateProjectSecret, isPending: isUpdatingProject } =
@@ -47,8 +41,6 @@ const Dashboard = ({ repos }: DashboardProps) => {
     });
   };
 
-  console.log("Project secret: ", projectSecret);
-
   if (isFetchingProjectSecret || isUpdatingProject) {
     return <p className="text-text-color">Loading project...</p>;
   }
@@ -64,7 +56,7 @@ const Dashboard = ({ repos }: DashboardProps) => {
         </div>
         {projectSecret && (
           <div className="w-full h-full flex flex-col p-10 flex-1">
-            <EnvEditor defaultValue={projectSecret?.content ?? ""} onSave={onSaveEnvEditor} />
+            <EnvEditor defaultValue={projectSecret.content ?? ""} onSave={onSaveEnvEditor} />
           </div>
         )}
       </div>
