@@ -78,6 +78,18 @@ const project = {
 
     return result[0];
   },
+  getKey: async (projectId: number): Promise<ProjectKey> => {
+    const result = await executeQuery<ProjectKey>(
+      `
+      SELECT *
+      FROM project_key
+      WHERE project_id = $1  
+    `,
+      [projectId]
+    );
+
+    return result[0];
+  },
   create: async (projectData: CreateProject, rootEncryptionKey: string): Promise<Project> => {
     try {
       await executeQuery("BEGIN");

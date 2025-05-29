@@ -1,12 +1,14 @@
 "use client";
 
 import { GithubRepo } from "@/types/types";
-import NewProjectForm from "./NewProjectForm";
-import ProjectList from "./ProjectList";
-import ProjectWatcher from "./ProjectWatcher";
-import EnvEditor from "./editor/EnvEditor";
 import { trpc } from "@/trpc/client";
 import { useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
+
+const ProjectList = dynamic(() => import("./ProjectList"), { ssr: false });
+const ProjectWatcher = dynamic(() => import("./ProjectWatcher"), { ssr: false });
+const NewProjectForm = dynamic(() => import("./NewProjectForm"), { ssr: false });
+const EnvEditor = dynamic(() => import("./editor/EnvEditor"), { ssr: false });
 
 type DashboardProps = {
   repos: GithubRepo[];
@@ -17,7 +19,11 @@ const Dashboard = ({ repos }: DashboardProps) => {
   const projectId = searchParams.get("projectId");
   const numericProjectId = Number(projectId);
 
-  const { data: projectSecret } = trpc.project.getProjectSecret.useQuery(
+  const {
+    data: projectSecret,
+    isLoading: isFetchingProjectSecret,
+    refetch: refetchProjectSecret,
+  } = trpc.project.getProjectSecret.useQuery(
     {
       projectId: numericProjectId,
     },
@@ -26,7 +32,26 @@ const Dashboard = ({ repos }: DashboardProps) => {
     }
   );
 
+  const { mutate: updateProjectSecret, isPending: isUpdatingProject } =
+    trpc.secret.updateVersion.useMutation({
+      onSuccess: () => {
+        refetchProjectSecret();
+      },
+    });
+
+  const onSaveEnvEditor = (content: string) => {
+    updateProjectSecret({
+      secretId: projectSecret?.secret_id ?? 0,
+      projectId: projectSecret?.project_id ?? 0,
+      content,
+    });
+  };
+
   console.log("Project secret: ", projectSecret);
+
+  if (isFetchingProjectSecret || isUpdatingProject) {
+    return <p className="text-text-color">Loading project...</p>;
+  }
 
   return (
     <>
@@ -37,10 +62,11 @@ const Dashboard = ({ repos }: DashboardProps) => {
           </div>
           <ProjectList />
         </div>
-        <div className="w-full h-full flex flex-col p-10 flex-1">
-          <p className="text-lg text-text-color">Edit .env file</p>
-          <EnvEditor />
-        </div>
+        {projectSecret && (
+          <div className="w-full h-full flex flex-col p-10 flex-1">
+            <EnvEditor defaultValue={projectSecret?.content ?? ""} onSave={onSaveEnvEditor} />
+          </div>
+        )}
       </div>
       <ProjectWatcher />
     </>

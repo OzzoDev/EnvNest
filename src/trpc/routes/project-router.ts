@@ -34,8 +34,6 @@ export const projectRouter = router({
 
         const encryptedKey = projectSecret.encrypted_key;
 
-        console.log("Encrypted key: ", encryptedKey);
-
         if (!encryptedKey) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Encryption key not found" });
         }
@@ -43,8 +41,6 @@ export const projectRouter = router({
         const decryptedKey = aesDecrypt(encryptedKey, process.env.ENCRYPTION_ROOT_KEY!);
 
         const content = projectSecret.content;
-
-        console.log("Encrypted text: ", content);
 
         if (content === null) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Content not found" });
