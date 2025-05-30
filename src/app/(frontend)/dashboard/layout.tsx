@@ -19,7 +19,7 @@ const DashboardLayout = async ({ children }: Readonly<{ children: ReactNode }>) 
 
   return (
     <>
-      <div className="grid grid-cols-[3fr_7fr] grid-rows-1 min-h-screen">
+      <div className="p-8 grid grid-cols-[3fr_7fr] grid-rows-1 min-h-screen">
         <div className="flex flex-col gap-y-12 p-6 w-[300px]">
           <div className="pb-12 border-b border-muted-foreground">
             <NewProjectForm repos={repos} />
