@@ -4,9 +4,9 @@ import { persist } from "zustand/middleware";
 
 type ProjectStore = {
   projectId: number | null;
-  setProjectId: (id: number) => void;
+  setProjectId: (id: number | null) => void;
   project: ProjectSecret | null;
-  setProject: (projectSecret: ProjectSecret) => void;
+  setProject: (projectSecret: ProjectSecret | null) => void;
   hasHydrated: boolean;
   setHasHydrated: (hasHydrated: boolean) => void;
   isSaved: boolean;
@@ -20,8 +20,8 @@ export const useProjectStore = create<ProjectStore>()(
       project: null,
       hasHydrated: false,
       isSaved: true,
-      setProjectId: (projectId: number) => set({ projectId }),
-      setProject: (project: ProjectSecret) => set({ project }),
+      setProjectId: (projectId: number | null) => set({ projectId }),
+      setProject: (project: ProjectSecret | null) => set({ project }),
       setHasHydrated: (hasHydrated: boolean) => set({ hasHydrated }),
       setIsSaved: (isSaved: boolean) => set({ isSaved }),
     }),

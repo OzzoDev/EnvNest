@@ -37,6 +37,7 @@ export type TProjectModel = {
   addProject: (projectData: CreateProject) => Promise<Project>;
   addKey: (projectId: number, encryptedKey: string) => Promise<ProjectKey>;
   updateName: (project: UpdateProjectName) => Promise<Project | null>;
+  delete: (projectId: number) => Promise<Project>;
 };
 
 export type TEnvironmentModel = {

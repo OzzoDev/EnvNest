@@ -84,4 +84,13 @@ export const projectRouter = router({
 
       return project;
     }),
+  deleteProject: privateProcedure
+    .input(z.object({ projectId: z.number() }))
+    .mutation(async ({ input }) => {
+      const { projectId } = input;
+
+      const db = await getDbClient();
+
+      return await db.project.delete(projectId);
+    }),
 });

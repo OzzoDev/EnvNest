@@ -163,6 +163,17 @@ const project = {
 
     return result[0];
   },
+  delete: async (projectId: number): Promise<Project> => {
+    const result = await executeQuery<Project>(
+      `
+      DELETE FROM project 
+      WHERE id = $1
+    `,
+      [projectId]
+    );
+
+    return result[0];
+  },
 };
 
 export default project;
