@@ -94,6 +94,11 @@ export type Environment = {
 
 export type EnvironmentName = "development" | "production";
 
+export type EnvironmentMap = {
+  value: EnvironmentName;
+  label: string;
+};
+
 // Environment secrets (one row = one `.env` file)
 export type Secret = {
   id: number;

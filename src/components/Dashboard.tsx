@@ -4,6 +4,7 @@ import { GithubRepo } from "@/types/types";
 import { trpc } from "@/trpc/client";
 import dynamic from "next/dynamic";
 import { useProjectStore } from "@/store/projectStore";
+import EnvCreator from "./editor/EnvCreator";
 
 const EnvEditor = dynamic(() => import("./editor/EnvEditor"), { ssr: false });
 
@@ -42,11 +43,12 @@ const Dashboard = () => {
 
   return (
     <>
-      {project && (
+      <EnvCreator />
+      {/* {project && (
         <div className="w-full h-full flex flex-col p-10 flex-1">
           <EnvEditor defaultValue={project.content ?? ""} onSave={onSaveEnvEditor} />
         </div>
-      )}
+      )} */}
     </>
   );
 };
