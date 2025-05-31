@@ -11,13 +11,14 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { HoverCardContent, HoverCard, HoverCardTrigger } from "../ui/hover-card";
+import { v4 as uuidv4 } from "uuid";
 
-type Data = {
+type UniqueOptions = {
   value: string;
-  id: number;
+  uuid: string;
 };
 
 type ModeSelectProps = {
@@ -27,7 +28,8 @@ type ModeSelectProps = {
   selectLabel?: string;
   enableSearch?: boolean;
   isRequired?: boolean;
-  data?: Data[];
+  options?: string[];
+  onSelect: (value: string) => void;
 };
 
 const ModeSelect = ({
@@ -37,20 +39,25 @@ const ModeSelect = ({
   selectLabel = "Options",
   enableSearch = false,
   isRequired = true,
-  data = [],
+  options = [],
+  onSelect,
 }: ModeSelectProps) => {
+  const uniqueOptions: UniqueOptions[] = useMemo(
+    () => options.map((opt) => ({ value: opt, uuid: uuidv4() })),
+    [options]
+  );
   const [open, setOpen] = useState(false);
   const [openListHoverCard, setOpenListHoverCard] = useState<number>(-1);
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
-  const [filteredData, setFilteredData] = useState<Data[]>(data);
+  const [filteredUniqueOptions, setFilteredData] = useState<UniqueOptions[]>(uniqueOptions);
 
   useEffect(() => {
-    setFilteredData(data);
-  }, [data]);
+    setFilteredData(uniqueOptions);
+  }, [uniqueOptions]);
 
   const handleSearch = (query: string) => {
     const lower = query.trim().toLowerCase();
-    setFilteredData(data.filter((item) => item.value.toLowerCase().includes(lower)));
+    setFilteredData(uniqueOptions.filter((otp) => otp.value.toLowerCase().includes(lower)));
   };
 
   return (
@@ -58,6 +65,7 @@ const ModeSelect = ({
       <PopoverTrigger asChild>
         <div>
           <p
+            aria-hidden={!!selectedValue}
             className={cn(
               "text-sm mb-1",
               isRequired ? "text-destructive" : "text-text-color",
@@ -76,7 +84,7 @@ const ModeSelect = ({
                   className="w-[240px] justify-between">
                   <p className="w-[180px] truncate overflow-hidden whitespace-nowrap text-muted-foreground text-left">
                     {selectedValue
-                      ? data.find((item) => item.value === selectedValue)?.value
+                      ? uniqueOptions.find((otp) => otp.value === selectedValue)?.value
                       : selectPlaceholder}
                   </p>
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -97,7 +105,7 @@ const ModeSelect = ({
               className="w-[240px] justify-between">
               <p className="w-[180px] truncate overflow-hidden whitespace-nowrap text-muted-foreground text-left">
                 {selectedValue
-                  ? data.find((item) => item.value === selectedValue)?.value
+                  ? uniqueOptions.find((otp) => otp.value === selectedValue)?.value
                   : selectPlaceholder}
               </p>
 
@@ -119,31 +127,35 @@ const ModeSelect = ({
             }}>
             <CommandEmpty>{emptyPlaceHolder}</CommandEmpty>
             <CommandGroup className="pl-1">
-              {filteredData.map((item, index) => (
-                <HoverCard open={openListHoverCard === index} openDelay={100} closeDelay={0}>
+              {filteredUniqueOptions.map((otp, index) => (
+                <HoverCard
+                  key={otp.uuid + otp.value}
+                  open={openListHoverCard === index}
+                  openDelay={100}
+                  closeDelay={0}>
                   <HoverCardTrigger asChild>
                     <CommandItem
-                      key={item.id}
-                      value={item.value}
+                      value={otp.value}
                       onMouseEnter={() => setOpenListHoverCard(index)}
                       onMouseLeave={() => setOpenListHoverCard(-1)}
                       onSelect={(currentValue) => {
                         setSelectedValue(currentValue);
+                        onSelect(currentValue);
                         setOpen(false);
                       }}>
                       <Check
                         className={cn(
                           "ml-auto h-4 w-4",
-                          selectedValue === item.value ? "opacity-100" : "opacity-0"
+                          selectedValue === otp.value ? "opacity-100" : "opacity-0"
                         )}
                       />
                       <p className="w-[200px] truncate overflow-hidden whitespace-nowrap">
-                        {item.value}
+                        {otp.value}
                       </p>
                     </CommandItem>
                   </HoverCardTrigger>
                   <HoverCardContent side="bottom" align="start" className="w-full">
-                    {item.value}
+                    {otp.value}
                   </HoverCardContent>
                 </HoverCard>
               ))}
