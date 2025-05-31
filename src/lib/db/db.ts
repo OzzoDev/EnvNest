@@ -137,5 +137,48 @@ export const initDB = async () => {
     );
   `);
 
+  await executeQuery(`
+    CREATE TABLE IF NOT EXISTS template (
+      id SERIAL PRIMARY KEY, 
+      name TEXT NOT NULL UNIQUE,
+      template TEXT NOT NULL,
+      visibility TEXT NOT NULL
+    )  
+  `);
+
   console.log("✅ Database initialized");
+
+  await seedDB();
+};
+
+const seedDB = async () => {
+  try {
+    await executeQuery(`
+      INSERT INTO template (name, template, visibility)
+      SELECT 'Node.js', 'PORT=3000&&NODE_ENV=development&&JWT_SECRET=1234&&DB_URL=mongodb://localhost:27017/mydb&&API_KEY=abcd1234', 'public'
+        UNION ALL
+      SELECT 'React', 'REACT_APP_API_URL=https://api.example.com&&NODE_ENV=development&&JWT_SECRET=abcd&&API_KEY=reactkey', 'public'
+        UNION ALL
+      SELECT 'Next.js', 'NEXT_PUBLIC_API_URL=https://api.example.com&&NODE_ENV=development&&JWT_SECRET=efgh&&DB_URL=postgres://user:pass@localhost:5432/mydb', 'public'
+        UNION ALL
+      SELECT 'Vue.js', 'VUE_APP_API_URL=https://api.example.com&&NODE_ENV=development&&JWT_SECRET=ijkl&&DB_URL=mysql://user:pass@localhost:3306/mydb', 'public'
+        UNION ALL
+      SELECT 'Angular', 'API_URL=https://api.example.com&&NODE_ENV=development&&JWT_SECRET=mnop&&DB_URL=sqlite://mydb.sqlite&&MAILGUN_API_KEY=mailgunkey', 'public'
+        UNION ALL
+      SELECT 'Django', 'DJANGO_SECRET_KEY=secretkey&&DEBUG=True&&ALLOWED_HOSTS=localhost&&DATABASE_URL=postgres://user:pass@localhost:5432/mydb', 'public'
+        UNION ALL
+      SELECT 'Flask', 'FLASK_ENV=development&&SECRET_KEY=flasksecret&&DATABASE_URL=mysql://user:pass@localhost:3306/mydb&&MAILGUN_API_KEY=flaskmailgun', 'public'
+        UNION ALL
+      SELECT 'Ruby on Rails', 'RAILS_ENV=development&&SECRET_KEY_BASE=railssecret&&DATABASE_URL=sqlite://db/development.sqlite3&&REDIS_URL=redis://localhost:6379', 'public'
+        UNION ALL
+      SELECT 'Spring Boot', 'SERVER_PORT=8080&&SPRING_PROFILES_ACTIVE=dev&&JWT_SECRET=springsecret&&DB_URL=jdbc:mysql://localhost:3306/mydb&&MAIL_SERVICE=mailgun', 'public'
+        UNION ALL
+      SELECT 'Laravel', 'APP_ENV=local&&APP_KEY=base64:laravelsecret&&DB_URL=mysql://user:pass@localhost:3306/mydb&&MAIL_MAILER=smtp', 'public'
+      WHERE NOT EXISTS (SELECT 1 FROM template);
+    `);
+  } catch {
+    console.log("✅ Database seeded");
+  }
+
+  console.log("✅ Database seeded");
 };
