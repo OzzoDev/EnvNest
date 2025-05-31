@@ -1,3 +1,5 @@
+"use client";
+
 import { EnvironmentMap } from "@/types/types";
 import Combobox from "../utils/Combobox";
 import { ENVIRONMENTS } from "@/config";
