@@ -1,3 +1,4 @@
+import { githubRouter } from "./routes/github-router";
 import { profileRouter } from "./routes/profile-router";
 import { projectRouter } from "./routes/project-router";
 import { secretRouter } from "./routes/secret-router";
@@ -9,6 +10,7 @@ export const appRouter = router({
   project: projectRouter,
   secret: secretRouter,
   template: templateRouter,
+  github: githubRouter,
 });
 
 export type AppRouter = typeof appRouter;

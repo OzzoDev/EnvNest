@@ -49,7 +49,7 @@ const NewProjectForm = ({ repos }: NewProjectFormProps) => {
     if (!repo) return;
 
     mutate({
-      id: repo.id,
+      repo_id: repo.id,
       name: repo.name,
       full_name: repo.full_name,
       owner: repo.owner.login!,

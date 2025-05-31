@@ -1,23 +1,28 @@
 "use client";
 
 import { ENVIRONMENTS } from "@/config";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { trpc } from "@/trpc/client";
 import Select from "../utils/Select";
 import { cn } from "@/lib/utils";
+import { Input } from "../ui/input";
+import { useProjectStore } from "@/store/projectStore";
 
 const EnvCreator = () => {
-  const [selectedEnvironment, setSelectedEnvironment] = useState<string | null>(null);
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [environment, setEnviornment] = useState<string | null>(null);
+  const [template, setTemplate] = useState<string | null>(null);
+  const [path, setPath] = useState<string | null>(null);
+  const project = useProjectStore((state) => state.project);
+
+  const { data: paths } = trpc.github.getPaths.useQuery(
+    { owner: project?.owner!, repo: project?.name! },
+    { enabled: !!project }
+  );
+
+  console.log("Paths: ", paths);
 
   const { data: templates } = trpc.template.getPublic.useQuery();
-
-  console.log(templates);
-
-  if (!templates) {
-    return null;
-  }
 
   return (
     <>
@@ -26,34 +31,46 @@ const EnvCreator = () => {
         <div className="flex items-end gap-x-8">
           <div>
             <p
-              aria-hidden={selectedEnvironment ? "true" : "false"}
-              className={cn("text-sm text-destructive mb-2", { invisible: selectedEnvironment })}>
+              aria-hidden={environment ? "true" : "false"}
+              className={cn("text-sm text-destructive mb-2", { invisible: environment })}>
               Required
             </p>
             <Select
               placeholer="Select environment"
               label="Environments"
               data={ENVIRONMENTS.map((env) => env.label)}
-              onSelect={setSelectedEnvironment}
+              onSelect={setEnviornment}
             />
           </div>
-          {selectedEnvironment && templates.length > 0 && (
+          <div>
+            <p
+              aria-hidden={path ? "true" : "false"}
+              className={cn("text-sm text-destructive mb-2", { invisible: path })}>
+              Required
+            </p>
+            <Input
+              value={path ?? ""}
+              placeholder="Enter path (eg. ./, ./src)"
+              onChange={(e) => setPath(e.target.value)}
+            />
+          </div>
+          {templates && templates.length > 0 && (
             <div>
               <p
-                aria-hidden={selectedTemplate ? "true" : "false"}
-                className={cn("text-sm text-text-color mb-2", { invisible: selectedTemplate })}>
+                aria-hidden={template ? "true" : "false"}
+                className={cn("text-sm text-text-color mb-2", { invisible: template })}>
                 Optional
               </p>
               <Select
                 placeholer="Select template"
                 label="Templates"
                 data={templates?.map((template) => template.name)}
-                onSelect={setSelectedTemplate}
+                onSelect={setTemplate}
               />
             </div>
           )}
 
-          {selectedEnvironment && (
+          {environment && path && (
             <Button type="submit" variant="secondary">
               Create
             </Button>
