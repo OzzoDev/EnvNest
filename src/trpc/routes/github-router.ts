@@ -25,11 +25,12 @@ export const githubRouter = router({
 
         const tree: { type: string; path: string }[] = treeRes.data.tree;
 
-        const folders = tree.filter((item) => item.type === "tree").map((item) => `/${item.path}`);
+        const folders = tree
+          .filter((item) => item.type === "tree")
+          .map((item) => ({ path: `/${item.path}` }));
 
-        return ["./", ...folders];
+        return [{ path: "./" }, ...folders];
       } catch (err) {
-        console.error("Error fetching GitHub tree:", err);
         return [];
       }
     }),

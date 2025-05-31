@@ -6,21 +6,20 @@ import { Button } from "../ui/button";
 import { trpc } from "@/trpc/client";
 import Select from "../utils/Select";
 import { cn } from "@/lib/utils";
-import { Input } from "../ui/input";
 import { useProjectStore } from "@/store/projectStore";
+import Combobox from "../utils/Combobox";
+import { RepoPath } from "@/types/types";
 
 const EnvCreator = () => {
   const [environment, setEnviornment] = useState<string | null>(null);
   const [template, setTemplate] = useState<string | null>(null);
-  const [path, setPath] = useState<string | null>(null);
+  const [path, setPath] = useState<RepoPath | null>(null);
   const project = useProjectStore((state) => state.project);
 
   const { data: paths } = trpc.github.getPaths.useQuery(
     { owner: project?.owner!, repo: project?.name! },
     { enabled: !!project }
   );
-
-  console.log("Paths: ", paths);
 
   const { data: templates } = trpc.template.getPublic.useQuery();
 
@@ -48,10 +47,16 @@ const EnvCreator = () => {
               className={cn("text-sm text-destructive mb-2", { invisible: path })}>
               Required
             </p>
-            <Input
-              value={path ?? ""}
-              placeholder="Enter path (eg. ./, ./src)"
-              onChange={(e) => setPath(e.target.value)}
+            <Combobox<RepoPath, "path", "path", "path">
+              data={paths ?? []}
+              value={path}
+              labelKey="path"
+              valueKey="path"
+              mapKey="path"
+              searchMessage="Search paths..."
+              selectMessage="Select path"
+              emptyMessage="No path found"
+              setValue={setPath}
             />
           </div>
           {templates && templates.length > 0 && (

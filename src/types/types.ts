@@ -168,3 +168,7 @@ export type GithubOwner = {
   login?: string;
   type: string;
 };
+
+export type RepoPath = {
+  path: string;
+};
