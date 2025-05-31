@@ -16,10 +16,14 @@ const EnvCreator = () => {
   const [path, setPath] = useState<RepoPath | null>(null);
   const project = useProjectStore((state) => state.project);
 
+  console.log("project: ", project);
+
   const { data: paths } = trpc.github.getPaths.useQuery(
     { owner: project?.owner!, repo: project?.name! },
     { enabled: !!project }
   );
+
+  console.log("Path:", paths);
 
   const { data: templates } = trpc.template.getPublic.useQuery();
 

@@ -5,33 +5,34 @@ import axios from "axios";
 export const githubRouter = router({
   getPaths: privateProcedure
     .input(z.object({ owner: z.string(), repo: z.string() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const { owner, repo } = input;
+      const { accessToken } = ctx.session;
 
-      try {
-        const repoRes = await axios.get(`https://api.github.com/repos/${owner}/${repo}`);
+      const branchesToTry = ["main", "master"];
 
-        const defaultBranch = repoRes.data.default_branch;
+      for (const branch of branchesToTry) {
+        try {
+          const res = await axios.get(
+            `https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}?recursive=1`,
+            {
+              headers: {
+                Authorization: `token ${accessToken}`,
+                Accept: "application/vnd.github.v3+json",
+              },
+            }
+          );
 
-        const branchRes = await axios.get(
-          `https://api.github.com/repos/${owner}/${repo}/branches/${defaultBranch}`
-        );
+          const tree: { type: string; path: string }[] = res.data.tree;
 
-        const treeSha = branchRes.data.commit.commit.tree.sha;
+          const folders = tree
+            .filter((item) => item.type === "tree")
+            .map((item) => ({ path: `/${item.path}` }));
 
-        const treeRes = await axios.get(
-          `https://api.github.com/repos/${owner}/${repo}/git/trees/${treeSha}?recursive=1`
-        );
-
-        const tree: { type: string; path: string }[] = treeRes.data.tree;
-
-        const folders = tree
-          .filter((item) => item.type === "tree")
-          .map((item) => ({ path: `/${item.path}` }));
-
-        return [{ path: "./" }, ...folders];
-      } catch (err) {
-        return [];
+          return [{ path: "./" }, ...folders];
+        } catch {}
       }
+
+      return [];
     }),
 });

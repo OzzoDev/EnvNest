@@ -7,7 +7,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { buttonVariants } from "../ui/button";
 
 type SelectProps = {
   placeholer: string;
@@ -26,7 +28,7 @@ const Select = ({ placeholer, label, data, onSelect }: SelectProps) => {
 
   return (
     <SelectRoot onValueChange={handleValueChange}>
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger className={buttonVariants({ variant: "outline" })}>
         <SelectValue placeholder={placeholer} defaultValue={selectedValue ?? ""} />
       </SelectTrigger>
       <SelectContent>

@@ -46,7 +46,7 @@ const Combobox = <T, L extends keyof T, V extends keyof T, M extends keyof T>({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[260px] justify-between">
+          className="w-[260px] justify-between text-muted-foreground">
           {value
             ? (() => {
                 const foundItem = data.find((item) => item[valueKey] === value[valueKey]);
