@@ -3,9 +3,14 @@ import Combobox from "../utils/Combobox";
 import { ENVIRONMENTS } from "@/config";
 import { useState } from "react";
 import { Button } from "../ui/button";
+import { trpc } from "@/trpc/client";
 
 const EnvCreator = () => {
   const [selectedEnvironment, setSelectedEnvironment] = useState<EnvironmentMap | null>(null);
+
+  const { data: templates } = trpc.template.getPublic.useQuery();
+
+  console.log(templates);
 
   return (
     <>

@@ -5,6 +5,7 @@ import projectModel from "./project";
 import environmentModel from "./environment";
 import secretModel from "./secret";
 import secretVersionModel from "./secret-version";
+import templateModel from "./template";
 
 let isDbInitialized = false;
 
@@ -25,5 +26,6 @@ export const getDbClient = async (): Promise<TDbClient> => {
     environment: environmentModel,
     secret: secretModel,
     secretVersion: secretVersionModel,
+    template: templateModel,
   };
 };
