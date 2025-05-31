@@ -136,6 +136,14 @@ export type AuditLog<T = unknown> = {
   created_at: string;
 };
 
+//Templates to create a env file quckliy
+export type Template = {
+  id: number;
+  name: string;
+  template: string;
+  visibility: "public" | "private";
+};
+
 //Github organization
 export type GithubOrg = {
   login: string;

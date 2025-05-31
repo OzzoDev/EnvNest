@@ -11,6 +11,7 @@ import {
   Secret,
   SecretVersion,
   UpdateProjectName,
+  Template,
 } from "./types";
 
 export type TProfileModel = {
@@ -55,10 +56,15 @@ export type TSecretVersionModel = {
   update: (secretId: number, content: string) => Promise<SecretVersion>;
 };
 
+export type TTemplateModel = {
+  getPublic: () => Promise<Template[]>;
+};
+
 export type TDbClient = {
   profile: TProfileModel;
   project: TProjectModel;
   environment: TEnvironmentModel;
   secret: TSecretModel;
   secretVersion: TSecretVersionModel;
+  template: TTemplateModel;
 };
