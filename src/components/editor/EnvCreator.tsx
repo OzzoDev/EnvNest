@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { useProjectStore } from "@/store/projectStore";
 import Combobox from "../utils/Combobox";
 import { RepoPath } from "@/types/types";
+import ModeSelect from "../utils/ModeSelect";
 
 const EnvCreator = () => {
   const [environment, setEnviornment] = useState<string | null>(null);
@@ -39,7 +40,7 @@ const EnvCreator = () => {
               Required
             </p>
             <Select
-              placeholer="Select environment"
+              placeholder="Select environment"
               label="Environments"
               data={ENVIRONMENTS.map((env) => env.label)}
               onSelect={setEnviornment}
@@ -71,13 +72,17 @@ const EnvCreator = () => {
                 Optional
               </p>
               <Select
-                placeholer="Select template"
+                placeholder="Select template"
                 label="Templates"
                 data={templates?.map((template) => template.name)}
                 onSelect={setTemplate}
               />
             </div>
           )}
+
+          <ModeSelect
+            data={paths?.map((path, index) => ({ value: path.path, id: Number(index) })) ?? []}
+          />
 
           {environment && path && (
             <Button type="submit" variant="secondary">

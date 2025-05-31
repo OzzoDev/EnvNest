@@ -12,13 +12,13 @@ import { useState } from "react";
 import { buttonVariants } from "../ui/button";
 
 type SelectProps = {
-  placeholer: string;
+  placeholder: string;
   label: string;
   data: string[];
   onSelect: (value: string) => void;
 };
 
-const Select = ({ placeholer, label, data, onSelect }: SelectProps) => {
+const Select = ({ placeholder, label, data, onSelect }: SelectProps) => {
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
 
   const handleValueChange = (value: string) => {
@@ -29,7 +29,7 @@ const Select = ({ placeholer, label, data, onSelect }: SelectProps) => {
   return (
     <SelectRoot onValueChange={handleValueChange}>
       <SelectTrigger className={buttonVariants({ variant: "outline" })}>
-        <SelectValue placeholder={placeholer} defaultValue={selectedValue ?? ""} />
+        <SelectValue placeholder={placeholder} defaultValue={selectedValue ?? ""} />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
