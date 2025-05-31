@@ -33,7 +33,7 @@ export type TProfileModel = {
 export type TProjectModel = {
   getByProfile: (githubId: number) => Promise<Project[]>;
   getById: (projectId: number) => Promise<ServerProjectSecret>;
-  getKey: (projectId: number) => Promise<ProjectKey>;
+  getKey: (projectId: number) => Promise<ProjectKey | null>;
   create: (projectData: CreateProject, encryptionKey: string) => Promise<Project>;
   addProject: (projectData: CreateProject) => Promise<Project>;
   addKey: (projectId: number, encryptedKey: string) => Promise<ProjectKey>;
@@ -46,7 +46,12 @@ export type TEnvironmentModel = {
 };
 
 export type TSecretModel = {
-  create: (environmentId: number, path: string) => Promise<Secret>;
+  create: (
+    projectId: number,
+    environment: EnvironmentName,
+    path: string,
+    content: string
+  ) => Promise<Secret | null>;
   updateVersion: (secretId: number, content: string) => Promise<ServerProjectSecret>;
 };
 
@@ -57,6 +62,7 @@ export type TSecretVersionModel = {
 };
 
 export type TTemplateModel = {
+  getPublicById: (templateId: number) => Promise<Template | null>;
   getPublic: () => Promise<Template[]>;
 };
 

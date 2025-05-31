@@ -75,7 +75,7 @@ const project = {
 
     return result[0];
   },
-  getKey: async (projectId: number): Promise<ProjectKey> => {
+  getKey: async (projectId: number): Promise<ProjectKey | null> => {
     const result = await executeQuery<ProjectKey>(
       `
       SELECT *
@@ -84,6 +84,10 @@ const project = {
     `,
       [projectId]
     );
+
+    if (result.length === 0) {
+      return null;
+    }
 
     return result[0];
   },

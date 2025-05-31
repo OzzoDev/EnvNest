@@ -6,6 +6,8 @@ import { Button } from "../ui/button";
 import { trpc } from "@/trpc/client";
 import { useProjectStore } from "@/store/projectStore";
 import ModeSelect from "../utils/ModeSelect";
+import { toast } from "sonner";
+import { capitalize } from "@/lib/utils";
 
 type FormData = {
   environment?: string | null;
@@ -24,17 +26,52 @@ const EnvCreator = () => {
 
   const { data: templates } = trpc.template.getPublic.useQuery();
 
-  const isValid = formData?.environment && formData.path;
+  const { mutate: createSecret } = trpc.secret.create.useMutation({
+    onSuccess: (data) => {
+      console.log(data);
+
+      toast.success(`${formData.environment} .env file created successfully`);
+    },
+    onError: () => {
+      toast.success(`Error creating ${formData.environment} .env file`);
+    },
+  });
 
   const handleSumbit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log(formData);
+    const isComplete = formData.environment && formData.path;
+
+    if (!project) {
+      return;
+    }
+
+    if (!isComplete) {
+      if (!formData.environment) {
+        toast.error("Please select environment");
+      } else {
+        toast.error("Please select path");
+      }
+
+      return;
+    }
+
+    const environmentValue = ENVIRONMENTS.find((env) => env.label === formData.environment)?.value;
+    const templateId = templates?.find((temp) => temp.name === formData.template)?.id;
+
+    createSecret({
+      projectId: project.project_id,
+      environment: environmentValue!,
+      path: formData.path!,
+      templateId,
+    });
   };
 
+  const isValid = formData?.environment && formData.path;
+
   return (
-    <form onSubmit={handleSumbit}>
-      <p className="font-medium text-text-color mb-4">Create .env file</p>
+    <form onSubmit={handleSumbit} className="flex flex-col gap-y-4">
+      <p className="font-medium text-text-color">Create .env file</p>
       <div className="flex items-end gap-x-8">
         <ModeSelect
           selectPlaceholder="Select enviornment"
@@ -58,13 +95,12 @@ const EnvCreator = () => {
           options={templates?.map((template) => template.name) ?? []}
           onSelect={(value) => setFormData((prev) => ({ ...prev, template: value }))}
         />
-
-        {isValid && (
-          <Button type="submit" variant="secondary">
-            Create
-          </Button>
-        )}
       </div>
+      {isValid && (
+        <Button type="submit" variant="secondary" className="w-fit mt-6">
+          Create
+        </Button>
+      )}
     </form>
   );
 };

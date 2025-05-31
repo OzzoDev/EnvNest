@@ -2,8 +2,24 @@ import { Template } from "@/types/types";
 import { executeQuery } from "../db";
 
 const template = {
+  getPublicById: async (templateId: number): Promise<Template | null> => {
+    const result = await executeQuery<Template>(
+      `
+        SELECT * 
+        FROM template
+        WHERE id = $1 AND visibility = 'public'           
+    `,
+      [templateId]
+    );
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return result[0];
+  },
   getPublic: async (): Promise<Template[]> => {
-    return executeQuery<Template>(`
+    return await executeQuery<Template>(`
         SELECT * 
         FROM template
         WHERE visibility = 'public'             
