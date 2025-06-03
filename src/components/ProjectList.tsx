@@ -49,12 +49,12 @@ const ProjectList = () => {
             </Button>
           ) : (
             <AlertDialog
+              key={project.id}
               title="Are you sure you want to change project?"
               description="Any unsaved changes will be lost. This action cannot be undone."
               action="Continue"
               actionFn={() => selectProject(project.id)}>
               <Button
-                key={project.id}
                 variant={project.id == projectId ? "secondary" : "ghost"}
                 className="justify-start">
                 {project.full_name}
