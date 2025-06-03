@@ -1,6 +1,5 @@
-import { EnvironmentName, EnvironmentSecret, SecretTable, ServerSecret } from "@/types/types";
+import { EnvironmentName, EnvironmentSecret, SecretTable } from "@/types/types";
 import { executeQuery } from "../db";
-import secretVerionModel from "./secret-version";
 import environmentModel from "./environment";
 
 const secret = {
@@ -10,7 +9,7 @@ const secret = {
         `
           WITH latest_version AS (
             SELECT DISTINCT ON (secret_id)
-              id
+              id,
               secret_id,
               content,
               version,
@@ -30,7 +29,7 @@ const secret = {
           INNER JOIN secret s
             ON s.environment_id = e.id
           INNER JOIN latest_version lv
-            ON lv.secret_id = $1
+            ON lv.secret_id = s.id
           WHERE s.id = $1
         `,
         [secretId]
@@ -59,7 +58,14 @@ const secret = {
         )
       )[0].id;
 
-      await secretVerionModel.create(secretId, content, 1);
+      await executeQuery(
+        `
+          INSERT INTO secret_version (secret_id, content, version)
+          VALUES ($1, $2, $3)
+          RETURNING *;    
+        `,
+        [secretId, content, 1]
+      );
 
       await executeQuery("COMMIT");
 
@@ -70,9 +76,46 @@ const secret = {
       return null;
     }
   },
-  updateVersion: async (secretId: number, content: string): Promise<ServerSecret | void> => {
-    await secretVerionModel.update(secretId, content);
-    // return projectModel.getById(secretId);
+  update: async (secretId: number, content: string): Promise<EnvironmentSecret | null> => {
+    try {
+      await executeQuery(`BEGIN`);
+
+      await executeQuery(
+        `
+      SELECT * FROM secret
+      WHERE id = $1
+      FOR UPDATE
+      `,
+        [secretId]
+      );
+
+      await executeQuery(
+        `
+      INSERT INTO secret_version (secret_id, content, version)
+      SELECT $1, $2, COALESCE(MAX(version), 0) + 1
+      FROM secret_version
+      WHERE secret_id = $1
+      `,
+        [secretId, content]
+      );
+
+      await executeQuery(
+        `
+      UPDATE secret
+      SET updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1
+      `,
+        [secretId]
+      );
+
+      await executeQuery(`COMMIT`);
+
+      return await secret.getById(secretId);
+    } catch (err) {
+      await executeQuery(`ROLLBACK`);
+      console.error("Error updating secret version:", err);
+      return null;
+    }
   },
 };
 

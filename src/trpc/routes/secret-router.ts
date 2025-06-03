@@ -70,7 +70,7 @@ export const secretRouter = router({
         encryptedContent
       );
     }),
-  updateVersion: privateProcedure
+  update: privateProcedure
     .input(z.object({ secretId: z.number(), projectId: z.number(), content: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const { user } = ctx;
@@ -82,13 +82,24 @@ export const secretRouter = router({
       const projectKey = (await db.project.getKey(projectId, githubId))?.encrypted_key;
 
       if (!projectKey) {
-        throw new TRPCError({ code: "BAD_REQUEST" });
+        throw new TRPCError({ code: "NOT_FOUND", message: "Encryption key not found" });
       }
 
       const decryptedKey = aesDecrypt(projectKey, process.env.ENCRYPTION_ROOT_KEY!);
 
       const encryptedContent = aesEncrypt(content, decryptedKey);
 
-      return db.secret.updateVersion(secretId, encryptedContent);
+      const updatedSecret = await db.secret.update(secretId, encryptedContent);
+
+      if (!updatedSecret) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error updating secret. Please try again",
+        });
+      }
+
+      const decryptedUpdatedSecret = aesDecrypt(updatedSecret?.content, decryptedKey);
+
+      return { ...updatedSecret, content: decryptedUpdatedSecret };
     }),
 });

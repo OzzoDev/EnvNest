@@ -54,13 +54,7 @@ export type TSecretModel = {
     path: string,
     content: string
   ) => Promise<number | null>;
-  updateVersion: (secretId: number, content: string) => Promise<ServerSecret>;
-};
-
-export type TSecretVersionModel = {
-  getBySecretId: (secretId: number) => Promise<SecretVersionTable>;
-  create: (secretId: number, content: string, version: number) => Promise<SecretVersionTable>;
-  update: (secretId: number, content: string) => Promise<SecretVersionTable>;
+  update: (secretId: number, content: string) => Promise<EnvironmentSecret | null>;
 };
 
 export type TTemplateModel = {
@@ -73,6 +67,5 @@ export type TDbClient = {
   project: TProjectModel;
   environment: TEnvironmentModel;
   secret: TSecretModel;
-  secretVersion: TSecretVersionModel;
   template: TTemplateModel;
 };

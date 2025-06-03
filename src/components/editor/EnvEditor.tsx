@@ -17,16 +17,21 @@ import {
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
+import { trpc } from "@/trpc/client";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   envVariables: z.array(z.object({ name: z.string(), value: z.string() })),
 });
 
 const EnvEditor = () => {
+  const projectId = useProjectStore((state) => state.projectId);
+  const secretId = useProjectStore((state) => state.secretId);
   const secret = useProjectStore((state) => state.secret);
   const setIsSaved = useProjectStore((state) => state.setIsSaved);
 
   const [open, setOpen] = useState(false);
+  const [toggleResetKey, setToggleResetKey] = useState<number>(0);
   const [updateMessage, setUpdateMessage] = useState<string>("");
 
   const formMethods = useForm({
@@ -36,6 +41,7 @@ const EnvEditor = () => {
   const {
     reset,
     handleSubmit,
+    getValues,
     formState: { isDirty },
   } = formMethods;
 
@@ -57,8 +63,29 @@ const EnvEditor = () => {
     control: formMethods.control,
   });
 
+  const { mutate: updateSecret } = trpc.secret.update.useMutation({
+    onSuccess: (data) => {
+      const envVariables = data.content.split("&&").map((val) => {
+        const [name, value] = val.split("=");
+        return { name, value };
+      });
+
+      reset({ envVariables });
+      setToggleResetKey((prev) => prev + 1);
+      toast.success("Secret saved successfully");
+    },
+    onError: () => {
+      toast.success("Error saving secret");
+    },
+    onSettled: () => {
+      setUpdateMessage("");
+    },
+  });
+
   const onSubmit = (data: z.infer<typeof formSchema>) => {
-    console.log("Data: ", data, "Update message: ", updateMessage);
+    const content = data.envVariables.map(({ name, value }) => `${name}=${value}`).join("&&");
+
+    updateSecret({ projectId: Number(projectId), secretId: Number(secretId), content });
   };
 
   return (
@@ -96,7 +123,7 @@ const EnvEditor = () => {
                   disabled={!updateMessage}
                   onClick={handleSubmit((data) => {
                     onSubmit(data);
-                    setOpen(false); // <-- close dialog programmatically after save
+                    setOpen(false);
                   })}>
                   Save
                 </Button>
@@ -106,7 +133,7 @@ const EnvEditor = () => {
 
           <ul className="flex flex-col gap-y-8">
             {envVariables?.map((_, index) => (
-              <EnvInput key={index} index={index} />
+              <EnvInput key={`${toggleResetKey}-${index}`} index={index} />
             ))}
           </ul>
         </div>
