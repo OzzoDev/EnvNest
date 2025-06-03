@@ -5,7 +5,7 @@ import AlertDialog from "@/components/utils/AleartDialog";
 import { convertToLocalTime } from "@/lib/utils";
 import { useProjectStore } from "@/store/projectStore";
 import { trpc } from "@/trpc/client";
-import { Clock, Github, User } from "lucide-react";
+import { Github, User } from "lucide-react";
 import Link from "next/link";
 
 const DashboardHeader = () => {
@@ -14,7 +14,7 @@ const DashboardHeader = () => {
   const setProject = useProjectStore((state) => state.setProject);
   const setProjectId = useProjectStore((state) => state.setProjectId);
 
-  const { mutate: deleteProject } = trpc.project.deleteProject.useMutation({
+  const { mutate: deleteProject } = trpc.project.delete.useMutation({
     onSuccess: () => {
       setProject(null);
       setProjectId(null);
@@ -25,7 +25,7 @@ const DashboardHeader = () => {
     return null;
   }
 
-  const convertedCreatedAt = convertToLocalTime(project.project_created_at);
+  const convertedCreatedAt = convertToLocalTime(project.created_at);
 
   return (
     <div className="flex justify-between">

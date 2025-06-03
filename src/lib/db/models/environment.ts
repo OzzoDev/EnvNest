@@ -1,9 +1,9 @@
-import { Environment, EnvironmentName } from "@/types/types";
+import { EnvironmentTable, EnvironmentName } from "@/types/types";
 import { executeQuery } from "../db";
 
 const environment = {
-  create: async (projectId: number, environment: EnvironmentName): Promise<Environment> => {
-    const result = await executeQuery<Environment>(
+  create: async (projectId: number, environment: EnvironmentName): Promise<EnvironmentTable> => {
+    const result = await executeQuery<EnvironmentTable>(
       `
         INSERT INTO environment (project_id, name)
         VALUES ($1, $2)

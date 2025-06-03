@@ -1,45 +1,15 @@
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
 import { useProjectStore } from "@/store/projectStore";
 
-type EnvEditorProps = {
-  defaultValue: string;
-  onSave: (value: string) => void;
-};
+type EnvEditorProps = {};
 
-const EnvEditor = ({ defaultValue, onSave }: EnvEditorProps) => {
-  const { setIsSaved } = useProjectStore();
-  const [value, setValue] = useState<string>(defaultValue);
+const EnvEditor = () => {
+  const secret = useProjectStore((state) => state.secret);
 
-  useEffect(() => {
-    setValue(defaultValue);
-  }, [defaultValue]);
+  console.log("secret: ", secret);
 
-  const onChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    const { value: val } = e.target;
+  console.log("Secret in env editor: ", secret ? secret.content.split("&&") : "");
 
-    setValue(val);
-    setIsSaved(false);
-  };
-
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSaved(true);
-    onSave(value);
-  };
-
-  return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-y-8 w-full h-full">
-      <div className="flex justify-between">
-        <p className="text-lg text-text-color">Edit .env file</p>
-        <Button type="submit" variant="outline">
-          Save
-        </Button>
-      </div>
-      <Textarea value={value} onChange={onChange} className="w-full h-full resize-none" />
-    </form>
-  );
+  return <p>Env editor</p>;
 };
 
 export default EnvEditor;

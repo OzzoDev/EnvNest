@@ -1,16 +1,16 @@
 import {
   CreateProject,
-  Project,
-  ProjectKey,
-  ServerProjectSecret,
+  ProjectTable,
+  ProjectKeyTable,
+  ServerSecret,
   UpdateProjectName,
 } from "@/types/types";
 import { executeQuery } from "../db";
 import { aesEncrypt, generateAESKey } from "@/lib/aes-helpers";
 
 const project = {
-  getByProfile: async (githubId: number): Promise<Project[]> => {
-    return await executeQuery<Project>(
+  getByProfile: async (githubId: number): Promise<ProjectTable[]> => {
+    return await executeQuery<ProjectTable>(
       `
       SELECT
         project.id AS id,
@@ -28,61 +28,44 @@ const project = {
       [githubId]
     );
   },
-  getById: async (projectId: number): Promise<ServerProjectSecret> => {
-    const result = await executeQuery<ServerProjectSecret>(
-      `
-      WITH latest_versions AS (
-        SELECT DISTINCT ON (secret_id)
-          id,
-          secret_id,
-          content,
-          version,
-          created_at
-        FROM secret_version
-        ORDER BY secret_id, version DESC
+  getById: async (projectId: number, githubId: number): Promise<ProjectTable> => {
+    return (
+      await executeQuery<ProjectTable>(
+        `
+          SELECT 
+            p.id, 
+            p.profile_id,
+            p.repo_id,
+            p.name, 
+            p.full_name, 
+            p.owner,
+            p.url,
+            p.created_at
+          FROM project p
+          INNER JOIN profile pr
+            ON pr.id = p.profile_id
+          WHERE p.id = $1 AND pr.github_id = $2
+        `,
+        [projectId, githubId]
       )
-      SELECT
-        p.id AS project_id,
-        p.profile_id,
-        p.repo_id,
-        p.name,
-        p.full_name,
-        p.owner,
-        p.url,
-        p.created_at AS project_created_at,
-        pk.encrypted_key,
-        e.id AS environment_id,
-        e.name AS environment,
-        s.id AS secret_id,
-        s.path,
-        s.updated_at AS secret_updated_at,
-        lv.content,
-        lv.version AS secret_version
-      FROM project p
-      LEFT JOIN project_key pk
-        ON pk.project_id = p.id
-      LEFT JOIN environment e
-        ON e.project_id = p.id
-      LEFT JOIN secret s
-        ON s.environment_id = e.id
-      LEFT JOIN latest_versions lv
-        ON lv.secret_id = s.id
-      WHERE p.id = $1
-       
-    `,
-      [projectId]
-    );
-
-    return result[0];
+    )[0];
   },
-  getKey: async (projectId: number): Promise<ProjectKey | null> => {
-    const result = await executeQuery<ProjectKey>(
+  getKey: async (projectId: number, githubId: number): Promise<ProjectKeyTable | null> => {
+    const result = await executeQuery<ProjectKeyTable>(
       `
-      SELECT *
-      FROM project_key
-      WHERE project_id = $1  
-    `,
-      [projectId]
+        SELECT 
+          pk.id,
+          pk.project_id,
+          pk.encrypted_key,
+          pk.created_at
+        FROM project_key pk
+        INNER JOIN project p 
+          ON p.id = pk.project_id
+        INNER JOIN profile pr
+          ON pr.id = p.profile_id
+        WHERE pk.project_id = $1 AND pr.github_id = $2
+      `,
+      [projectId, githubId]
     );
 
     if (result.length === 0) {
@@ -91,7 +74,7 @@ const project = {
 
     return result[0];
   },
-  create: async (projectData: CreateProject, rootEncryptionKey: string): Promise<Project> => {
+  create: async (projectData: CreateProject, rootEncryptionKey: string): Promise<ProjectTable> => {
     try {
       await executeQuery("BEGIN");
 
@@ -111,10 +94,10 @@ const project = {
       throw err;
     }
   },
-  addProject: async (projectData: CreateProject): Promise<Project> => {
+  addProject: async (projectData: CreateProject): Promise<ProjectTable> => {
     const { profile_id, repo_id, name, full_name, owner, url } = projectData;
 
-    const result = await executeQuery<Project>(
+    const result = await executeQuery<ProjectTable>(
       `
         INSERT INTO project (profile_id, repo_id, name, full_name, owner, url)
         VALUES ($1, $2, $3, $4, $5, $6)
@@ -125,8 +108,8 @@ const project = {
 
     return result[0];
   },
-  addKey: async (projectId: number, encryptedKey: string): Promise<ProjectKey> => {
-    const result = await executeQuery<ProjectKey>(
+  addKey: async (projectId: number, encryptedKey: string): Promise<ProjectKeyTable> => {
+    const result = await executeQuery<ProjectKeyTable>(
       `
         INSERT INTO project_key (project_id, encrypted_key)
         VALUES ($1, $2)
@@ -137,14 +120,14 @@ const project = {
 
     return result[0];
   },
-  updateName: async (project: UpdateProjectName): Promise<Project | null> => {
+  updateName: async (project: UpdateProjectName): Promise<ProjectTable | null> => {
     if (!project) {
       return null;
     }
 
     const { name, full_name, repo_id } = project;
 
-    const result = await executeQuery<Project>(
+    const result = await executeQuery<ProjectTable>(
       `
       UPDATE project
       SET 
@@ -158,8 +141,8 @@ const project = {
 
     return result[0];
   },
-  delete: async (projectId: number): Promise<Project> => {
-    const result = await executeQuery<Project>(
+  delete: async (projectId: number): Promise<ProjectTable> => {
+    const result = await executeQuery<ProjectTable>(
       `
       DELETE FROM project 
       WHERE id = $1

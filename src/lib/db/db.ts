@@ -146,15 +146,17 @@ export const initDB = async () => {
     )  
   `);
 
-  console.log("✅ Database initialized");
-
   await seedDB();
+
+  console.log("✅ Database initialized");
 };
 
 const seedDB = async () => {
-  const result = await executeQuery(`SELECT COUNT(*) FROM template`);
+  const result = await executeQuery<{ count: number }>(
+    `SELECT CAST(COUNT(*) AS INTEGER) FROM template`
+  );
 
-  if (result.length === 0) {
+  if (!result[0].count || result[0].count === 0) {
     try {
       await executeQuery(`
         INSERT INTO template (name, template, visibility)

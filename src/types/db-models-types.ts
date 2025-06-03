@@ -1,17 +1,18 @@
 import {
   CreateProject,
-  Environment,
+  EnvironmentTable,
   EnvironmentName,
   GithubUser,
   GithubUserNoId,
   Profile,
-  Project,
-  ProjectKey,
-  ServerProjectSecret,
-  Secret,
-  SecretVersion,
+  ProjectTable,
+  ProjectKeyTable,
+  ServerSecret,
+  SecretTable,
+  SecretVersionTable,
   UpdateProjectName,
-  Template,
+  TemplateTable,
+  EnvironmentSecret,
 } from "./types";
 
 export type TProfileModel = {
@@ -31,39 +32,40 @@ export type TProfileModel = {
 };
 
 export type TProjectModel = {
-  getByProfile: (githubId: number) => Promise<Project[]>;
-  getById: (projectId: number) => Promise<ServerProjectSecret>;
-  getKey: (projectId: number) => Promise<ProjectKey | null>;
-  create: (projectData: CreateProject, encryptionKey: string) => Promise<Project>;
-  addProject: (projectData: CreateProject) => Promise<Project>;
-  addKey: (projectId: number, encryptedKey: string) => Promise<ProjectKey>;
-  updateName: (project: UpdateProjectName) => Promise<Project | null>;
-  delete: (projectId: number) => Promise<Project>;
+  getByProfile: (githubId: number) => Promise<ProjectTable[]>;
+  getById: (projectId: number, githubId: number) => Promise<ProjectTable>;
+  getKey: (projectId: number, githubId: number) => Promise<ProjectKeyTable | null>;
+  create: (projectData: CreateProject, encryptionKey: string) => Promise<ProjectTable>;
+  addProject: (projectData: CreateProject) => Promise<ProjectTable>;
+  addKey: (projectId: number, encryptedKey: string) => Promise<ProjectKeyTable>;
+  updateName: (project: UpdateProjectName) => Promise<ProjectTable | null>;
+  delete: (projectId: number) => Promise<ProjectTable>;
 };
 
 export type TEnvironmentModel = {
-  create: (projectId: number, environment: EnvironmentName) => Promise<Environment>;
+  create: (projectId: number, environment: EnvironmentName) => Promise<EnvironmentTable>;
 };
 
 export type TSecretModel = {
+  getById: (secretId: number) => Promise<EnvironmentSecret>;
   create: (
     projectId: number,
     environment: EnvironmentName,
     path: string,
     content: string
-  ) => Promise<Secret | null>;
-  updateVersion: (secretId: number, content: string) => Promise<ServerProjectSecret>;
+  ) => Promise<number | null>;
+  updateVersion: (secretId: number, content: string) => Promise<ServerSecret>;
 };
 
 export type TSecretVersionModel = {
-  getBySecretId: (secretId: number) => Promise<SecretVersion>;
-  create: (secretId: number, content: string, version: number) => Promise<SecretVersion>;
-  update: (secretId: number, content: string) => Promise<SecretVersion>;
+  getBySecretId: (secretId: number) => Promise<SecretVersionTable>;
+  create: (secretId: number, content: string, version: number) => Promise<SecretVersionTable>;
+  update: (secretId: number, content: string) => Promise<SecretVersionTable>;
 };
 
 export type TTemplateModel = {
-  getPublicById: (templateId: number) => Promise<Template | null>;
-  getPublic: () => Promise<Template[]>;
+  getPublicById: (templateId: number) => Promise<TemplateTable | null>;
+  getPublic: () => Promise<TemplateTable[]>;
 };
 
 export type TDbClient = {

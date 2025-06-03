@@ -7,7 +7,7 @@ import { useProjectStore } from "@/store/projectStore";
 import AlertDialog from "./utils/AleartDialog";
 
 const ProjectList = () => {
-  const { data: projects, error, isLoading, refetch } = trpc.project.getAllProjects.useQuery();
+  const { data: projects, error, isLoading, refetch } = trpc.project.getAll.useQuery();
   const projectId = useProjectStore((state) => state.projectId);
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const isSaved = useProjectStore((state) => state.isSaved);

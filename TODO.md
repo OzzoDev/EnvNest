@@ -42,9 +42,9 @@
 
 - [x] Create new project form
 - [x] Project list
-- [] Dashboard top (project overview eg.), include button to delete project
-- [] Environment selector (env file for dev/prod)
-- [] Store content i zustand store and save to db on user actions
+- [x] Dashboard top (project overview eg.), include button to delete project
+- [x] Environment selector (env file for dev/prod)
+- [x] Store content i zustand store and save to db on user actions
 - [] Make env file editor as a list of inputs wit key/value pair (value input must be like password toggle)
 - [] Prompt user to enter a change message when the env needs to be saved and save these message to audit log
 - [] Component to render the Audit log

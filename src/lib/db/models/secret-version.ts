@@ -1,9 +1,9 @@
-import { SecretVersion } from "@/types/types";
+import { SecretVersionTable } from "@/types/types";
 import { executeQuery } from "../db";
 
 const secretVerion = {
-  getBySecretId: async (secretId: number): Promise<SecretVersion> => {
-    const result = await executeQuery<SecretVersion>(
+  getBySecretId: async (secretId: number): Promise<SecretVersionTable> => {
+    const result = await executeQuery<SecretVersionTable>(
       `
       WITH latest_versions AS (
         SELECT DISTINCT ON (secret_id)
@@ -29,8 +29,12 @@ const secretVerion = {
 
     return result[0];
   },
-  create: async (secretId: number, content: string, version: number): Promise<SecretVersion> => {
-    const result = await executeQuery<SecretVersion>(
+  create: async (
+    secretId: number,
+    content: string,
+    version: number
+  ): Promise<SecretVersionTable> => {
+    const result = await executeQuery<SecretVersionTable>(
       `
         INSERT INTO secret_version (secret_id, content, version)
         VALUES ($1, $2, $3)
@@ -41,11 +45,11 @@ const secretVerion = {
 
     return result[0];
   },
-  update: async (secretId: number, content: string): Promise<SecretVersion> => {
+  update: async (secretId: number, content: string): Promise<SecretVersionTable> => {
     const secretVersionBySecretId = await secretVerion.getBySecretId(secretId);
     const latestVersion = secretVersionBySecretId.version;
 
-    const result = await executeQuery<SecretVersion>(
+    const result = await executeQuery<SecretVersionTable>(
       `
         INSERT INTO secret_version (secret_id, content, version)
         VALUES ($1, $2, $3)

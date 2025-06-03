@@ -30,7 +30,7 @@ export type Org = {
 };
 
 // Organization members (junction table)
-export type OrgProfile = {
+export type OrgProfileTable = {
   id: number;
   org_id: number;
   profile_id: number;
@@ -39,7 +39,7 @@ export type OrgProfile = {
 };
 
 // Projects under an organization
-export type Project = {
+export type ProjectTable = {
   id: number;
   profile_id: number;
   repo_id: number;
@@ -50,12 +50,15 @@ export type Project = {
   created_at: string;
 };
 
-export type CreateProject = Omit<Project, "id" | "created_at">;
+export type CreateProject = Omit<ProjectTable, "id" | "created_at">;
 
-export type UpdateProjectName = Omit<Project, "id" | "profile_id" | "owner" | "url" | "created_at">;
+export type UpdateProjectName = Omit<
+  ProjectTable,
+  "id" | "profile_id" | "owner" | "url" | "created_at"
+>;
 
 //All data for project and secret
-export type ServerProjectSecret = {
+export type ServerSecret = {
   project_id: number;
   profile_id: number;
   repo_id: number;
@@ -74,10 +77,10 @@ export type ServerProjectSecret = {
   secret_version: number | null;
 };
 
-export type ProjectSecret = Omit<ServerProjectSecret, "encrypted_key">;
+export type Secret = Omit<ServerSecret, "encrypted_key">;
 
 // Project encryption key (AES-256-GCM encrypted & base64 encoded)
-export type ProjectKey = {
+export type ProjectKeyTable = {
   id: number;
   project_id: number;
   encrypted_key: string;
@@ -85,7 +88,7 @@ export type ProjectKey = {
 };
 
 // Environments under a project (e.g., "development", "production")
-export type Environment = {
+export type EnvironmentTable = {
   id: number;
   project_id: number;
   name: string;
@@ -99,8 +102,18 @@ export type EnvironmentMap = {
   label: string;
 };
 
+export type EnvironmentSecret = {
+  id: number;
+  path: string;
+  environment: string;
+  content: string;
+  version: number;
+  created_at: string;
+  updated_at: string;
+};
+
 // Environment secrets (one row = one `.env` file)
-export type Secret = {
+export type SecretTable = {
   id: number;
   environment_id: number;
   path: string; // e.g. `.env`, `.env.production`
@@ -109,7 +122,7 @@ export type Secret = {
 };
 
 // Version history for a secret
-export type SecretVersion = {
+export type SecretVersionTable = {
   id: number;
   secret_id: number;
   content: string;
@@ -118,7 +131,7 @@ export type SecretVersion = {
 };
 
 // Project collaborators (manual sharing)
-export type Collaborator = {
+export type CollaboratorTable = {
   id: number;
   profile_id: number;
   project_id: number;
@@ -127,7 +140,7 @@ export type Collaborator = {
 };
 
 // Action logs for audit purposes
-export type AuditLog<T = unknown> = {
+export type AuditLogTable<T = unknown> = {
   id: number;
   profile_id: number;
   project_id: number;
@@ -136,8 +149,8 @@ export type AuditLog<T = unknown> = {
   created_at: string;
 };
 
-//Templates to create a env file quckliy
-export type Template = {
+//Templates to create a env file
+export type TemplateTable = {
   id: number;
   name: string;
   template: string;

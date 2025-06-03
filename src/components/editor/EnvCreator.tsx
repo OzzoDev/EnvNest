@@ -7,7 +7,6 @@ import { trpc } from "@/trpc/client";
 import { useProjectStore } from "@/store/projectStore";
 import ModeSelect from "../utils/ModeSelect";
 import { toast } from "sonner";
-import { capitalize } from "@/lib/utils";
 
 type FormData = {
   environment?: string | null;
@@ -18,6 +17,7 @@ type FormData = {
 const EnvCreator = () => {
   const [formData, setFormData] = useState<FormData>({});
   const project = useProjectStore((state) => state.project);
+  const setSecretId = useProjectStore((state) => state.setSecretId);
 
   const { data: paths } = trpc.github.getPaths.useQuery(
     { owner: project?.owner!, repo: project?.name! },
@@ -27,8 +27,10 @@ const EnvCreator = () => {
   const { data: templates } = trpc.template.getPublic.useQuery();
 
   const { mutate: createSecret } = trpc.secret.create.useMutation({
-    onSuccess: (data) => {
-      console.log(data);
+    onSuccess: (secretId) => {
+      setSecretId(secretId);
+
+      console.log("Secret id: ", secretId);
 
       toast.success(`${formData.environment} .env file created successfully`);
     },
@@ -60,7 +62,7 @@ const EnvCreator = () => {
     const templateId = templates?.find((temp) => temp.name === formData.template)?.id;
 
     createSecret({
-      projectId: project.project_id,
+      projectId: project.id,
       environment: environmentValue!,
       path: formData.path!,
       templateId,

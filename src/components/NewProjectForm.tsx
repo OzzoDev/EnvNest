@@ -21,7 +21,7 @@ const NewProjectForm = ({ repos }: NewProjectFormProps) => {
   const setIsSaved = useProjectStore((state) => state.setIsSaved);
   const isSaved = useProjectStore((state) => state.isSaved);
 
-  const { refetch, data: existingRepos } = trpc.project.getAllProjects.useQuery();
+  const { refetch, data: existingRepos } = trpc.project.getAll.useQuery();
 
   useEffect(() => {
     setFilteredRepos(
@@ -29,7 +29,7 @@ const NewProjectForm = ({ repos }: NewProjectFormProps) => {
     );
   }, [existingRepos]);
 
-  const { mutate } = trpc.project.createProject.useMutation({
+  const { mutate } = trpc.project.create.useMutation({
     onError: (err) => {
       console.log("err:", err);
       toast.error("Error creating new project");

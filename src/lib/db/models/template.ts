@@ -1,9 +1,9 @@
-import { Template } from "@/types/types";
+import { TemplateTable } from "@/types/types";
 import { executeQuery } from "../db";
 
 const template = {
-  getPublicById: async (templateId: number): Promise<Template | null> => {
-    const result = await executeQuery<Template>(
+  getPublicById: async (templateId: number): Promise<TemplateTable | null> => {
+    const result = await executeQuery<TemplateTable>(
       `
         SELECT * 
         FROM template
@@ -18,8 +18,8 @@ const template = {
 
     return result[0];
   },
-  getPublic: async (): Promise<Template[]> => {
-    return await executeQuery<Template>(`
+  getPublic: async (): Promise<TemplateTable[]> => {
+    return await executeQuery<TemplateTable>(`
         SELECT * 
         FROM template
         WHERE visibility = 'public'             
