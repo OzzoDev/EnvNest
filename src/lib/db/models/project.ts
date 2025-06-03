@@ -1,10 +1,4 @@
-import {
-  CreateProject,
-  ProjectTable,
-  ProjectKeyTable,
-  ServerSecret,
-  UpdateProjectName,
-} from "@/types/types";
+import { CreateProject, ProjectTable, ProjectKeyTable, UpdateProjectName } from "@/types/types";
 import { executeQuery } from "../db";
 import { aesEncrypt, generateAESKey } from "@/lib/aes-helpers";
 
