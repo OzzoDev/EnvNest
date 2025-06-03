@@ -15,7 +15,7 @@ const PasswordToggle = ({ name }: PasswordToggleProps) => {
   const [type, setType] = useState<"text" | "password">("password");
 
   return (
-    <div className="relative flex justify-between">
+    <div className="relative flex justify-between w-full">
       <Input type={type} {...register(name)} className="" />
       <Button
         type={"button"}

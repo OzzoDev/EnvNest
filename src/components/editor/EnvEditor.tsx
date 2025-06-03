@@ -9,15 +9,22 @@ const formSchema = z.object({
   envVariables: z.array(z.object({ name: z.string(), value: z.string() })),
 });
 
-type EnvEditorProps = {};
-
 const EnvEditor = () => {
   const secret = useProjectStore((state) => state.secret);
+  const setIsSaved = useProjectStore((state) => state.setIsSaved);
   const formMethods = useForm({
     resolver: zodResolver(formSchema),
   });
 
-  const { reset, getValues } = formMethods;
+  const {
+    reset,
+    getValues,
+    formState: { isDirty },
+  } = formMethods;
+
+  useEffect(() => {
+    setIsSaved(!isDirty);
+  }, [isDirty]);
 
   useEffect(() => {
     const envVariables = secret?.content.split("&&").map((val) => {

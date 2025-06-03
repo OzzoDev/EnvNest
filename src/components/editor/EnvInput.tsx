@@ -11,14 +11,8 @@ const EnvInput = ({ index }: EnvInputProps) => {
 
   return (
     <div className="flex justify-between gap-x-8">
-      <div className="w-full">
-        <p className="mb-2">Key</p>
-        <Input type="text" {...register(`envVariables.${index}.name`)} />
-      </div>
-      <div className="w-full">
-        <p className="mb-2">value</p>
-        <PasswordToggle name={`envVariables.${index}.value`} />
-      </div>
+      <Input type="text" {...register(`envVariables.${index}.name`)} className="w-full" />
+      <PasswordToggle name={`envVariables.${index}.value`} />
     </div>
   );
 };
