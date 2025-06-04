@@ -16,11 +16,17 @@ type FormData = {
 
 const EnvCreator = () => {
   const [formData, setFormData] = useState<FormData>({});
-  const [environments, setEnvironments] = useState<string[]>(ENVIRONMENTS.map((env) => env.label));
+  // const [environments, setEnvironments] = useState<string[]>(ENVIRONMENTS.map((env) => env.label));
   const project = useProjectStore((state) => state.project);
   const projectId = useProjectStore((state) => state.projectId);
 
   const setSecretId = useProjectStore((state) => state.setSecretId);
+
+  const { data: environments, refetch: refetchEnvironments } =
+    trpc.environment.getAvailable.useQuery(
+      { owner: project?.owner!, repo: project?.name!, projectId: Number(projectId) },
+      { enabled: !!project && !!projectId }
+    );
 
   const { data: paths, refetch: refetchPaths } = trpc.github.getPaths.useQuery(
     {
@@ -41,7 +47,7 @@ const EnvCreator = () => {
 
       refetchTemplates();
       refetchPaths();
-      setEnvironments(ENVIRONMENTS.map((env) => env.label));
+      // setEnvironments(ENVIRONMENTS.map((env) => env.label));
 
       toast.success(`${formData.environment} .env file created successfully`);
     },
@@ -94,7 +100,11 @@ const EnvCreator = () => {
           selectPlaceholder="Select enviornment"
           emptyPlaceHolder="No environments found"
           selectLabel="Environments"
-          options={environments}
+          options={
+            environments
+              ?.map((env) => env?.label)
+              .filter((label): label is string => Boolean(label)) || []
+          }
           value={formData.environment ?? null}
           onSelect={(value) => setFormData((prev) => ({ ...prev, environment: value }))}
         />
@@ -103,7 +113,7 @@ const EnvCreator = () => {
             selectPlaceholder="Select path"
             emptyPlaceHolder="No paths found"
             enableSearch={true}
-            options={paths?.map((path) => path.path) ?? []}
+            options={paths ?? []}
             value={formData.path ?? null}
             onSelect={(value) => setFormData((prev) => ({ ...prev, path: value }))}
           />

@@ -45,6 +45,7 @@ export type TProjectModel = {
 };
 
 export type TEnvironmentModel = {
+  getByProject: (projectId: number) => Promise<EnvironmentTable[]>;
   create: (projectId: number, environment: EnvironmentName) => Promise<EnvironmentTable>;
 };
 

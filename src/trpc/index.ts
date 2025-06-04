@@ -1,3 +1,4 @@
+import { environmentRouter } from "./routes/environment-router";
 import { githubRouter } from "./routes/github-router";
 import { profileRouter } from "./routes/profile-router";
 import { projectRouter } from "./routes/project-router";
@@ -9,6 +10,7 @@ export const appRouter = router({
   profile: profileRouter,
   project: projectRouter,
   secret: secretRouter,
+  environment: environmentRouter,
   template: templateRouter,
   github: githubRouter,
 });

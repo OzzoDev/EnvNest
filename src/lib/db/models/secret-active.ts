@@ -8,16 +8,16 @@ const secretActive = {
       (
         await executeQuery<SecretActiveTable>(
           `
-                SELECT
-                    sa.id,
-                    sa.profile_id, 
-                    sa.project_id, 
-                    sa.secret_id
-                FROM secret_active sa
-                INNER JOIN profile p
-                    ON p.id = sa.profile_id
-                WHERE p.github_id = $1 AND sa.project_id = $2   
-            `,
+            SELECT
+                sa.id,
+                sa.profile_id, 
+                sa.project_id, 
+                sa.secret_id
+            FROM secret_active sa
+            INNER JOIN profile p
+                ON p.id = sa.profile_id
+            WHERE p.github_id = $1 AND sa.project_id = $2   
+          `,
           [githubId, projectId]
         )
       )[0] || null

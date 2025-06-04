@@ -88,8 +88,7 @@ export const initDB = async () => {
       id SERIAL PRIMARY KEY,
       project_id INTEGER REFERENCES project(id) ON DELETE CASCADE,
       name TEXT NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      UNIQUE(project_id, name)
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `);
 
@@ -122,7 +121,7 @@ export const initDB = async () => {
       project_id INTEGER REFERENCES project(id) ON DELETE CASCADE,
       secret_id INTEGER REFERENCES secret(id) ON DELETE CASCADE,
       UNIQUE(profile_id, project_id, secret_id)
-    )  
+    );  
   `);
 
   await executeQuery(`
