@@ -130,7 +130,7 @@ export const initDB = async () => {
     CREATE TABLE IF NOT EXISTS audit_log (
       id SERIAL PRIMARY KEY,
       profile_id INTEGER REFERENCES profile(id) ON DELETE CASCADE,
-      project_id INTEGER REFERENCES project(id) ON DELETE CASCADE,
+      secret_version_id INTEGER REFERENCES secret_version(id) ON DELETE CASCADE,
       action TEXT NOT NULL,
       metadata JSONB DEFAULT '{}'::JSONB,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

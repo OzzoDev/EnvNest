@@ -143,7 +143,7 @@ export type CollaboratorTable = {
 export type AuditLogTable<T = unknown> = {
   id: number;
   profile_id: number;
-  project_id: number;
+  secret_version_id: number;
   action: string;
   metadata: Record<string, T>; // JSONB metadata
   created_at: string;

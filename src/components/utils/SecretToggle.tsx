@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "../ui/button";
 import { EyeOff, Eye } from "lucide-react";
 import { useFormContext, Controller } from "react-hook-form";
