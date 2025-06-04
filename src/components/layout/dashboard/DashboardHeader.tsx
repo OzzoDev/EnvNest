@@ -11,13 +11,11 @@ import Link from "next/link";
 const DashboardHeader = () => {
   const project = useProjectStore((state) => state.project);
   const projectId = useProjectStore((state) => state.projectId);
-  const setProject = useProjectStore((state) => state.setProject);
-  const setProjectId = useProjectStore((state) => state.setProjectId);
+  const clearStore = useProjectStore((state) => state.clearStore);
 
   const { mutate: deleteProject } = trpc.project.delete.useMutation({
     onSuccess: () => {
-      setProject(null);
-      setProjectId(null);
+      clearStore();
     },
   });
 

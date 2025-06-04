@@ -1,4 +1,4 @@
-import { EnvironmentSecret, ProjectTable, Secret } from "@/types/types";
+import { EnvironmentSecret, ProjectTable } from "@/types/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -15,6 +15,7 @@ type ProjectStore = {
   setIsSaved: (isSaved: boolean) => void;
   secretId: number | null;
   setSecretId: (secretId: number | null) => void;
+  clearStore: () => void;
 };
 
 export const useProjectStore = create<ProjectStore>()(
@@ -31,7 +32,17 @@ export const useProjectStore = create<ProjectStore>()(
       setProject: (project: ProjectTable | null) => set({ project }),
       setHasHydrated: (hasHydrated: boolean) => set({ hasHydrated }),
       setIsSaved: (isSaved: boolean) => set({ isSaved }),
-      setSecretId: (secretId) => set({ secretId }),
+      setSecretId: (secretId: number | null) => set({ secretId }),
+
+      clearStore: () =>
+        set({
+          projectId: null,
+          project: null,
+          secret: null,
+          hasHydrated: false,
+          isSaved: true,
+          secretId: null,
+        }),
     }),
     {
       name: "project-store",

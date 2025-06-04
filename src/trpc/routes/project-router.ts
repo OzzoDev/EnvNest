@@ -17,8 +17,16 @@ export const projectRouter = router({
     const { id: githubId } = user;
 
     const db = await getDbClient();
+    const project = await db.project.getById(projectId, githubId);
 
-    return await db.project.getById(projectId, githubId);
+    if (!project) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: `Project with id ${projectId} not found or access denied`,
+      });
+    }
+
+    return project;
   }),
   create: privateProcedure
     .input(
