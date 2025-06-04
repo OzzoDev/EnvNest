@@ -49,7 +49,6 @@ export const useProjectStore = create<ProjectStore>()(
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
         state?.setIsSaved(true);
-        state?.clearStore();
       },
     }
   )

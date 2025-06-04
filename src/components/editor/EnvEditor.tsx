@@ -19,6 +19,7 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { trpc } from "@/trpc/client";
 import { toast } from "sonner";
+import SecretSelector from "./SecretSelector";
 
 const formSchema = z.object({
   envVariables: z.array(z.object({ name: z.string(), value: z.string() })),
@@ -105,44 +106,47 @@ const EnvEditor = () => {
     <FormProvider {...formMethods}>
       <form>
         <div className="flex flex-col gap-y-8">
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button type="button" disabled={!isDirty} variant="default" className="self-end">
-                {isDirty ? "Save Changes" : "Saved"}
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Save Your Changes</DialogTitle>
-                <DialogDescription>
-                  We track the version history of your projects. Please provide a brief message
-                  about the updates you made for future reference.
-                </DialogDescription>
-              </DialogHeader>
-              <Label>Update Message</Label>
-              <Input
-                value={updateMessage}
-                onChange={(e) => setUpdateMessage(e.target.value)}
-                placeholder="Describe your changes..."
-              />
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant="outline">
-                    Cancel
-                  </Button>
-                </DialogClose>
-                <Button
-                  type="button"
-                  disabled={!updateMessage}
-                  onClick={handleSubmit((data) => {
-                    onSubmit(data);
-                    setOpen(false);
-                  })}>
-                  Save
+          <div className="flex justify-between">
+            <SecretSelector />
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button type="button" disabled={!isDirty} variant="default" className="self-end">
+                  {isDirty ? "Save Changes" : "Saved"}
                 </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Save Your Changes</DialogTitle>
+                  <DialogDescription>
+                    We track the version history of your projects. Please provide a brief message
+                    about the updates you made for future reference.
+                  </DialogDescription>
+                </DialogHeader>
+                <Label>Update Message</Label>
+                <Input
+                  value={updateMessage}
+                  onChange={(e) => setUpdateMessage(e.target.value)}
+                  placeholder="Describe your changes..."
+                />
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button type="button" variant="outline">
+                      Cancel
+                    </Button>
+                  </DialogClose>
+                  <Button
+                    type="button"
+                    disabled={!updateMessage}
+                    onClick={handleSubmit((data) => {
+                      onSubmit(data);
+                      setOpen(false);
+                    })}>
+                    Save
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
 
           <ul className="flex flex-col gap-y-8">
             {envVariables?.map((_, index) => (
