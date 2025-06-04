@@ -95,6 +95,7 @@ const EnvCreator = () => {
           emptyPlaceHolder="No environments found"
           selectLabel="Environments"
           options={environments}
+          value={formData.environment ?? null}
           onSelect={(value) => setFormData((prev) => ({ ...prev, environment: value }))}
         />
         {formData.environment && (
@@ -103,6 +104,7 @@ const EnvCreator = () => {
             emptyPlaceHolder="No paths found"
             enableSearch={true}
             options={paths?.map((path) => path.path) ?? []}
+            value={formData.path ?? null}
             onSelect={(value) => setFormData((prev) => ({ ...prev, path: value }))}
           />
         )}
@@ -113,6 +115,7 @@ const EnvCreator = () => {
             selectLabel="Templates"
             isRequired={false}
             options={templates?.map((template) => template.name) ?? []}
+            value={formData.template ?? null}
             onSelect={(value) => setFormData((prev) => ({ ...prev, template: value }))}
           />
         )}
