@@ -1,46 +1,39 @@
 import { SecretActiveTable } from "@/types/types";
 import { executeQuery } from "../db";
+import profileModel from "./profile";
 
 const secretActive = {
-  getByGithubId: async (githubId: number): Promise<SecretActiveTable | null> => {
+  getByGithubId: async (githubId: string): Promise<SecretActiveTable | null> => {
     return (
       (
         await executeQuery<SecretActiveTable>(
           `
-        SELECT
-            sa.id,
-            sa.profile_id, 
-            sa.project_id, 
-            sa.secret_id
-        FROM secret_active sa
-        INNER JOIN profile p
-            ON p.id = sa.profile_id
-        WHERE p.github_id = $1    
-    `,
+                SELECT
+                    sa.id,
+                    sa.profile_id, 
+                    sa.project_id, 
+                    sa.secret_id
+                FROM secret_active sa
+                INNER JOIN profile p
+                    ON p.id = sa.profile_id
+                WHERE p.github_id = $1    
+            `,
           [githubId]
         )
       )[0] || null
     );
   },
-  getByProfileId: async (profileId: number): Promise<SecretActiveTable | null> => {
-    return (
-      (
-        await executeQuery<SecretActiveTable>(
-          `
-            SELECT *
-            FROM secret_active
-            WHERE profile_id = $1    
-        `,
-          [profileId]
-        )
-      )[0] || null
-    );
-  },
   create: async (
-    profileId: number,
+    githubId: string,
     projectId: number,
     secretId: number
   ): Promise<SecretActiveTable | null> => {
+    const profileId = (await profileModel.getByField({ github_id: githubId }))?.id;
+
+    if (!profileId) {
+      return null;
+    }
+
     return (
       (
         await executeQuery<SecretActiveTable>(
@@ -54,7 +47,13 @@ const secretActive = {
       )[0] || null
     );
   },
-  update: async (profileId: number, secretId: number): Promise<SecretActiveTable | null> => {
+  update: async (githubId: string, secretId: number): Promise<SecretActiveTable | null> => {
+    const profileId = (await profileModel.getByField({ github_id: githubId }))?.id;
+
+    if (!profileId) {
+      return null;
+    }
+
     return (
       (
         await executeQuery<SecretActiveTable>(
@@ -70,17 +69,17 @@ const secretActive = {
     );
   },
   upsert: async (
-    profileId: number,
+    githubId: string,
     projectId: number,
     secretId: number
   ): Promise<SecretActiveTable | null> => {
-    const existing = await secretActive.getByProfileId(profileId);
+    const existing = await secretActive.getByGithubId(githubId);
 
     if (existing) {
-      return await secretActive.update(profileId, secretId);
+      return await secretActive.update(githubId, secretId);
     }
 
-    return (await secretActive.create(profileId, projectId, secretId)) || null;
+    return (await secretActive.create(githubId, projectId, secretId)) || null;
   },
 };
 
