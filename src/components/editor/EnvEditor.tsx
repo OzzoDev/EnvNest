@@ -3,7 +3,7 @@ import EnvInput from "./EnvInput";
 import { FormProvider, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -87,6 +87,10 @@ const EnvEditor = () => {
 
     updateSecret({ projectId: Number(projectId), secretId: Number(secretId), content });
   };
+
+  if (getValues("envVariables") && getValues("envVariables").length === 0) {
+    return null;
+  }
 
   return (
     <FormProvider {...formMethods}>

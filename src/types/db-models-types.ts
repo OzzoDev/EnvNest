@@ -13,6 +13,7 @@ import {
   UpdateProjectName,
   TemplateTable,
   EnvironmentSecret,
+  AuditLogTable,
 } from "./types";
 
 export type TProfileModel = {
@@ -62,10 +63,22 @@ export type TTemplateModel = {
   getPublic: () => Promise<TemplateTable[]>;
 };
 
+export type TAuditLogModel = {
+  get: (secretId: number) => Promise<AuditLogTable>;
+  create: <T>(
+    profileId: number,
+    secretId: number,
+    secret_version_id: number,
+    action: string,
+    metaData?: Record<string, T>
+  ) => Promise<AuditLogTable>;
+};
+
 export type TDbClient = {
   profile: TProfileModel;
   project: TProjectModel;
   environment: TEnvironmentModel;
   secret: TSecretModel;
   template: TTemplateModel;
+  auditLog: TAuditLogModel;
 };
