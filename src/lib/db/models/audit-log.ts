@@ -1,5 +1,6 @@
 import { AuditLogTable } from "@/types/types";
 import { executeQuery } from "../db";
+import profileModel from "./profile";
 
 const auditLog = {
   get: async (secretId: number): Promise<AuditLogTable> => {
@@ -15,12 +16,18 @@ const auditLog = {
     )[0];
   },
   create: async <T>(
-    profileId: number,
+    githubId: string,
     secretId: number,
     secret_version_id: number,
     action: string,
     metaData: Record<string, T> = {}
-  ): Promise<AuditLogTable> => {
+  ): Promise<AuditLogTable | null> => {
+    const profileId = (await profileModel.getByField({ github_id: githubId }))?.id;
+
+    if (!profileId) {
+      return null;
+    }
+
     return (
       await executeQuery<AuditLogTable>(
         `

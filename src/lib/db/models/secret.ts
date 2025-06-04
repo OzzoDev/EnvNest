@@ -22,6 +22,7 @@ const secret = {
             s.path,
             s.updated_at AS updated_at,
             e.name as environment,
+            lv.id as secret_version_id,
             lv.version,
             lv.content,
             lv.created_at AS created_at
@@ -41,7 +42,7 @@ const secret = {
     environment: EnvironmentName,
     path: string,
     content: string
-  ): Promise<number | null> => {
+  ): Promise<EnvironmentSecret | null> => {
     try {
       await executeQuery("BEGIN");
 
@@ -69,7 +70,7 @@ const secret = {
 
       await executeQuery("COMMIT");
 
-      return secretId;
+      return await secret.getById(secretId);
     } catch (err) {
       await executeQuery("ROLLBACK");
 
@@ -82,29 +83,29 @@ const secret = {
 
       await executeQuery(
         `
-      SELECT * FROM secret
-      WHERE id = $1
-      FOR UPDATE
-      `,
+          SELECT * FROM secret
+          WHERE id = $1
+          FOR UPDATE
+        `,
         [secretId]
       );
 
       await executeQuery(
         `
-      INSERT INTO secret_version (secret_id, content, version)
-      SELECT $1, $2, COALESCE(MAX(version), 0) + 1
-      FROM secret_version
-      WHERE secret_id = $1
-      `,
+          INSERT INTO secret_version (secret_id, content, version)
+          SELECT $1, $2, COALESCE(MAX(version), 0) + 1
+          FROM secret_version
+          WHERE secret_id = $1
+        `,
         [secretId, content]
       );
 
       await executeQuery(
         `
-      UPDATE secret
-      SET updated_at = CURRENT_TIMESTAMP
-      WHERE id = $1
-      `,
+          UPDATE secret
+          SET updated_at = CURRENT_TIMESTAMP
+          WHERE id = $1
+        `,
         [secretId]
       );
 

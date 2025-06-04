@@ -49,10 +49,12 @@ export const secretRouter = router({
 
       const db = await getDbClient();
 
+      const project = await db.project.getById(projectId, githubId);
+
       const projectKey = (await db.project.getKey(projectId, githubId))?.encrypted_key;
 
-      if (!projectKey) {
-        throw new TRPCError({ code: "BAD_REQUEST" });
+      if (!project || !projectKey) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Project not found" });
       }
 
       const decryptedKey = aesDecrypt(projectKey, process.env.ENCRYPTION_ROOT_KEY!);
@@ -63,19 +65,43 @@ export const secretRouter = router({
 
       const encryptedContent = aesEncrypt(template, decryptedKey);
 
-      return await db.secret.create(
+      const createdSecret = await db.secret.create(
         projectId,
         environment as EnvironmentName,
         path,
         encryptedContent
       );
+
+      if (!createdSecret) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error creating secret. Please try again",
+        });
+      }
+
+      await db.auditLog.create(
+        String(githubId),
+        createdSecret.id,
+        createdSecret.secret_version_id,
+        `Created secret for ${project.full_name}`,
+        { type: "CREATE" }
+      );
+
+      return createdSecret.id;
     }),
   update: privateProcedure
-    .input(z.object({ secretId: z.number(), projectId: z.number(), content: z.string() }))
+    .input(
+      z.object({
+        secretId: z.number(),
+        projectId: z.number(),
+        content: z.string(),
+        updateMessage: z.string(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const { user } = ctx;
       const { id: githubId } = user;
-      const { secretId, projectId, content } = input;
+      const { secretId, projectId, content, updateMessage } = input;
 
       const db = await getDbClient();
 
@@ -97,6 +123,14 @@ export const secretRouter = router({
           message: "Error updating secret. Please try again",
         });
       }
+
+      await db.auditLog.create(
+        String(githubId),
+        updatedSecret.id,
+        updatedSecret.secret_version_id,
+        updateMessage,
+        { type: "UPDATE" }
+      );
 
       const decryptedUpdatedSecret = aesDecrypt(updatedSecret?.content, decryptedKey);
 

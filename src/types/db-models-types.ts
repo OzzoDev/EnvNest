@@ -54,7 +54,7 @@ export type TSecretModel = {
     environment: EnvironmentName,
     path: string,
     content: string
-  ) => Promise<number | null>;
+  ) => Promise<EnvironmentSecret | null>;
   update: (secretId: number, content: string) => Promise<EnvironmentSecret | null>;
 };
 
@@ -66,12 +66,12 @@ export type TTemplateModel = {
 export type TAuditLogModel = {
   get: (secretId: number) => Promise<AuditLogTable>;
   create: <T>(
-    profileId: number,
+    profileId: string,
     secretId: number,
     secret_version_id: number,
     action: string,
     metaData?: Record<string, T>
-  ) => Promise<AuditLogTable>;
+  ) => Promise<AuditLogTable | null>;
 };
 
 export type TDbClient = {

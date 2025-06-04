@@ -107,6 +107,7 @@ export type EnvironmentSecret = {
   path: string;
   environment: string;
   content: string;
+  secret_version_id: number;
   version: number;
   created_at: string;
   updated_at: string;

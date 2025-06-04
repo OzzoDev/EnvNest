@@ -30,8 +30,6 @@ const EnvCreator = () => {
     onSuccess: (secretId) => {
       setSecretId(secretId);
 
-      console.log("Secret id: ", secretId);
-
       toast.success(`${formData.environment} .env file created successfully`);
     },
     onError: () => {

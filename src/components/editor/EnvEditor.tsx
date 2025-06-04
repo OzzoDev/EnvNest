@@ -85,7 +85,12 @@ const EnvEditor = () => {
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     const content = data.envVariables.map(({ name, value }) => `${name}=${value}`).join("&&");
 
-    updateSecret({ projectId: Number(projectId), secretId: Number(secretId), content });
+    updateSecret({
+      projectId: Number(projectId),
+      secretId: Number(secretId),
+      content,
+      updateMessage,
+    });
   };
 
   if (getValues("envVariables") && getValues("envVariables").length === 0) {
