@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { string, z } from "zod";
 import { privateProcedure, router } from "../trpc";
 import { getDbClient } from "@/lib/db/models";
 import { aesDecrypt, aesEncrypt } from "@/lib/aes-helpers";
@@ -45,6 +45,32 @@ export const secretRouter = router({
       const decryptedContent = aesDecrypt(secret.content, decryptedKey);
 
       return { ...secret, content: decryptedContent };
+    }),
+  getAllAsPathAndId: privateProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input }) => {
+      const { projectId } = input;
+
+      const db = await getDbClient();
+
+      const environments = (await db.environment.getByProject(projectId)).map((env) => env.name);
+      const secrets = await db.secret.getByProject(projectId);
+
+      const result = environments.reduce<Record<string, { id: number; path: string }[]>>(
+        (acc, env) => {
+          acc[env] = secrets
+            .filter((secret) => secret.environment === env)
+            .map((secret) => ({
+              id: secret.id,
+              path: secret.path,
+            }));
+
+          return acc;
+        },
+        {}
+      );
+
+      return result;
     }),
   create: privateProcedure
     .input(
