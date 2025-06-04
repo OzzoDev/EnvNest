@@ -16,19 +16,25 @@ type FormData = {
 
 const EnvCreator = () => {
   const [formData, setFormData] = useState<FormData>({});
+  const [environments, setEnvironments] = useState<string[]>(ENVIRONMENTS.map((env) => env.label));
   const project = useProjectStore((state) => state.project);
   const setSecretId = useProjectStore((state) => state.setSecretId);
 
-  const { data: paths } = trpc.github.getPaths.useQuery(
+  const { data: paths, refetch: refetchPaths } = trpc.github.getPaths.useQuery(
     { owner: project?.owner!, repo: project?.name! },
     { enabled: !!project }
   );
 
-  const { data: templates } = trpc.template.getPublic.useQuery();
+  const { data: templates, refetch: refetchTemplates } = trpc.template.getPublic.useQuery();
 
   const { mutate: createSecret } = trpc.secret.create.useMutation({
     onSuccess: (secretId) => {
       setSecretId(secretId);
+      setFormData({});
+
+      refetchTemplates();
+      refetchPaths();
+      setEnvironments(ENVIRONMENTS.map((env) => env.label));
 
       toast.success(`${formData.environment} .env file created successfully`);
     },
@@ -69,6 +75,10 @@ const EnvCreator = () => {
 
   const isValid = formData?.environment && formData.path;
 
+  if (!project) {
+    return null;
+  }
+
   return (
     <form onSubmit={handleSumbit} className="flex flex-col gap-y-4">
       <p className="font-medium text-text-color">Create .env file</p>
@@ -77,7 +87,7 @@ const EnvCreator = () => {
           selectPlaceholder="Select enviornment"
           emptyPlaceHolder="No environments found"
           selectLabel="Environments"
-          options={ENVIRONMENTS.map((env) => env.label)}
+          options={environments}
           onSelect={(value) => setFormData((prev) => ({ ...prev, environment: value }))}
         />
         <ModeSelect

@@ -120,7 +120,8 @@ export const initDB = async () => {
       id SERIAL PRIMARY KEY, 
       profile_id INTEGER REFERENCES profile(id) ON DELETE CASCADE,
       project_id INTEGER REFERENCES project(id) ON DELETE CASCADE,
-      secret_id INTEGER REFERENCES secret(id) ON DELETE CASCADE
+      secret_id INTEGER REFERENCES secret(id) ON DELETE CASCADE,
+      UNIQUE(profile_id, project_id, secret_id)
     )  
   `);
 

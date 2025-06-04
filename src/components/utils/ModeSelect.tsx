@@ -53,6 +53,7 @@ const ModeSelect = ({
 
   useEffect(() => {
     setFilteredData(uniqueOptions);
+    setSelectedValue(null);
   }, [uniqueOptions]);
 
   const handleSearch = (query: string) => {

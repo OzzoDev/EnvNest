@@ -3,7 +3,7 @@ import { executeQuery } from "../db";
 import profileModel from "./profile";
 
 const secretActive = {
-  getByGithubId: async (githubId: string): Promise<SecretActiveTable | null> => {
+  getByGithubId: async (githubId: string, projectId: number): Promise<SecretActiveTable | null> => {
     return (
       (
         await executeQuery<SecretActiveTable>(
@@ -16,9 +16,9 @@ const secretActive = {
                 FROM secret_active sa
                 INNER JOIN profile p
                     ON p.id = sa.profile_id
-                WHERE p.github_id = $1    
+                WHERE p.github_id = $1 AND sa.project_id = $2   
             `,
-          [githubId]
+          [githubId, projectId]
         )
       )[0] || null
     );
@@ -47,7 +47,11 @@ const secretActive = {
       )[0] || null
     );
   },
-  update: async (githubId: string, secretId: number): Promise<SecretActiveTable | null> => {
+  update: async (
+    githubId: string,
+    projectId: number,
+    secretId: number
+  ): Promise<SecretActiveTable | null> => {
     const profileId = (await profileModel.getByField({ github_id: githubId }))?.id;
 
     if (!profileId) {
@@ -60,10 +64,10 @@ const secretActive = {
           `
             UPDATE secret_active
             SET secret_id = $1
-            WHERE profile_id = $2
+            WHERE profile_id = $2 AND project_id = $3
             RETURNING *;     
         `,
-          [secretId, profileId]
+          [secretId, profileId, projectId]
         )
       )[0] || null
     );
@@ -73,10 +77,10 @@ const secretActive = {
     projectId: number,
     secretId: number
   ): Promise<SecretActiveTable | null> => {
-    const existing = await secretActive.getByGithubId(githubId);
+    const existing = await secretActive.getByGithubId(githubId, projectId);
 
     if (existing) {
-      return await secretActive.update(githubId, secretId);
+      return await secretActive.update(githubId, projectId, secretId);
     }
 
     return (await secretActive.create(githubId, projectId, secretId)) || null;

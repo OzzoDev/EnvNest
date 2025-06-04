@@ -76,13 +76,17 @@ export type TAuditLogModel = {
 };
 
 export type TSecretActive = {
-  getByGithubId: (githubId: string) => Promise<SecretActiveTable | null>;
+  getByGithubId: (githubId: string, projectId: number) => Promise<SecretActiveTable | null>;
   create: (
     githubId: string,
     projectId: number,
     secretId: number
   ) => Promise<SecretActiveTable | null>;
-  update: (githubId: string, secretId: number) => Promise<SecretActiveTable | null>;
+  update: (
+    githubId: string,
+    projectId: number,
+    secretId: number
+  ) => Promise<SecretActiveTable | null>;
   upsert: (
     githubId: string,
     projectId: number,

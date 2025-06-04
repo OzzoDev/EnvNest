@@ -7,43 +7,44 @@ import { EnvironmentName } from "@/types/types";
 
 export const secretRouter = router({
   get: privateProcedure
-    .input(z.object({ projectId: z.number(), secretId: z.number() }))
+    .input(z.object({ projectId: z.number(), secretId: z.number().nullable() }))
     .query(async ({ input, ctx }) => {
-      try {
-        const { user } = ctx;
-        const { id: githubId } = user;
-        const { projectId, secretId } = input;
+      const { user } = ctx;
+      const { id: githubId } = user;
+      const { projectId, secretId } = input;
 
-        const db = await getDbClient();
+      const db = await getDbClient();
 
-        const projectKey = (await db.project.getKey(projectId, githubId))?.encrypted_key;
+      const projectKey = (await db.project.getKey(projectId, githubId))?.encrypted_key;
 
-        if (!projectKey) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Encryption key not found" });
-        }
-
-        const decryptedKey = aesDecrypt(projectKey, process.env.ENCRYPTION_ROOT_KEY!);
-
-        console.log("Decrypted key: ", decryptedKey);
-
-        const secret = await db.secret.getById(secretId);
-
-        console.log("ProjectId: ", projectId, "secretId: ", secretId);
-
-        if (!secret) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Secret not found" });
-        }
-
-        console.log("Secret content: ", secret.content);
-
-        const decryptedContent = aesDecrypt(secret.content, decryptedKey);
-
-        return { ...secret, content: decryptedContent };
-      } catch (err) {
-        console.log("Error: ", err);
-
-        throw err;
+      if (!projectKey) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Encryption key not found" });
       }
+
+      const decryptedKey = aesDecrypt(projectKey, process.env.ENCRYPTION_ROOT_KEY!);
+
+      let safeSecretId = secretId;
+
+      if (!secretId) {
+        safeSecretId =
+          (await db.secretActive.getByGithubId(String(githubId), projectId))?.secret_id ?? null;
+      } else {
+        await db.secretActive.upsert(String(githubId), projectId, secretId);
+      }
+
+      if (!safeSecretId) {
+        return null;
+      }
+
+      const secret = await db.secret.getById(safeSecretId);
+
+      if (!secret) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Secret not found" });
+      }
+
+      const decryptedContent = aesDecrypt(secret.content, decryptedKey);
+
+      return { ...secret, content: decryptedContent };
     }),
   create: privateProcedure
     .input(
@@ -98,6 +99,8 @@ export const secretRouter = router({
         `Created secret for ${project.full_name}`,
         { type: "CREATE" }
       );
+
+      await db.secretActive.upsert(String(githubId), projectId, createdSecret.id);
 
       return createdSecret.id;
     }),
