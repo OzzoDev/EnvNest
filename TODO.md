@@ -50,6 +50,13 @@
 - [] Audit log model to handle creating and getting logs
 - [] Render the Audit log
 - [] Handle rollback to previous versions
+- [] Filter available paths to avoid duplicate paths in same enviornment
+- [] Select component to select a given secret
+- []
+- []
+- []
+- []
+- []
 
 ---
 

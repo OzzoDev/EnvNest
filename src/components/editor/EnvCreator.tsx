@@ -18,11 +18,18 @@ const EnvCreator = () => {
   const [formData, setFormData] = useState<FormData>({});
   const [environments, setEnvironments] = useState<string[]>(ENVIRONMENTS.map((env) => env.label));
   const project = useProjectStore((state) => state.project);
+  const projectId = useProjectStore((state) => state.projectId);
+
   const setSecretId = useProjectStore((state) => state.setSecretId);
 
   const { data: paths, refetch: refetchPaths } = trpc.github.getPaths.useQuery(
-    { owner: project?.owner!, repo: project?.name! },
-    { enabled: !!project }
+    {
+      owner: project?.owner!,
+      repo: project?.name!,
+      projectId: Number(projectId),
+      environment: ENVIRONMENTS.find((env) => env.label === formData.environment)?.value!,
+    },
+    { enabled: !!project && !!projectId && !!formData.environment }
   );
 
   const { data: templates, refetch: refetchTemplates } = trpc.template.getPublic.useQuery();
@@ -90,21 +97,25 @@ const EnvCreator = () => {
           options={environments}
           onSelect={(value) => setFormData((prev) => ({ ...prev, environment: value }))}
         />
-        <ModeSelect
-          selectPlaceholder="Select path"
-          emptyPlaceHolder="No paths found"
-          enableSearch={true}
-          options={paths?.map((path) => path.path) ?? []}
-          onSelect={(value) => setFormData((prev) => ({ ...prev, path: value }))}
-        />
-        <ModeSelect
-          selectPlaceholder="Select template"
-          emptyPlaceHolder="No template found"
-          selectLabel="Templates"
-          isRequired={false}
-          options={templates?.map((template) => template.name) ?? []}
-          onSelect={(value) => setFormData((prev) => ({ ...prev, template: value }))}
-        />
+        {formData.environment && (
+          <ModeSelect
+            selectPlaceholder="Select path"
+            emptyPlaceHolder="No paths found"
+            enableSearch={true}
+            options={paths?.map((path) => path.path) ?? []}
+            onSelect={(value) => setFormData((prev) => ({ ...prev, path: value }))}
+          />
+        )}
+        {formData.path && (
+          <ModeSelect
+            selectPlaceholder="Select template"
+            emptyPlaceHolder="No template found"
+            selectLabel="Templates"
+            isRequired={false}
+            options={templates?.map((template) => template.name) ?? []}
+            onSelect={(value) => setFormData((prev) => ({ ...prev, template: value }))}
+          />
+        )}
       </div>
       {isValid && (
         <Button type="submit" variant="secondary" className="w-fit mt-6">

@@ -1,15 +1,26 @@
 import { z } from "zod";
 import { privateProcedure, router } from "../trpc";
 import axios from "axios";
+import { getDbClient } from "@/lib/db/models";
+import { EnvironmentName } from "@/types/types";
 
 export const githubRouter = router({
   getPaths: privateProcedure
-    .input(z.object({ owner: z.string(), repo: z.string() }))
+    .input(
+      z.object({
+        owner: z.string(),
+        repo: z.string(),
+        projectId: z.number(),
+        environment: z.string(),
+      })
+    )
     .query(async ({ input, ctx }) => {
-      const { owner, repo } = input;
+      const { owner, repo, projectId, environment } = input;
       const { accessToken } = ctx.session;
 
       const branchesToTry = ["main", "master"];
+
+      const db = await getDbClient();
 
       for (const branch of branchesToTry) {
         try {
@@ -29,7 +40,13 @@ export const githubRouter = router({
             .filter((item) => item.type === "tree")
             .map((item) => ({ path: `/${item.path}` }));
 
-          return [{ path: "./" }, ...folders];
+          const paths = [{ path: "./" }, ...folders];
+
+          const occupiedPaths = (
+            await db.secret.getByEnvironment(projectId, environment as EnvironmentName)
+          ).map((secrets) => secrets.path);
+
+          return paths.filter((path) => !occupiedPaths.includes(path.path));
         } catch {}
       }
 

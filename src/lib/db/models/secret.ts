@@ -37,6 +37,43 @@ const secret = {
       )
     )[0];
   },
+  getByEnvironment: async (
+    projectId: number,
+    environment: EnvironmentName
+  ): Promise<EnvironmentSecret[]> => {
+    return await executeQuery<EnvironmentSecret>(
+      `
+          WITH latest_version AS (
+            SELECT DISTINCT ON (secret_id)
+              id,
+              secret_id,
+              content,
+              version,
+              created_at
+            FROM secret_version
+            ORDER BY secret_id, version DESC
+          )
+          SELECT
+            s.id AS id,
+            s.path,
+            s.updated_at AS updated_at,
+            e.name as environment,
+            lv.id as secret_version_id,
+            lv.version,
+            lv.content,
+            lv.created_at AS created_at
+          FROM project p
+          INNER JOIN environment e
+            ON e.project_id = p.id
+          INNER JOIN secret s
+            ON s.environment_id = e.id
+          INNER JOIN latest_version lv
+            ON lv.secret_id = s.id
+          WHERE p.id = $1 AND e.name = $2
+        `,
+      [projectId, environment]
+    );
+  },
   create: async (
     projectId: number,
     environment: EnvironmentName,

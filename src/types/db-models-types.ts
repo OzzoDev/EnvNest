@@ -50,6 +50,10 @@ export type TEnvironmentModel = {
 
 export type TSecretModel = {
   getById: (secretId: number) => Promise<EnvironmentSecret>;
+  getByEnvironment: (
+    projectId: number,
+    environment: EnvironmentName
+  ) => Promise<EnvironmentSecret[]>;
   create: (
     projectId: number,
     environment: EnvironmentName,
