@@ -10,6 +10,7 @@ const ProjectList = () => {
   const { data: projects, error, isLoading, refetch } = trpc.project.getAll.useQuery();
   const projectId = useProjectStore((state) => state.projectId);
   const setProjectId = useProjectStore((state) => state.setProjectId);
+  const setSecretId = useProjectStore((state) => state.setSecretId);
   const isSaved = useProjectStore((state) => state.isSaved);
   const setIsSaved = useProjectStore((state) => state.setIsSaved);
 
@@ -20,6 +21,7 @@ const ProjectList = () => {
   const selectProject = (projectId: number) => {
     setProjectId(projectId);
     setIsSaved(true);
+    setSecretId(null);
   };
 
   if (isLoading) {

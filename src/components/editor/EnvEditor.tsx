@@ -50,6 +50,10 @@ const EnvEditor = () => {
   }, [isDirty]);
 
   useEffect(() => {
+    reset({ envVariables: [] });
+  }, [projectId]);
+
+  useEffect(() => {
     const envVariables = secret?.content.split("&&").map((val) => {
       const [name, value] = val.split("=");
       return { name, value };

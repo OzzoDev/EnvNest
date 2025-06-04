@@ -131,6 +131,14 @@ export type SecretVersionTable = {
   created_at: string;
 };
 
+//Keep track of the latest active secret in a project for each profile
+export type SecretActiveTable = {
+  id: number;
+  profile_id: number;
+  project_id: number;
+  secret_id: number;
+};
+
 // Project collaborators (manual sharing)
 export type CollaboratorTable = {
   id: number;

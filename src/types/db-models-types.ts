@@ -14,6 +14,7 @@ import {
   TemplateTable,
   EnvironmentSecret,
   AuditLogTable,
+  SecretActiveTable,
 } from "./types";
 
 export type TProfileModel = {
@@ -74,6 +75,22 @@ export type TAuditLogModel = {
   ) => Promise<AuditLogTable | null>;
 };
 
+export type TSecretActive = {
+  getByGithubId: (githubId: number) => Promise<SecretActiveTable | null>;
+  getByProfileId: (profileId: number) => Promise<SecretActiveTable | null>;
+  create: (
+    profileId: number,
+    projectId: number,
+    secretId: number
+  ) => Promise<SecretActiveTable | null>;
+  update: (profileId: number, secretId: number) => Promise<SecretActiveTable | null>;
+  upsert: (
+    profileId: number,
+    projectId: number,
+    secretId: number
+  ) => Promise<SecretActiveTable | null>;
+};
+
 export type TDbClient = {
   profile: TProfileModel;
   project: TProjectModel;
@@ -81,4 +98,5 @@ export type TDbClient = {
   secret: TSecretModel;
   template: TTemplateModel;
   auditLog: TAuditLogModel;
+  secretActive: TSecretActive;
 };

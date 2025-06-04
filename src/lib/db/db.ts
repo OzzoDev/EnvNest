@@ -116,6 +116,15 @@ export const initDB = async () => {
   `);
 
   await executeQuery(`
+    CREATE TABLE IF NOT EXISTS secret_active (
+      id SERIAL PRIMARY KEY, 
+      profile_id INTEGER REFERENCES profile(id) ON DELETE CASCADE,
+      project_id INTEGER REFERENCES project(id) ON DELETE CASCADE,
+      secret_id INTEGER REFERENCES secret(id) ON DELETE CASCADE
+    )  
+  `);
+
+  await executeQuery(`
     CREATE TABLE IF NOT EXISTS collaborator (
       id SERIAL PRIMARY KEY,
       profile_id INTEGER REFERENCES profile(id) ON DELETE CASCADE,
