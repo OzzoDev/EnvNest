@@ -6,7 +6,7 @@ import { TRPCError } from "@trpc/server";
 import { EnvironmentName, Secret } from "@/types/types";
 
 export const secretRouter = router({
-  getSecret: privateProcedure
+  get: privateProcedure
     .input(z.object({ projectId: z.number(), secretId: z.number() }))
     .query(async ({ input, ctx }) => {
       const { user } = ctx;

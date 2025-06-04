@@ -4,7 +4,8 @@ import { executeQuery } from "../db";
 const auditLogs = {
   get: async () => {
     return await executeQuery<AuditLogTable>(`
-        S                     
+        SELECT * 
+        FROM audit_log                      
     `);
   },
   create: async () => {},

@@ -131,6 +131,7 @@ export const initDB = async () => {
       id SERIAL PRIMARY KEY,
       profile_id INTEGER REFERENCES profile(id) ON DELETE CASCADE,
       secret_version_id INTEGER REFERENCES secret_version(id) ON DELETE CASCADE,
+      secret_id INTEGER REFERENCES secret_version(id) ON DELETE CASCADE,
       action TEXT NOT NULL,
       metadata JSONB DEFAULT '{}'::JSONB,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

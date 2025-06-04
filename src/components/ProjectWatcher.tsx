@@ -14,7 +14,7 @@ const ProjectWatcher = () => {
 
   const { data: projects } = trpc.project.getAll.useQuery();
 
-  const { data: updatedSecret, refetch: refetchSecret } = trpc.secret.getSecret.useQuery(
+  const { data: updatedSecret, refetch: refetchSecret } = trpc.secret.get.useQuery(
     { projectId: Number(projectId), secretId: Number(secretId) },
     { enabled: !!projectId && !!secretId && hasHydrated }
   );
