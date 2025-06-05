@@ -21,6 +21,8 @@ import { trpc } from "@/trpc/client";
 import { toast } from "sonner";
 import SecretSelector from "./SecretSelector";
 import { FiPlus } from "react-icons/fi";
+import AlertDialog from "../utils/AleartDialog";
+import { GrRevert } from "react-icons/gr";
 
 const formSchema = z.object({
   envVariables: z.array(z.object({ name: z.string().nonempty(), value: z.string().nonempty() })),
@@ -49,6 +51,13 @@ const EnvEditor = () => {
     formState: { isDirty },
   } = formMethods;
 
+  const getEnvVariables = () => {
+    return secret?.content.split("&&").map((val) => {
+      const [name, value] = val.split("=");
+      return { name, value };
+    });
+  };
+
   useEffect(() => {
     setIsSaved(!isDirty);
   }, [isDirty]);
@@ -65,12 +74,7 @@ const EnvEditor = () => {
   }, [projectId]);
 
   useEffect(() => {
-    const envVariables = secret?.content.split("&&").map((val) => {
-      const [name, value] = val.split("=");
-      return { name, value };
-    });
-
-    reset({ envVariables: envVariables ?? [] });
+    reset({ envVariables: getEnvVariables() ?? [] });
   }, [secret]);
 
   const { fields: envVariables } = useFieldArray({
@@ -121,6 +125,10 @@ const EnvEditor = () => {
     });
   };
 
+  const onRevert = () => {
+    reset({ envVariables: getEnvVariables() });
+  };
+
   const addEnvVariable = () => {
     setValue("envVariables", [...getValues("envVariables"), { name: "", value: "" }]);
   };
@@ -134,63 +142,72 @@ const EnvEditor = () => {
           <div className="flex justify-between">
             <SecretSelector />
 
-            {isValid ? (
-              <Dialog open={open} onOpenChange={setOpen}>
-                <DialogTrigger asChild>
-                  {renderEditor && (
-                    <Button
-                      type="button"
-                      disabled={!isDirty}
-                      variant="default"
-                      className="self-end">
-                      {isDirty ? "Save Changes" : "Saved"}
-                    </Button>
-                  )}
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Save Your Changes</DialogTitle>
-                    <DialogDescription>
-                      We track the version history of your projects. Please provide a brief message
-                      about the updates you made for future reference.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <Label>Update Message</Label>
-                  <Input
-                    value={updateMessage}
-                    onChange={(e) => setUpdateMessage(e.target.value)}
-                    placeholder="Describe your changes..."
-                  />
-                  <DialogFooter>
-                    <DialogClose asChild>
-                      <Button type="button" variant="outline">
-                        Cancel
+            <div className="flex items-center gap-x-4">
+              {isDirty && (
+                <AlertDialog
+                  title="Revert changes"
+                  description={`Are you sure you want to revert your changes`}
+                  action="Revert"
+                  actionFn={onRevert}>
+                  <Button variant="outline">
+                    <GrRevert size={16} />
+                  </Button>
+                </AlertDialog>
+              )}
+              {isValid ? (
+                <Dialog open={open} onOpenChange={setOpen}>
+                  <DialogTrigger asChild>
+                    {renderEditor && (
+                      <Button type="button" disabled={!isDirty} variant="default">
+                        {isDirty ? "Save Changes" : "Saved"}
                       </Button>
-                    </DialogClose>
-                    <Button
-                      type="button"
-                      disabled={!updateMessage}
-                      onClick={handleSubmit((data) => {
-                        onSubmit(data);
-                        setOpen(false);
-                      })}>
-                      Save
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            ) : (
-              renderEditor && (
-                <Button
-                  type="button"
-                  disabled={!isDirty}
-                  variant="default"
-                  onClick={() => toast.error("Please leave no fields empty")}
-                  className="self-end">
-                  {isDirty ? "Save Changes" : "Saved"}
-                </Button>
-              )
-            )}
+                    )}
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Save Your Changes</DialogTitle>
+                      <DialogDescription>
+                        We track the version history of your projects. Please provide a brief
+                        message about the updates you made for future reference.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <Label>Update Message</Label>
+                    <Input
+                      value={updateMessage}
+                      onChange={(e) => setUpdateMessage(e.target.value)}
+                      placeholder="Describe your changes..."
+                    />
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button type="button" variant="outline">
+                          Cancel
+                        </Button>
+                      </DialogClose>
+                      <Button
+                        type="button"
+                        disabled={!updateMessage}
+                        onClick={handleSubmit((data) => {
+                          onSubmit(data);
+                          setOpen(false);
+                        })}>
+                        Save
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              ) : (
+                renderEditor && (
+                  <Button
+                    type="button"
+                    disabled={!isDirty}
+                    variant="default"
+                    onClick={() => toast.error("Please leave no fields empty")}
+                    className="self-end">
+                    {isDirty ? "Save Changes" : "Saved"}
+                  </Button>
+                )
+              )}
+            </div>
           </div>
 
           <Button
