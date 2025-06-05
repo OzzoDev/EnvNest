@@ -22,9 +22,13 @@ const SecretSelector = () => {
 
   useEffect(() => {
     const firstEnvKey = Object.keys(environmentPaths ?? {})[0];
-    if (firstEnvKey && formData.environment !== firstEnvKey) {
+    if (firstEnvKey && formData.environment !== firstEnvKey && environmentPaths) {
       const label = ENVIRONMENTS.find((env) => env.value === firstEnvKey)?.label;
-      setFormData((prev) => ({ ...prev, environment: label }));
+
+      const currentEnvironmentPaths = environmentPaths[firstEnvKey];
+      const currentPath = currentEnvironmentPaths.find((path) => path.id === secretId)?.path;
+
+      setFormData({ path: currentPath, environment: label });
     }
   }, [environmentPaths]);
 
