@@ -1,19 +1,27 @@
-import { AuditLogTable } from "@/types/types";
+import { AuditLogTable, AuditLogWithUser } from "@/types/types";
 import { executeQuery } from "../db";
 import profileModel from "./profile";
 
 const auditLog = {
-  get: async (secretId: number): Promise<AuditLogTable> => {
-    return (
-      await executeQuery<AuditLogTable>(
-        `
-        SELECT * 
-        FROM audit_log
-        WHERE secret_id = $1                      
-    `,
-        [secretId]
-      )
-    )[0];
+  get: async (secretId: number): Promise<AuditLogWithUser[]> => {
+    return await executeQuery<AuditLogWithUser>(
+      `
+        SELECT 
+          al.id, 
+          al.profile_id,
+          al.secret_id, 
+          al.secret_version_id,
+          al.action, 
+          al.metadata, 
+          al.created_at, 
+          p.username AS user
+        FROM audit_log al
+        INNER JOIN profile p 
+          ON p.id = al.profile_id
+        WHERE al.secret_id = $1                      
+      `,
+      [secretId]
+    );
   },
   create: async <T>(
     githubId: string,

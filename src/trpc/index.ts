@@ -1,3 +1,4 @@
+import { auditLogRouter } from "./routes/audit-log-router";
 import { environmentRouter } from "./routes/environment-router";
 import { githubRouter } from "./routes/github-router";
 import { profileRouter } from "./routes/profile-router";
@@ -11,6 +12,7 @@ export const appRouter = router({
   project: projectRouter,
   secret: secretRouter,
   environment: environmentRouter,
+  auditLog: auditLogRouter,
   template: templateRouter,
   github: githubRouter,
 });

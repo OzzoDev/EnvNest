@@ -11,8 +11,19 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useProjectStore } from "@/store/projectStore";
+import { trpc } from "@/trpc/client";
 
 const ActivityLog = () => {
+  const secretId = useProjectStore((state) => state.secretId);
+
+  const { data: auditLog } = trpc.auditLog.get.useQuery(
+    { secretId: secretId! },
+    { enabled: !!secretId }
+  );
+
+  console.log("Audit log: ", auditLog);
+
   return (
     <Sheet>
       <SheetTrigger asChild>

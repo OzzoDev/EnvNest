@@ -15,6 +15,7 @@ import {
   EnvironmentSecret,
   AuditLogTable,
   SecretActiveTable,
+  AuditLogWithUser,
 } from "./types";
 
 export type TProfileModel = {
@@ -72,7 +73,7 @@ export type TTemplateModel = {
 };
 
 export type TAuditLogModel = {
-  get: (secretId: number) => Promise<AuditLogTable>;
+  get: (secretId: number) => Promise<AuditLogWithUser[]>;
   create: <T>(
     profileId: string,
     secretId: number,

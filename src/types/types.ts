@@ -159,6 +159,8 @@ export type AuditLogTable<T = unknown> = {
   created_at: string;
 };
 
+export type AuditLogWithUser = AuditLogTable & { user: string };
+
 //Templates to create a env file
 export type TemplateTable = {
   id: number;
