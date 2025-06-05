@@ -54,6 +54,8 @@ const ProjectWatcher = () => {
   }, [updatedSecret]);
 
   useEffect(() => {
+    setSecretId(null);
+
     if (projectId) {
       refetchProject();
     }
