@@ -8,32 +8,39 @@ import { ENVIRONMENTS } from "@/config";
 
 const SecretSelector = () => {
   const projectId = useProjectStore((state) => state.projectId);
+  const secretId = useProjectStore((state) => state.secretId);
+
   const hasHydrated = useProjectStore((state) => state.hasHydrated);
 
   const [formData, setFormData] = useState<{ environment?: string; path?: string }>({});
 
-  const { data: secrets } = trpc.secret.getAllAsPathAndId.useQuery(
-    { projectId: Number(projectId) },
-    { enabled: !!projectId && hasHydrated }
-  );
+  const { data: environmentPaths, refetch: refetchEnvironmentPaths } =
+    trpc.secret.getAllAsPathAndId.useQuery(
+      { projectId: Number(projectId) },
+      { enabled: !!projectId && hasHydrated }
+    );
 
   useEffect(() => {
-    const firstEnvKey = Object.keys(secrets ?? {})[0];
+    const firstEnvKey = Object.keys(environmentPaths ?? {})[0];
     if (firstEnvKey && formData.environment !== firstEnvKey) {
       const label = ENVIRONMENTS.find((env) => env.value === firstEnvKey)?.label;
       setFormData((prev) => ({ ...prev, environment: label }));
     }
-  }, [secrets]);
+  }, [environmentPaths]);
 
-  const environments = Object.keys(secrets ?? {}).map(
+  useEffect(() => {
+    refetchEnvironmentPaths();
+  }, [secretId]);
+
+  const environments = Object.keys(environmentPaths ?? {}).map(
     (key) => ENVIRONMENTS.find((env) => env.value === key)?.label || key
   );
 
   const selectedKey = ENVIRONMENTS.find((env) => env.label === formData.environment)?.value;
 
   const paths = useMemo(() => {
-    return secrets?.[selectedKey!]?.map((sec) => sec.path) ?? [];
-  }, [formData.environment, secrets]);
+    return environmentPaths?.[selectedKey!]?.map((sec) => sec.path) ?? [];
+  }, [formData.environment, environmentPaths]);
 
   return (
     <div className="flex gap-x-8">

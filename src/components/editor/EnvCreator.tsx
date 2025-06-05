@@ -16,7 +16,6 @@ type FormData = {
 
 const EnvCreator = () => {
   const [formData, setFormData] = useState<FormData>({});
-  // const [environments, setEnvironments] = useState<string[]>(ENVIRONMENTS.map((env) => env.label));
   const project = useProjectStore((state) => state.project);
   const projectId = useProjectStore((state) => state.projectId);
 
@@ -47,7 +46,6 @@ const EnvCreator = () => {
 
       refetchTemplates();
       refetchPaths();
-      // setEnvironments(ENVIRONMENTS.map((env) => env.label));
 
       toast.success(`${formData.environment} .env file created successfully`);
     },
