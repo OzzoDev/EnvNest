@@ -41,12 +41,6 @@ const SecretSelector = () => {
       const currentEnvironmentPaths = environmentPaths[envKey];
       const currentPath = currentEnvironmentPaths.find((path) => path.id === secretId);
 
-      console.log("SecretId: ", secretId);
-
-      console.log("currentEnvironmentPaths", currentEnvironmentPaths);
-
-      console.log("Current Path: ", currentPath);
-
       setFormData({
         prevEnvironment: label,
         environment: label,
@@ -60,19 +54,15 @@ const SecretSelector = () => {
     const prevEnvironment = formData.prevEnvironment;
     const currentEnvironment = formData.environment;
 
-    console.log("PrevEnv: ", prevEnvironment, "Cuurent env: ", currentEnvironment);
-
     if (prevEnvironment !== currentEnvironment) {
       setFormData((prev) => ({ ...prev, path: undefined, secretId: undefined }));
       setSecret(null);
     } else {
-      // setFormData((prev) => ({ ...prev, prevEnvironment: currentEnvironment }));
+      setFormData((prev) => ({ ...prev, prevEnvironment: currentEnvironment }));
     }
   }, [formData.environment]);
 
   useEffect(() => {
-    console.log("Path: ", formData.path);
-
     if (formData.path && environmentPaths) {
       const envKey = ENVIRONMENTS.find((env) => env.label === formData.environment)?.value;
 
@@ -103,7 +93,15 @@ const SecretSelector = () => {
   const selectedKey = ENVIRONMENTS.find((env) => env.label === formData.environment)?.value;
 
   const paths = useMemo(() => {
-    return environmentPaths?.[selectedKey!]?.map((sec) => sec.path) ?? [];
+    const availablePaths = environmentPaths?.[selectedKey!]?.map((sec) => sec.path) ?? [];
+
+    const isValidPath = availablePaths.includes(formData.path!);
+
+    if (!isValidPath) {
+      setFormData((prev) => ({ ...prev, path: undefined }));
+    }
+
+    return availablePaths;
   }, [formData.environment, environmentPaths]);
 
   return (
