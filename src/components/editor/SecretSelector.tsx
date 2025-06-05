@@ -10,6 +10,7 @@ const SecretSelector = () => {
   const projectId = useProjectStore((state) => state.projectId);
   const secretId = useProjectStore((state) => state.secretId);
   const hasHydrated = useProjectStore((state) => state.hasHydrated);
+  const isSaved = useProjectStore((state) => state.isSaved);
   const setSecretId = useProjectStore((state) => state.setSecretId);
   const setSecret = useProjectStore((state) => state.setSecret);
 
@@ -110,6 +111,7 @@ const SecretSelector = () => {
         selectPlaceholder="Select environment"
         selectLabel="Environments"
         isRequired={false}
+        disabled={!isSaved}
         options={environments}
         value={formData.environment}
         onSelect={(value) => setFormData((prev) => ({ ...prev, environment: value }))}
@@ -118,6 +120,7 @@ const SecretSelector = () => {
         selectPlaceholder="Select path"
         selectLabel="Paths"
         isRequired={false}
+        disabled={!isSaved}
         options={paths}
         value={formData.path}
         onSelect={(value) => setFormData((prev) => ({ ...prev, path: value }))}

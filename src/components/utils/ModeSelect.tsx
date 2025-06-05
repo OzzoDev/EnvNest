@@ -28,6 +28,7 @@ type ModeSelectProps = {
   selectLabel?: string;
   enableSearch?: boolean;
   isRequired?: boolean;
+  disabled?: boolean;
   value?: string | null;
   options?: string[];
   onSelect: (value: string) => void;
@@ -40,6 +41,7 @@ const ModeSelect = ({
   selectLabel = "Options",
   enableSearch = false,
   isRequired = true,
+  disabled = false,
   value = null,
   options = [],
   onSelect,
@@ -63,7 +65,13 @@ const ModeSelect = ({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!disabled) {
+          setOpen(nextOpen);
+        }
+      }}>
       <PopoverTrigger asChild>
         <div>
           <p
@@ -82,6 +90,7 @@ const ModeSelect = ({
                 role="combobox"
                 type="button"
                 aria-expanded={open}
+                disabled={disabled}
                 className="w-[240px] justify-between">
                 <p className="w-[180px] truncate overflow-hidden whitespace-nowrap text-muted-foreground text-left">
                   {typeof value === "string" && value.length > 0
