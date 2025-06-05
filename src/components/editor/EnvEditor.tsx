@@ -98,6 +98,19 @@ const EnvEditor = () => {
     });
   };
 
+  const onDelete = (index: number) => {
+    const content = getValues("envVariables")
+      .filter((_, idx) => idx !== index)
+      .map(({ name, value }) => `${name}=${value}`)
+      .join("&&");
+    updateSecret({
+      projectId: Number(projectId),
+      secretId: Number(secretId),
+      content,
+      updateMessage,
+    });
+  };
+
   const renderEditor = getValues("envVariables") && getValues("envVariables").length !== 0;
 
   return (
@@ -152,7 +165,7 @@ const EnvEditor = () => {
           {renderEditor && (
             <ul className="flex flex-col gap-y-8">
               {envVariables?.map((_, index) => (
-                <EnvInput key={`${toggleResetKey}-${index}`} index={index} />
+                <EnvInput key={`${toggleResetKey}-${index}`} index={index} onDelete={onDelete} />
               ))}
             </ul>
           )}

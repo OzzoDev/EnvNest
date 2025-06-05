@@ -37,7 +37,7 @@ const SecretToggle = ({ name }: SecretToggleProps) => {
       <Button
         type="button"
         variant="ghost"
-        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1"
+        className="absolute right-0 top-1/2 transform -translate-y-1/2"
         onClick={() => setIsVisible((prev) => !prev)}>
         {isVisible ? <EyeOff size={16} /> : <Eye size={16} />}
       </Button>

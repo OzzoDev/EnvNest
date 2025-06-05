@@ -3,11 +3,14 @@
 import { useProjectStore } from "@/store/projectStore";
 import { trpc } from "@/trpc/client";
 import { useEffect } from "react";
+import { toast } from "sonner";
 
 const ProjectWatcher = () => {
   const projectId = useProjectStore((state) => state.projectId);
   const hasHydrated = useProjectStore((state) => state.hasHydrated);
   const secretId = useProjectStore((state) => state.secretId);
+  const isSaved = useProjectStore((state) => state.isSaved);
+
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setProject = useProjectStore((state) => state.setProject);
   const setSecret = useProjectStore((state) => state.setSecret);
