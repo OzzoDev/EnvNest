@@ -23,6 +23,7 @@ import SecretSelector from "./SecretSelector";
 import { FiPlus } from "react-icons/fi";
 import AlertDialog from "../utils/AleartDialog";
 import { GrRevert } from "react-icons/gr";
+import ActivityLog from "./ActivityLog";
 
 const formSchema = z.object({
   envVariables: z.array(z.object({ name: z.string().nonempty(), value: z.string().nonempty() })),
@@ -158,15 +159,18 @@ const EnvEditor = () => {
           <div className="flex justify-between">
             <SecretSelector />
             {secretId && (
-              <AlertDialog
-                title="Delete .env file"
-                description={`Are you sure you want to delete this .env file. This action can't be undone.`}
-                action="Delete"
-                actionFn={() => deleteSecret({ secretId })}>
-                <Button type="button" variant="secondary">
-                  Delete
-                </Button>
-              </AlertDialog>
+              <div className="flex gap-x-4">
+                <ActivityLog />{" "}
+                <AlertDialog
+                  title="Delete .env file"
+                  description={`Are you sure you want to delete this .env file. This action can't be undone.`}
+                  action="Delete"
+                  actionFn={() => deleteSecret({ secretId })}>
+                  <Button type="button" variant="secondary">
+                    Delete
+                  </Button>
+                </AlertDialog>
+              </div>
             )}
           </div>
 
