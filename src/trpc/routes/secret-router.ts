@@ -177,4 +177,17 @@ export const secretRouter = router({
 
       return { ...updatedSecret, content: decryptedUpdatedSecret };
     }),
+  delete: privateProcedure
+    .input(z.object({ secretId: z.number().nullable() }))
+    .mutation(async ({ input }) => {
+      const { secretId } = input;
+
+      if (!secretId) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "SecretId must be provided" });
+      }
+
+      const db = await getDbClient();
+
+      return await db.secret.delete(secretId);
+    }),
 });

@@ -33,6 +33,7 @@ const EnvEditor = () => {
   const secretId = useProjectStore((state) => state.secretId);
   const secret = useProjectStore((state) => state.secret);
   const setIsSaved = useProjectStore((state) => state.setIsSaved);
+  const setSecretId = useProjectStore((state) => state.setSecretId);
 
   const [open, setOpen] = useState(false);
   const [toggleResetKey, setToggleResetKey] = useState<number>(0);
@@ -91,13 +92,23 @@ const EnvEditor = () => {
 
       reset({ envVariables });
       setToggleResetKey((prev) => prev + 1);
-      toast.success("Secret saved successfully");
+      toast.success("Successfully saved .env file");
     },
     onError: () => {
-      toast.success("Error saving secret");
+      toast.success("Error saving .env file");
     },
     onSettled: () => {
       setUpdateMessage("");
+    },
+  });
+
+  const { mutate: deleteSecret } = trpc.secret.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Successfully deleted .env file");
+      setSecretId(null);
+    },
+    onError: () => {
+      toast.error("Error deleting .env file. Please try again");
     },
   });
 
@@ -112,7 +123,7 @@ const EnvEditor = () => {
     });
   };
 
-  const onDelete = (index: number) => {
+  const onDeleteVariable = (index: number) => {
     const content = getValues("envVariables")
       .filter((_, idx) => idx !== index)
       .map(({ name, value }) => `${name}=${value}`)
@@ -141,62 +152,81 @@ const EnvEditor = () => {
         <div className="flex flex-col gap-y-8">
           <div className="flex justify-between">
             <SecretSelector />
+            <AlertDialog
+              title="Delete .env file"
+              description={`Are you sure you want to delete this .env file. This action can't be undone.`}
+              action="Delete"
+              actionFn={() => deleteSecret({ secretId })}>
+              <Button type="button" variant="secondary">
+                Delete
+              </Button>
+            </AlertDialog>
+          </div>
 
-            <div className="flex items-center gap-x-4">
-              {isDirty && (
-                <AlertDialog
-                  title="Revert changes"
-                  description={`Are you sure you want to revert your changes`}
-                  action="Revert"
-                  actionFn={onRevert}>
-                  <Button variant="outline">
-                    <GrRevert size={16} />
-                  </Button>
-                </AlertDialog>
-              )}
-              {isValid ? (
-                <Dialog open={open} onOpenChange={setOpen}>
-                  <DialogTrigger asChild>
-                    {renderEditor && (
-                      <Button type="button" disabled={!isDirty} variant="default">
-                        {isDirty ? "Save Changes" : "Saved"}
-                      </Button>
-                    )}
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>Save Your Changes</DialogTitle>
-                      <DialogDescription>
-                        We track the version history of your projects. Please provide a brief
-                        message about the updates you made for future reference.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <Label>Update Message</Label>
-                    <Input
-                      value={updateMessage}
-                      onChange={(e) => setUpdateMessage(e.target.value)}
-                      placeholder="Describe your changes..."
-                    />
-                    <DialogFooter>
-                      <DialogClose asChild>
-                        <Button type="button" variant="outline">
-                          Cancel
+          {renderEditor && (
+            <div className="flex justify-between mt-4">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={addEnvVariable}
+                className="self-end w-fit">
+                <FiPlus />
+              </Button>
+
+              <div className="flex items-center gap-x-4">
+                {isDirty && (
+                  <AlertDialog
+                    title="Revert changes"
+                    description={`Are you sure you want to revert your changes`}
+                    action="Revert"
+                    actionFn={onRevert}>
+                    <Button type="button" variant="outline">
+                      <GrRevert size={16} />
+                    </Button>
+                  </AlertDialog>
+                )}
+                {isValid ? (
+                  <Dialog open={open} onOpenChange={setOpen}>
+                    <DialogTrigger asChild>
+                      {renderEditor && (
+                        <Button type="button" disabled={!isDirty} variant="default">
+                          {isDirty ? "Save Changes" : "Saved"}
                         </Button>
-                      </DialogClose>
-                      <Button
-                        type="button"
-                        disabled={!updateMessage}
-                        onClick={handleSubmit((data) => {
-                          onSubmit(data);
-                          setOpen(false);
-                        })}>
-                        Save
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              ) : (
-                renderEditor && (
+                      )}
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>Save Your Changes</DialogTitle>
+                        <DialogDescription>
+                          We track the version history of your projects. Please provide a brief
+                          message about the updates you made for future reference.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <Label>Update Message</Label>
+                      <Input
+                        value={updateMessage}
+                        onChange={(e) => setUpdateMessage(e.target.value)}
+                        placeholder="Describe your changes..."
+                      />
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button type="button" variant="outline">
+                            Cancel
+                          </Button>
+                        </DialogClose>
+                        <Button
+                          type="button"
+                          disabled={!updateMessage}
+                          onClick={handleSubmit((data) => {
+                            onSubmit(data);
+                            setOpen(false);
+                          })}>
+                          Save
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                ) : (
                   <Button
                     type="button"
                     disabled={!isDirty}
@@ -205,23 +235,19 @@ const EnvEditor = () => {
                     className="self-end">
                     {isDirty ? "Save Changes" : "Saved"}
                   </Button>
-                )
-              )}
+                )}
+              </div>
             </div>
-          </div>
-
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={addEnvVariable}
-            className="self-end w-fit">
-            <FiPlus />
-          </Button>
+          )}
 
           {renderEditor && (
             <ul className="flex flex-col gap-y-8">
               {envVariables?.map((_, index) => (
-                <EnvInput key={`${toggleResetKey}-${index}`} index={index} onDelete={onDelete} />
+                <EnvInput
+                  key={`${toggleResetKey}-${index}`}
+                  index={index}
+                  onDelete={onDeleteVariable}
+                />
               ))}
             </ul>
           )}

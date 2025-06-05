@@ -189,6 +189,18 @@ const secret = {
       return null;
     }
   },
+  delete: async (secretId: number): Promise<SecretTable> => {
+    return (
+      await executeQuery<SecretTable>(
+        `
+          DELETE FROM secret
+          WHERE id = $1
+          RETURNING *;    
+        `,
+        [secretId]
+      )
+    )[0];
+  },
 };
 
 export default secret;

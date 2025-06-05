@@ -28,26 +28,26 @@ const SecretSelector = () => {
     );
 
   useEffect(() => {
-    let envKey: string | undefined = Object.keys(environmentPaths ?? {})[0];
-
     if (secretId) {
-      envKey = Object.entries(environmentPaths ?? {}).find(([_, paths]) =>
+      const envKey = Object.entries(environmentPaths ?? {}).find(([_, paths]) =>
         paths.some((path) => path.id === secretId)
       )?.[0];
-    }
 
-    if (envKey && formData.environment !== envKey && environmentPaths) {
-      const label = ENVIRONMENTS.find((env) => env.value === envKey)?.label;
+      if (envKey && formData.environment !== envKey && environmentPaths) {
+        const label = ENVIRONMENTS.find((env) => env.value === envKey)?.label;
 
-      const currentEnvironmentPaths = environmentPaths[envKey];
-      const currentPath = currentEnvironmentPaths.find((path) => path.id === secretId);
+        const currentEnvironmentPaths = environmentPaths[envKey];
+        const currentPath = currentEnvironmentPaths.find((path) => path.id === secretId);
 
-      setFormData({
-        prevEnvironment: label,
-        environment: label,
-        path: currentPath?.path,
-        secretId: currentPath?.id,
-      });
+        setFormData({
+          prevEnvironment: label,
+          environment: label,
+          path: currentPath?.path,
+          secretId: currentPath?.id,
+        });
+      }
+    } else {
+      setFormData({});
     }
   }, [environmentPaths]);
 

@@ -41,6 +41,12 @@ const ProjectWatcher = () => {
   }, [projectId, secretId]);
 
   useEffect(() => {
+    if (!secretId) {
+      setSecret(null);
+    }
+  }, [secretId]);
+
+  useEffect(() => {
     if (updatedSecret) {
       setSecret(updatedSecret);
       setSecretId(updatedSecret.id);

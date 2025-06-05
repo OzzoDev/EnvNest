@@ -63,6 +63,7 @@ export type TSecretModel = {
     content: string
   ) => Promise<EnvironmentSecret | null>;
   update: (secretId: number, content: string) => Promise<EnvironmentSecret | null>;
+  delete: (secretId: number) => Promise<SecretTable>;
 };
 
 export type TTemplateModel = {
