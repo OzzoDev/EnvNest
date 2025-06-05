@@ -11,47 +11,95 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { ENVIRONMENTS } from "@/config";
 import { useProjectStore } from "@/store/projectStore";
 import { trpc } from "@/trpc/client";
+import { ScrollArea } from "../ui/scroll-area";
+import AlertDialog from "../utils/AleartDialog";
+import { GrRevert } from "react-icons/gr";
+import { Badge } from "../ui/badge";
+import { convertToLocalTime } from "@/lib/utils";
+import AuditLogItem from "./AuditlogItem";
+import { toast } from "sonner";
+import { useEffect } from "react";
 
-const ActivityLog = () => {
+type UpdateSecretArgs = {
+  projectId: number;
+  secretId: number;
+  content: string;
+  type: string;
+  updateMessage: string;
+};
+
+type ActivityLogProps = {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  refetchTrigger: boolean;
+  updateSecret: (args: UpdateSecretArgs) => void;
+};
+
+const ActivityLog = ({ isOpen, setIsOpen, refetchTrigger, updateSecret }: ActivityLogProps) => {
+  const project = useProjectStore((state) => state.project);
+  const projectId = useProjectStore((state) => state.projectId);
+  const secret = useProjectStore((state) => state.secret);
   const secretId = useProjectStore((state) => state.secretId);
 
-  const { data: auditLog } = trpc.auditLog.get.useQuery(
-    { secretId: secretId! },
-    { enabled: !!secretId }
+  const { data: auditLogs, refetch } = trpc.auditLog.get.useQuery(
+    { projectId: projectId!, secretId: secretId! },
+    { enabled: !!secretId && !!projectId, retry: false }
   );
 
-  console.log("Audit log: ", auditLog);
+  useEffect(() => {
+    refetch();
+  }, [refetchTrigger]);
+
+  const onRollback = (auditLogId: number) => {
+    const auditLog = auditLogs?.find((audit) => audit.id === auditLogId);
+
+    if (!auditLog || !projectId || !secretId) {
+      toast.error("Error rolling back to this version");
+      return;
+    }
+
+    const convertedCreatedAt = convertToLocalTime(auditLog.created_at);
+
+    updateSecret({
+      projectId,
+      secretId,
+      content: auditLog.content,
+      type: "ROLLBACK",
+      updateMessage: `Rolled back to ${auditLog.metadata.type} at ${convertedCreatedAt.date} / ${convertedCreatedAt.time}`,
+    });
+  };
 
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button variant="outline">Activity log</Button>
       </SheetTrigger>
       <SheetContent>
-        <SheetHeader>
-          <SheetTitle>Edit profile</SheetTitle>
-          <SheetDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
+        <SheetHeader className="mb-8">
+          <SheetTitle>Activity log</SheetTitle>
+          <SheetDescription className="flex flex-col gap-y-2">
+            <span className="font-semibold text-base text-muted-foreground">
+              {project?.full_name}
+            </span>
+            <span className="flex flex-col">
+              <span className="font-medium text-xs text-muted-foreground">
+                {ENVIRONMENTS.find((env) => env.value === secret?.environment)?.label}
+              </span>
+              <span className="font-medium text-xs text-muted-foreground">{secret?.path}</span>
+            </span>
           </SheetDescription>
         </SheetHeader>
-        <div className="grid flex-1 auto-rows-min gap-6 px-4">
-          <div className="grid gap-3">
-            <Label htmlFor="sheet-demo-name">Name</Label>
-            <Input id="sheet-demo-name" defaultValue="Pedro Duarte" />
-          </div>
-          <div className="grid gap-3">
-            <Label htmlFor="sheet-demo-username">Username</Label>
-            <Input id="sheet-demo-username" defaultValue="@peduarte" />
-          </div>
-        </div>
-        <SheetFooter>
-          <Button type="submit">Save changes</Button>
-          <SheetClose asChild>
-            <Button variant="outline">Close</Button>
-          </SheetClose>
-        </SheetFooter>
+        <ScrollArea className="max-h-[500px] overflow-y-auto">
+          <ul className="flex flex-col gap-y-8">
+            {auditLogs?.map((audit) => (
+              <AuditLogItem key={audit.id} audit={audit} onRollback={onRollback} />
+            ))}
+          </ul>
+        </ScrollArea>
+        <SheetFooter></SheetFooter>
       </SheetContent>
     </Sheet>
   );

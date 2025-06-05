@@ -14,10 +14,13 @@ const auditLog = {
           al.action, 
           al.metadata, 
           al.created_at, 
-          p.username AS user
+          p.username AS user,
+          sv.content
         FROM audit_log al
         INNER JOIN profile p 
           ON p.id = al.profile_id
+        INNER JOIN secret_version sv
+          ON sv.id = al.secret_version_id
         WHERE al.secret_id = $1                      
       `,
       [secretId]

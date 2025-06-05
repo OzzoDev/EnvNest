@@ -36,7 +36,9 @@ const EnvEditor = () => {
   const setIsSaved = useProjectStore((state) => state.setIsSaved);
   const setSecretId = useProjectStore((state) => state.setSecretId);
 
-  const [open, setOpen] = useState(false);
+  const [updateSuccess, setUpdateSuccess] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isActivityLogOpen, setIsActicityLogOpen] = useState<boolean>(false);
   const [toggleResetKey, setToggleResetKey] = useState<number>(0);
   const [updateMessage, setUpdateMessage] = useState<string>("");
   const [isValid, setIsValid] = useState<boolean>(false);
@@ -85,6 +87,9 @@ const EnvEditor = () => {
   });
 
   const { mutate: updateSecret } = trpc.secret.update.useMutation({
+    onMutate: () => {
+      setUpdateSuccess(false);
+    },
     onSuccess: (data) => {
       const envVariables = data.content.split("&&").map((val) => {
         const [name, value] = val.split("=");
@@ -92,7 +97,12 @@ const EnvEditor = () => {
       });
 
       reset({ envVariables });
+
       setToggleResetKey((prev) => prev + 1);
+
+      setUpdateSuccess(true);
+      setIsActicityLogOpen(false);
+
       toast.success("Successfully saved .env file");
     },
     onError: () => {
@@ -133,6 +143,7 @@ const EnvEditor = () => {
       .filter((_, idx) => idx !== index)
       .map(({ name, value }) => `${name}=${value}`)
       .join("&&");
+
     updateSecret({
       projectId: Number(projectId),
       secretId: Number(secretId),
@@ -160,7 +171,12 @@ const EnvEditor = () => {
             <SecretSelector />
             {secretId && (
               <div className="flex gap-x-4">
-                <ActivityLog />{" "}
+                <ActivityLog
+                  isOpen={isActivityLogOpen}
+                  setIsOpen={setIsActicityLogOpen}
+                  refetchTrigger={updateSuccess}
+                  updateSecret={updateSecret}
+                />
                 <AlertDialog
                   title="Delete .env file"
                   description={`Are you sure you want to delete this .env file. This action can't be undone.`}
@@ -197,7 +213,7 @@ const EnvEditor = () => {
                   </AlertDialog>
                 )}
                 {isValid ? (
-                  <Dialog open={open} onOpenChange={setOpen}>
+                  <Dialog open={isOpen} onOpenChange={setIsOpen}>
                     <DialogTrigger asChild>
                       {renderEditor && (
                         <Button type="button" disabled={!isDirty} variant="default">
@@ -230,7 +246,7 @@ const EnvEditor = () => {
                           disabled={!updateMessage}
                           onClick={handleSubmit((data) => {
                             onSubmit(data);
-                            setOpen(false);
+                            setIsOpen(false);
                           })}>
                           Save
                         </Button>
