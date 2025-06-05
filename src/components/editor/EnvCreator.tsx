@@ -127,12 +127,12 @@ const EnvCreator = () => {
             onSelect={(value) => setFormData((prev) => ({ ...prev, template: value }))}
           />
         )}
+        {isValid && (
+          <Button type="submit" variant="secondary" className="w-fit mt-6">
+            Create
+          </Button>
+        )}{" "}
       </div>
-      {isValid && (
-        <Button type="submit" variant="secondary" className="w-fit mt-6">
-          Create
-        </Button>
-      )}
     </form>
   );
 };

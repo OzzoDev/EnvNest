@@ -58,12 +58,16 @@ export const secretRouter = router({
 
       const result = environments.reduce<Record<string, { id: number; path: string }[]>>(
         (acc, env) => {
-          acc[env] = secrets
+          const paths = secrets
             .filter((secret) => secret.environment === env)
             .map((secret) => ({
               id: secret.id,
               path: secret.path,
             }));
+
+          if (paths && paths.length > 0) {
+            acc[env] = paths;
+          }
 
           return acc;
         },

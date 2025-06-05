@@ -105,6 +105,12 @@ const SecretSelector = () => {
     return availablePaths;
   }, [formData.environment, environmentPaths]);
 
+  const hide = Object.keys(environmentPaths ?? {}).length === 0;
+
+  if (hide) {
+    return null;
+  }
+
   return (
     <div className="flex gap-x-8">
       <ModeSelect

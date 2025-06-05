@@ -152,15 +152,17 @@ const EnvEditor = () => {
         <div className="flex flex-col gap-y-8">
           <div className="flex justify-between">
             <SecretSelector />
-            <AlertDialog
-              title="Delete .env file"
-              description={`Are you sure you want to delete this .env file. This action can't be undone.`}
-              action="Delete"
-              actionFn={() => deleteSecret({ secretId })}>
-              <Button type="button" variant="secondary">
-                Delete
-              </Button>
-            </AlertDialog>
+            {secretId && (
+              <AlertDialog
+                title="Delete .env file"
+                description={`Are you sure you want to delete this .env file. This action can't be undone.`}
+                action="Delete"
+                actionFn={() => deleteSecret({ secretId })}>
+                <Button type="button" variant="secondary">
+                  Delete
+                </Button>
+              </AlertDialog>
+            )}
           </div>
 
           {renderEditor && (
