@@ -124,7 +124,11 @@ const EnvEditor = () => {
   };
 
   const onDeleteVariable = (index: number) => {
-    const content = getValues("envVariables")
+    const envVars = getValues("envVariables");
+
+    const name = envVars.find((_, idx) => idx === index)?.name;
+
+    const content = envVars
       .filter((_, idx) => idx !== index)
       .map(({ name, value }) => `${name}=${value}`)
       .join("&&");
@@ -132,7 +136,8 @@ const EnvEditor = () => {
       projectId: Number(projectId),
       secretId: Number(secretId),
       content,
-      updateMessage,
+      type: "DELETE",
+      updateMessage: `Deleted variable ${name}`,
     });
   };
 

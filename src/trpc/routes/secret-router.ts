@@ -140,13 +140,14 @@ export const secretRouter = router({
         secretId: z.number(),
         projectId: z.number(),
         content: z.string(),
+        type: z.string().optional(),
         updateMessage: z.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       const { user } = ctx;
       const { id: githubId } = user;
-      const { secretId, projectId, content, updateMessage } = input;
+      const { secretId, projectId, content, type = "UPDATED", updateMessage } = input;
 
       const db = await getDbClient();
 
@@ -174,7 +175,7 @@ export const secretRouter = router({
         updatedSecret.id,
         updatedSecret.secret_version_id,
         updateMessage,
-        { type: "UPDATE" }
+        { type }
       );
 
       const decryptedUpdatedSecret = aesDecrypt(updatedSecret?.content, decryptedKey);
