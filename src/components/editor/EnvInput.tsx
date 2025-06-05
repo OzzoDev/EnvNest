@@ -14,23 +14,34 @@ type EnvInputProps = {
 
 const EnvInput = ({ index, onDelete }: EnvInputProps) => {
   const isSaved = useProjectStore((state) => state.isSaved);
-  const { register, getValues, setValue } = useFormContext();
+  const { register, getValues } = useFormContext();
 
-  const name = getValues("envVariables")[index].name;
+  const envVariables = getValues("envVariables");
+
+  const name = envVariables[index].name;
+  const value = envVariables[index].value;
+
+  const isEmpty = !name && !value;
 
   return (
     <div className="flex justify-between gap-x-8">
       <div className="flex  gap-x-2 w-full">
         {isSaved ? (
-          <AlertDialog
-            title="Delete env variable"
-            description={`Are you sure you want to delete ${name}?`}
-            action="Delete"
-            actionFn={() => onDelete(index)}>
-            <Button variant="ghost">
+          !isEmpty ? (
+            <AlertDialog
+              title="Delete env variable"
+              description={`Are you sure you want to delete ${name}?`}
+              action="Delete"
+              actionFn={() => onDelete(index)}>
+              <Button variant="ghost">
+                <IoMdClose size={16} />
+              </Button>
+            </AlertDialog>
+          ) : (
+            <Button type="button" variant="ghost" onClick={() => onDelete(index)}>
               <IoMdClose size={16} />
             </Button>
-          </AlertDialog>
+          )
         ) : (
           <Button
             type="button"

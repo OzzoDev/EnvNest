@@ -11,8 +11,9 @@ type SecretToggleProps = {
 };
 
 const SecretToggle = ({ name }: SecretToggleProps) => {
-  const { control } = useFormContext();
-  const [isVisible, setIsVisible] = useState(false);
+  const { control, getValues } = useFormContext();
+  const value = getValues(name);
+  const [isVisible, setIsVisible] = useState(!value);
 
   return (
     <div className="relative w-full">

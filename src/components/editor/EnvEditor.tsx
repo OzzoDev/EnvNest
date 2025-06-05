@@ -20,9 +20,10 @@ import { Input } from "../ui/input";
 import { trpc } from "@/trpc/client";
 import { toast } from "sonner";
 import SecretSelector from "./SecretSelector";
+import { FiPlus } from "react-icons/fi";
 
 const formSchema = z.object({
-  envVariables: z.array(z.object({ name: z.string(), value: z.string() })),
+  envVariables: z.array(z.object({ name: z.string().nonempty(), value: z.string().nonempty() })),
 });
 
 const EnvEditor = () => {
@@ -34,6 +35,7 @@ const EnvEditor = () => {
   const [open, setOpen] = useState(false);
   const [toggleResetKey, setToggleResetKey] = useState<number>(0);
   const [updateMessage, setUpdateMessage] = useState<string>("");
+  const [isValid, setIsValid] = useState<boolean>(false);
 
   const formMethods = useForm({
     resolver: zodResolver(formSchema),
@@ -43,12 +45,20 @@ const EnvEditor = () => {
     reset,
     handleSubmit,
     getValues,
+    setValue,
     formState: { isDirty },
   } = formMethods;
 
   useEffect(() => {
     setIsSaved(!isDirty);
   }, [isDirty]);
+
+  const watchedValues = useWatch({ control: formMethods.control });
+
+  useEffect(() => {
+    const validated = formSchema.safeParse(watchedValues);
+    setIsValid(validated.success);
+  }, [watchedValues]);
 
   useEffect(() => {
     reset({ envVariables: [] });
@@ -111,6 +121,10 @@ const EnvEditor = () => {
     });
   };
 
+  const addEnvVariable = () => {
+    setValue("envVariables", [...getValues("envVariables"), { name: "", value: "" }]);
+  };
+
   const renderEditor = getValues("envVariables") && getValues("envVariables").length !== 0;
 
   return (
@@ -120,47 +134,72 @@ const EnvEditor = () => {
           <div className="flex justify-between">
             <SecretSelector />
 
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
-                {renderEditor && (
-                  <Button type="button" disabled={!isDirty} variant="default" className="self-end">
-                    {isDirty ? "Save Changes" : "Saved"}
-                  </Button>
-                )}
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Save Your Changes</DialogTitle>
-                  <DialogDescription>
-                    We track the version history of your projects. Please provide a brief message
-                    about the updates you made for future reference.
-                  </DialogDescription>
-                </DialogHeader>
-                <Label>Update Message</Label>
-                <Input
-                  value={updateMessage}
-                  onChange={(e) => setUpdateMessage(e.target.value)}
-                  placeholder="Describe your changes..."
-                />
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button type="button" variant="outline">
-                      Cancel
+            {isValid ? (
+              <Dialog open={open} onOpenChange={setOpen}>
+                <DialogTrigger asChild>
+                  {renderEditor && (
+                    <Button
+                      type="button"
+                      disabled={!isDirty}
+                      variant="default"
+                      className="self-end">
+                      {isDirty ? "Save Changes" : "Saved"}
                     </Button>
-                  </DialogClose>
-                  <Button
-                    type="button"
-                    disabled={!updateMessage}
-                    onClick={handleSubmit((data) => {
-                      onSubmit(data);
-                      setOpen(false);
-                    })}>
-                    Save
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                  )}
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Save Your Changes</DialogTitle>
+                    <DialogDescription>
+                      We track the version history of your projects. Please provide a brief message
+                      about the updates you made for future reference.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Label>Update Message</Label>
+                  <Input
+                    value={updateMessage}
+                    onChange={(e) => setUpdateMessage(e.target.value)}
+                    placeholder="Describe your changes..."
+                  />
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button type="button" variant="outline">
+                        Cancel
+                      </Button>
+                    </DialogClose>
+                    <Button
+                      type="button"
+                      disabled={!updateMessage}
+                      onClick={handleSubmit((data) => {
+                        onSubmit(data);
+                        setOpen(false);
+                      })}>
+                      Save
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            ) : (
+              renderEditor && (
+                <Button
+                  type="button"
+                  disabled={!isDirty}
+                  variant="default"
+                  onClick={() => toast.error("Please leave no fields empty")}
+                  className="self-end">
+                  {isDirty ? "Save Changes" : "Saved"}
+                </Button>
+              )
+            )}
           </div>
+
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={addEnvVariable}
+            className="self-end w-fit">
+            <FiPlus />
+          </Button>
 
           {renderEditor && (
             <ul className="flex flex-col gap-y-8">
