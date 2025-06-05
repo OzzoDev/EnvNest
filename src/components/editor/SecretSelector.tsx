@@ -12,7 +12,12 @@ const SecretSelector = () => {
 
   const hasHydrated = useProjectStore((state) => state.hasHydrated);
 
-  const [formData, setFormData] = useState<{ environment?: string; path?: string }>({});
+  const [formData, setFormData] = useState<{
+    prevEnvironment?: string;
+    environment?: string;
+    path?: string;
+    secretId?: number;
+  }>({ secretId: secretId ?? undefined });
 
   const { data: environmentPaths, refetch: refetchEnvironmentPaths } =
     trpc.secret.getAllAsPathAndId.useQuery(
@@ -26,11 +31,25 @@ const SecretSelector = () => {
       const label = ENVIRONMENTS.find((env) => env.value === firstEnvKey)?.label;
 
       const currentEnvironmentPaths = environmentPaths[firstEnvKey];
-      const currentPath = currentEnvironmentPaths.find((path) => path.id === secretId)?.path;
+      const currentPath = currentEnvironmentPaths.find((path) => path.id === secretId);
 
-      setFormData({ path: currentPath, environment: label });
+      setFormData({
+        prevEnvironment: label,
+        environment: label,
+        path: currentPath?.path,
+        secretId: currentPath?.id,
+      });
     }
   }, [environmentPaths]);
+
+  useEffect(() => {
+    const prevEnvironment = formData.prevEnvironment;
+    const currentEnvironment = formData.environment;
+
+    if (prevEnvironment !== currentEnvironment) {
+      setFormData((prev) => ({ ...prev, path: undefined }));
+    }
+  }, [formData.environment]);
 
   useEffect(() => {
     refetchEnvironmentPaths();
