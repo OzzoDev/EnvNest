@@ -73,7 +73,7 @@ const ModeSelect = ({
               isRequired ? "text-destructive" : "text-text-color",
               value ? "invisible" : "visible"
             )}>
-            {isRequired ? "Required" : "Optional"}
+            {isRequired ? "Required" : ""}
           </p>
           <HoverCard openDelay={100} closeDelay={200}>
             <HoverCardTrigger asChild>
