@@ -5,6 +5,8 @@ import { Button } from "./ui/button";
 import { useEffect } from "react";
 import { useProjectStore } from "@/store/projectStore";
 import AlertDialog from "./utils/AleartDialog";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
+import { ScrollArea } from "./ui/scroll-area";
 
 const ProjectList = () => {
   const { data: projects, error, isLoading, refetch } = trpc.project.getAll.useQuery();
@@ -39,16 +41,24 @@ const ProjectList = () => {
   return (
     <div>
       <p className="text-lg text-text-color mb-8">Your projects</p>
-      <ul className="flex flex-col gap-y-4">
+      <ScrollArea className="flex flex-col gap-y-4 max-h-[500px] overflow-y-auto">
         {projects?.map((project) => {
           return isSaved ? (
-            <Button
-              key={project.id}
-              onClick={() => selectProject(project.id)}
-              variant={project.id == projectId ? "secondary" : "ghost"}
-              className="justify-start">
-              {project.full_name}
-            </Button>
+            <HoverCard key={project.id}>
+              <HoverCardTrigger asChild>
+                <Button
+                  onClick={() => selectProject(project.id)}
+                  variant={project.id == projectId ? "secondary" : "ghost"}
+                  className="justify-start w-[240px] text-left">
+                  <span className="truncate overflow-hidden whitespace-nowrap block w-full">
+                    {project.full_name}
+                  </span>
+                </Button>
+              </HoverCardTrigger>
+              <HoverCardContent className="min-w-[240px] w-full py-2">
+                {project.full_name}
+              </HoverCardContent>
+            </HoverCard>
           ) : (
             <AlertDialog
               key={project.id}
@@ -58,13 +68,15 @@ const ProjectList = () => {
               actionFn={() => selectProject(project.id)}>
               <Button
                 variant={project.id == projectId ? "secondary" : "ghost"}
-                className="justify-start">
-                {project.full_name}
+                className="justify-start w-[240px] text-left">
+                <span className="truncate overflow-hidden whitespace-nowrap block w-full">
+                  {project.full_name}
+                </span>
               </Button>
             </AlertDialog>
           );
         })}
-      </ul>
+      </ScrollArea>
     </div>
   );
 };

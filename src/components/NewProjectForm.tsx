@@ -9,14 +9,15 @@ import React from "react";
 import { toast } from "sonner";
 import { useProjectStore } from "@/store/projectStore";
 import AlertDialog from "./utils/AleartDialog";
+import ModeSelect from "./utils/ModeSelect";
 
 type NewProjectFormProps = {
   repos: GithubRepo[];
 };
 
 const NewProjectForm = ({ repos }: NewProjectFormProps) => {
-  const [repo, setRepo] = useState<GithubRepo | null>(null);
-  const [filteredRepos, setFilteredRepos] = useState<GithubRepo[]>([]);
+  const [repo, setRepo] = useState<string | null>(null);
+  const [filteredRepos, setFilteredRepos] = useState<string[]>([]);
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setIsSaved = useProjectStore((state) => state.setIsSaved);
   const isSaved = useProjectStore((state) => state.isSaved);
@@ -25,13 +26,14 @@ const NewProjectForm = ({ repos }: NewProjectFormProps) => {
 
   useEffect(() => {
     setFilteredRepos(
-      repos.filter((repo) => !existingRepos?.some((pro) => pro.repo_id === repo.id))
+      repos
+        .filter((repo) => !existingRepos?.some((pro) => pro.repo_id === repo.id))
+        .map((repo) => repo.full_name)
     );
   }, [existingRepos]);
 
   const { mutate } = trpc.project.create.useMutation({
-    onError: (err) => {
-      console.log("err:", err);
+    onError: () => {
       toast.error("Error creating new project");
     },
     onSuccess: (data) => {
@@ -46,30 +48,39 @@ const NewProjectForm = ({ repos }: NewProjectFormProps) => {
   const onSubmit = (e?: FormEvent | React.MouseEvent) => {
     e?.preventDefault();
 
-    if (!repo) return;
+    if (!repo) {
+      return;
+    }
+
+    const repoData = repos
+      .filter((repo) => !existingRepos?.some((pro) => pro.repo_id === repo.id))
+      .find((rep) => rep.full_name === repo);
+
+    if (!repoData) {
+      return;
+    }
 
     mutate({
-      repo_id: repo.id,
-      name: repo.name,
-      full_name: repo.full_name,
-      owner: repo.owner.login!,
-      url: repo.html_url,
+      repo_id: repoData.id,
+      name: repoData.name,
+      full_name: repoData.full_name,
+      owner: repoData.owner.login!,
+      url: repoData.html_url,
     });
   };
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-y-4">
+    <form onSubmit={onSubmit} className="flex flex-col gap-y-4 w-fit">
       <p className="text-lg text-text-color">Create a new project</p>
-      <Combobox<GithubRepo, "full_name", "full_name", "id">
-        data={filteredRepos}
+      <ModeSelect
+        searchPlaceholder="Search repositories..."
+        emptyPlaceHolder="No repository found"
+        selectPlaceholder="Select a repository"
+        enableSearch={true}
+        isRequired={false}
         value={repo}
-        labelKey="full_name"
-        valueKey="full_name"
-        mapKey="id"
-        searchMessage="Search repositories..."
-        selectMessage="Select a repository"
-        emptyMessage="No repository found"
-        setValue={setRepo}
+        options={filteredRepos}
+        onSelect={(rep) => setRepo(rep)}
       />
       {repo &&
         (isSaved ? (
