@@ -98,9 +98,7 @@ const EnvEditor = () => {
     });
   };
 
-  if (getValues("envVariables") && getValues("envVariables").length === 0) {
-    return null;
-  }
+  const renderEditor = getValues("envVariables") && getValues("envVariables").length !== 0;
 
   return (
     <FormProvider {...formMethods}>
@@ -108,11 +106,14 @@ const EnvEditor = () => {
         <div className="flex flex-col gap-y-8">
           <div className="flex justify-between">
             <SecretSelector />
+
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button type="button" disabled={!isDirty} variant="default" className="self-end">
-                  {isDirty ? "Save Changes" : "Saved"}
-                </Button>
+                {renderEditor && (
+                  <Button type="button" disabled={!isDirty} variant="default" className="self-end">
+                    {isDirty ? "Save Changes" : "Saved"}
+                  </Button>
+                )}
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
@@ -148,11 +149,13 @@ const EnvEditor = () => {
             </Dialog>
           </div>
 
-          <ul className="flex flex-col gap-y-8">
-            {envVariables?.map((_, index) => (
-              <EnvInput key={`${toggleResetKey}-${index}`} index={index} />
-            ))}
-          </ul>
+          {renderEditor && (
+            <ul className="flex flex-col gap-y-8">
+              {envVariables?.map((_, index) => (
+                <EnvInput key={`${toggleResetKey}-${index}`} index={index} />
+              ))}
+            </ul>
+          )}
         </div>
       </form>
     </FormProvider>

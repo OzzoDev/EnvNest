@@ -9,8 +9,9 @@ import { ENVIRONMENTS } from "@/config";
 const SecretSelector = () => {
   const projectId = useProjectStore((state) => state.projectId);
   const secretId = useProjectStore((state) => state.secretId);
-
   const hasHydrated = useProjectStore((state) => state.hasHydrated);
+  const setSecretId = useProjectStore((state) => state.setSecretId);
+  const setSecret = useProjectStore((state) => state.setSecret);
 
   const [formData, setFormData] = useState<{
     prevEnvironment?: string;
@@ -26,12 +27,25 @@ const SecretSelector = () => {
     );
 
   useEffect(() => {
-    const firstEnvKey = Object.keys(environmentPaths ?? {})[0];
-    if (firstEnvKey && formData.environment !== firstEnvKey && environmentPaths) {
-      const label = ENVIRONMENTS.find((env) => env.value === firstEnvKey)?.label;
+    let envKey: string | undefined = Object.keys(environmentPaths ?? {})[0];
 
-      const currentEnvironmentPaths = environmentPaths[firstEnvKey];
+    if (secretId) {
+      envKey = Object.entries(environmentPaths ?? {}).find(([_, paths]) =>
+        paths.some((path) => path.id === secretId)
+      )?.[0];
+    }
+
+    if (envKey && formData.environment !== envKey && environmentPaths) {
+      const label = ENVIRONMENTS.find((env) => env.value === envKey)?.label;
+
+      const currentEnvironmentPaths = environmentPaths[envKey];
       const currentPath = currentEnvironmentPaths.find((path) => path.id === secretId);
+
+      console.log("SecretId: ", secretId);
+
+      console.log("currentEnvironmentPaths", currentEnvironmentPaths);
+
+      console.log("Current Path: ", currentPath);
 
       setFormData({
         prevEnvironment: label,
@@ -46,10 +60,37 @@ const SecretSelector = () => {
     const prevEnvironment = formData.prevEnvironment;
     const currentEnvironment = formData.environment;
 
+    console.log("PrevEnv: ", prevEnvironment, "Cuurent env: ", currentEnvironment);
+
     if (prevEnvironment !== currentEnvironment) {
-      setFormData((prev) => ({ ...prev, path: undefined }));
+      setFormData((prev) => ({ ...prev, path: undefined, secretId: undefined }));
+      setSecret(null);
+    } else {
+      // setFormData((prev) => ({ ...prev, prevEnvironment: currentEnvironment }));
     }
   }, [formData.environment]);
+
+  useEffect(() => {
+    console.log("Path: ", formData.path);
+
+    if (formData.path && environmentPaths) {
+      const envKey = ENVIRONMENTS.find((env) => env.label === formData.environment)?.value;
+
+      if (envKey) {
+        const currentEnvironmentPaths = environmentPaths[envKey];
+
+        const currentPath = currentEnvironmentPaths.find((path) => path.path === formData.path);
+
+        setFormData((prev) => ({ ...prev, secretId: currentPath?.id }));
+      }
+    }
+  }, [formData.path]);
+
+  useEffect(() => {
+    if (formData.secretId) {
+      setSecretId(formData.secretId);
+    }
+  }, [formData.secretId]);
 
   useEffect(() => {
     refetchEnvironmentPaths();
