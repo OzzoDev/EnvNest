@@ -31,6 +31,8 @@ const formSchema = z.object({
 
 const EnvEditor = () => {
   const projectId = useProjectStore((state) => state.projectId);
+  const project = useProjectStore((state) => state.project);
+
   const secretId = useProjectStore((state) => state.secretId);
   const secret = useProjectStore((state) => state.secret);
   const setIsSaved = useProjectStore((state) => state.setIsSaved);
@@ -75,10 +77,12 @@ const EnvEditor = () => {
 
   useEffect(() => {
     reset({ envVariables: [] });
-  }, [projectId]);
+  }, [project]);
 
   useEffect(() => {
-    reset({ envVariables: getEnvVariables() ?? [] });
+    if (secret) {
+      reset({ envVariables: getEnvVariables() ?? [] });
+    }
   }, [secret]);
 
   const { fields: envVariables } = useFieldArray({

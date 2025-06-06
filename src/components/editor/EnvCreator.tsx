@@ -16,16 +16,15 @@ type FormData = {
 
 const EnvCreator = () => {
   const [formData, setFormData] = useState<FormData>({});
+
   const project = useProjectStore((state) => state.project);
   const projectId = useProjectStore((state) => state.projectId);
-
   const setSecretId = useProjectStore((state) => state.setSecretId);
 
-  const { data: environments, refetch: refetchEnvironments } =
-    trpc.environment.getAvailable.useQuery(
-      { owner: project?.owner!, repo: project?.name!, projectId: Number(projectId) },
-      { enabled: !!project && !!projectId }
-    );
+  const { data: environments } = trpc.environment.getAvailable.useQuery(
+    { owner: project?.owner!, repo: project?.name!, projectId: Number(projectId) },
+    { enabled: !!project && !!projectId }
+  );
 
   const { data: paths, refetch: refetchPaths } = trpc.github.getPaths.useQuery(
     {

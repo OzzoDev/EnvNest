@@ -9,19 +9,20 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { ScrollArea } from "./ui/scroll-area";
 
 const ProjectList = () => {
-  const { data: projects, error, isLoading, refetch } = trpc.project.getAll.useQuery();
   const projectId = useProjectStore((state) => state.projectId);
   const setProjectId = useProjectStore((state) => state.setProjectId);
+  const setSecretId = useProjectStore((state) => state.setSecretId);
   const isSaved = useProjectStore((state) => state.isSaved);
-  const setIsSaved = useProjectStore((state) => state.setIsSaved);
+
+  const { data: projects, error, isLoading, refetch } = trpc.project.getAll.useQuery();
 
   useEffect(() => {
     refetch();
   }, [projectId]);
 
   const selectProject = (projectId: number) => {
+    setSecretId(null);
     setProjectId(projectId);
-    setIsSaved(true);
   };
 
   if (isLoading) {

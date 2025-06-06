@@ -45,6 +45,8 @@ const SecretSelector = () => {
           path: currentPath?.path,
           secretId: currentPath?.id,
         });
+      } else {
+        setFormData({});
       }
     } else {
       setFormData({});
@@ -85,7 +87,7 @@ const SecretSelector = () => {
 
   useEffect(() => {
     refetchEnvironmentPaths();
-  }, [secretId]);
+  }, [secretId, projectId]);
 
   const environments = Object.keys(environmentPaths ?? {}).map(
     (key) => ENVIRONMENTS.find((env) => env.value === key)?.label || key

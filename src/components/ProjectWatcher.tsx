@@ -3,13 +3,12 @@
 import { useProjectStore } from "@/store/projectStore";
 import { trpc } from "@/trpc/client";
 import { useEffect } from "react";
-import { toast } from "sonner";
 
 const ProjectWatcher = () => {
   const projectId = useProjectStore((state) => state.projectId);
   const hasHydrated = useProjectStore((state) => state.hasHydrated);
   const secretId = useProjectStore((state) => state.secretId);
-  const isSaved = useProjectStore((state) => state.isSaved);
+  const setIsSaved = useProjectStore((state) => state.setIsSaved);
 
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setProject = useProjectStore((state) => state.setProject);
@@ -20,7 +19,7 @@ const ProjectWatcher = () => {
 
   const { data: updatedSecret, refetch: refetchSecret } = trpc.secret.get.useQuery(
     { projectId: Number(projectId), secretId: secretId },
-    { enabled: !!projectId && hasHydrated, retry: false }
+    { enabled: !!projectId && !!secretId && hasHydrated, retry: false }
   );
 
   const { data: updatedProject, refetch: refetchProject } = trpc.project.get.useQuery(
@@ -37,6 +36,8 @@ const ProjectWatcher = () => {
   useEffect(() => {
     if (secretId) {
       refetchSecret();
+    } else {
+      setSecret(null);
     }
   }, [secretId]);
 
@@ -54,8 +55,7 @@ const ProjectWatcher = () => {
   }, [updatedSecret]);
 
   useEffect(() => {
-    setSecretId(null);
-    setSecret(null);
+    setIsSaved(true);
 
     if (projectId) {
       refetchProject();
