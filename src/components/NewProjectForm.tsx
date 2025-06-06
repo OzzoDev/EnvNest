@@ -41,7 +41,7 @@ const NewProjectForm = ({ repos }: NewProjectFormProps) => {
       setProjectId(data.id);
       setIsSaved(true);
       refetch();
-      toast.success(`Project ${data.full_name} creatd successfully`);
+      toast.success(`Project ${data.full_name} created successfully`);
     },
   });
 

@@ -147,7 +147,7 @@ export const secretRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { user } = ctx;
       const { id: githubId } = user;
-      const { secretId, projectId, content, type = "UPDATED", updateMessage } = input;
+      const { secretId, projectId, content, type = "UPDATE", updateMessage } = input;
 
       const db = await getDbClient();
 

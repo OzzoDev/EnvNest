@@ -8,6 +8,7 @@ import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
 import { ScrollArea } from "../ui/scroll-area";
+import { useProjectStore } from "@/store/projectStore";
 
 type AuditLogItemProps = {
   audit: AuditLogWithUser;
@@ -15,11 +16,14 @@ type AuditLogItemProps = {
 };
 
 const AuditLogItem = ({ audit, onRollback }: AuditLogItemProps) => {
+  const secret = useProjectStore((state) => state.secret);
   const [showContent, setShowContent] = useState<boolean>(false);
 
   const convertedCreatedAt = convertToLocalTime(audit.created_at);
 
   const content = audit.content.split("&&");
+
+  const isCurrentVersion = secret?.secret_version_id === audit.secret_version_id;
 
   return (
     <div key={audit.created_at} className="flex flex-col gap-y-3 border-b border-secondary">
@@ -37,9 +41,11 @@ const AuditLogItem = ({ audit, onRollback }: AuditLogItemProps) => {
             description={`Are you sure you want to rollback the version of this .env file?`}
             action="Rollback"
             actionFn={() => onRollback(audit.id)}>
-            <Button type="button" variant="ghost" title="Rollback">
-              <GrRevert size={16} />
-            </Button>
+            {!isCurrentVersion && (
+              <Button type="button" variant="ghost" title="Rollback">
+                <GrRevert size={16} />
+              </Button>
+            )}
           </AlertDialog>
         </div>
         <p className="text-muted-foreground">{audit.action}</p>
@@ -51,11 +57,11 @@ const AuditLogItem = ({ audit, onRollback }: AuditLogItemProps) => {
           <AccordionItem value="item-1" className="flex flex-col border-0">
             <AccordionTrigger
               className={cn(buttonVariants({ variant: "ghost" }), "ml-auto mr-auto mb-4")}>
-              {showContent ? "Hide Content" : " Show content"}
+              {showContent ? "Hide Content" : "Show content"}
               {showContent ? <ChevronUp /> : <ChevronDown />}
             </AccordionTrigger>
             <AccordionContent>
-              <ScrollArea className="max-h-[120px] overflow-y-auto">
+              <ScrollArea className="max-h-[120px] overflow-y-auto max-w-[300px]">
                 {content.map((cont, index) => (
                   <p key={cont + index} className="text-sm">
                     {cont}

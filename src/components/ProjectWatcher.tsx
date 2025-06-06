@@ -35,10 +35,10 @@ const ProjectWatcher = () => {
   }, [projects]);
 
   useEffect(() => {
-    if (projectId) {
+    if (secretId) {
       refetchSecret();
     }
-  }, [projectId, secretId]);
+  }, [secretId]);
 
   useEffect(() => {
     if (!secretId) {
@@ -55,6 +55,7 @@ const ProjectWatcher = () => {
 
   useEffect(() => {
     setSecretId(null);
+    setSecret(null);
 
     if (projectId) {
       refetchProject();

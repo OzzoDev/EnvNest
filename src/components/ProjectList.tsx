@@ -12,7 +12,6 @@ const ProjectList = () => {
   const { data: projects, error, isLoading, refetch } = trpc.project.getAll.useQuery();
   const projectId = useProjectStore((state) => state.projectId);
   const setProjectId = useProjectStore((state) => state.setProjectId);
-  const setSecretId = useProjectStore((state) => state.setSecretId);
   const isSaved = useProjectStore((state) => state.isSaved);
   const setIsSaved = useProjectStore((state) => state.setIsSaved);
 
@@ -23,7 +22,6 @@ const ProjectList = () => {
   const selectProject = (projectId: number) => {
     setProjectId(projectId);
     setIsSaved(true);
-    setSecretId(null);
   };
 
   if (isLoading) {
@@ -44,36 +42,39 @@ const ProjectList = () => {
       <ScrollArea className="flex flex-col gap-y-4 max-h-[500px] overflow-y-auto">
         {projects?.map((project) => {
           return isSaved ? (
-            <HoverCard key={project.id}>
-              <HoverCardTrigger asChild>
+            <div key={project.id} className="my-2">
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <Button
+                    onClick={() => selectProject(project.id)}
+                    variant={project.id == projectId ? "secondary" : "ghost"}
+                    className="justify-start w-[240px] text-left">
+                    <span className="truncate overflow-hidden whitespace-nowrap block w-full">
+                      {project.full_name}
+                    </span>
+                  </Button>
+                </HoverCardTrigger>
+                <HoverCardContent className="min-w-[240px] w-full py-2">
+                  {project.full_name}
+                </HoverCardContent>
+              </HoverCard>
+            </div>
+          ) : (
+            <div key={project.id} className="my-2">
+              <AlertDialog
+                title="Are you sure you want to change project?"
+                description="Any unsaved changes will be lost. This action cannot be undone."
+                action="Continue"
+                actionFn={() => selectProject(project.id)}>
                 <Button
-                  onClick={() => selectProject(project.id)}
                   variant={project.id == projectId ? "secondary" : "ghost"}
                   className="justify-start w-[240px] text-left">
                   <span className="truncate overflow-hidden whitespace-nowrap block w-full">
                     {project.full_name}
                   </span>
                 </Button>
-              </HoverCardTrigger>
-              <HoverCardContent className="min-w-[240px] w-full py-2">
-                {project.full_name}
-              </HoverCardContent>
-            </HoverCard>
-          ) : (
-            <AlertDialog
-              key={project.id}
-              title="Are you sure you want to change project?"
-              description="Any unsaved changes will be lost. This action cannot be undone."
-              action="Continue"
-              actionFn={() => selectProject(project.id)}>
-              <Button
-                variant={project.id == projectId ? "secondary" : "ghost"}
-                className="justify-start w-[240px] text-left">
-                <span className="truncate overflow-hidden whitespace-nowrap block w-full">
-                  {project.full_name}
-                </span>
-              </Button>
-            </AlertDialog>
+              </AlertDialog>
+            </div>
           );
         })}
       </ScrollArea>

@@ -92,7 +92,7 @@ const ActivityLog = ({ isOpen, setIsOpen, refetchTrigger, updateSecret }: Activi
             </span>
           </SheetDescription>
         </SheetHeader>
-        <ScrollArea className="max-h-[500px] overflow-y-auto">
+        <ScrollArea className="max-h-[500px] overflow-y-auto pr-4">
           <ul className="flex flex-col gap-y-8">
             {auditLogs?.map((audit) => (
               <AuditLogItem key={audit.id} audit={audit} onRollback={onRollback} />
