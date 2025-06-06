@@ -8,12 +8,14 @@ const ProjectWatcher = () => {
   const projectId = useProjectStore((state) => state.projectId);
   const hasHydrated = useProjectStore((state) => state.hasHydrated);
   const secretId = useProjectStore((state) => state.secretId);
-  const setIsSaved = useProjectStore((state) => state.setIsSaved);
+  const projectSecretRefs = useProjectStore((state) => state.projectSecretRefs);
 
+  const setIsSaved = useProjectStore((state) => state.setIsSaved);
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setProject = useProjectStore((state) => state.setProject);
   const setSecret = useProjectStore((state) => state.setSecret);
   const setSecretId = useProjectStore((state) => state.setSecretId);
+  const addProjectSecretRefs = useProjectStore((state) => state.addProjectSecretRefs);
 
   const { data: projects } = trpc.project.getAll.useQuery();
 
@@ -37,9 +39,19 @@ const ProjectWatcher = () => {
     if (secretId) {
       refetchSecret();
     } else {
+      if (projectId) {
+        const secretIdRef = projectSecretRefs[projectId!];
+        if (secretIdRef) {
+          setSecretId(secretIdRef);
+        }
+      }
       setSecret(null);
     }
-  }, [secretId]);
+
+    if (secretId && projectId) {
+      addProjectSecretRefs(projectId, secretId);
+    }
+  }, [secretId, projectId]);
 
   useEffect(() => {
     if (!secretId) {

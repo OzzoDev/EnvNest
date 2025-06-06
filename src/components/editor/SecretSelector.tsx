@@ -51,13 +51,13 @@ const SecretSelector = () => {
     } else {
       setFormData({});
     }
-  }, [environmentPaths]);
+  }, [secretId, environmentPaths]);
 
   useEffect(() => {
     const prevEnvironment = formData.prevEnvironment;
     const currentEnvironment = formData.environment;
 
-    if (prevEnvironment !== currentEnvironment) {
+    if (prevEnvironment !== currentEnvironment && prevEnvironment) {
       setFormData((prev) => ({ ...prev, path: undefined, secretId: undefined }));
       setSecret(null);
     } else {
@@ -86,7 +86,9 @@ const SecretSelector = () => {
   }, [formData.secretId]);
 
   useEffect(() => {
-    refetchEnvironmentPaths();
+    if (secretId) {
+      refetchEnvironmentPaths();
+    }
   }, [secretId, projectId]);
 
   const environments = Object.keys(environmentPaths ?? {}).map(
