@@ -48,7 +48,7 @@ const ProjectList = () => {
                 <HoverCardTrigger asChild>
                   <Button
                     onClick={() => selectProject(project.id)}
-                    variant={project.id == projectId ? "secondary" : "ghost"}
+                    variant={project.id === projectId ? "secondary" : "ghost"}
                     className="justify-start w-[240px] text-left">
                     <span className="truncate overflow-hidden whitespace-nowrap block w-full">
                       {project.full_name}
@@ -68,7 +68,7 @@ const ProjectList = () => {
                 action="Continue"
                 actionFn={() => selectProject(project.id)}>
                 <Button
-                  variant={project.id == projectId ? "secondary" : "ghost"}
+                  variant={project.id === projectId ? "secondary" : "ghost"}
                   className="justify-start w-[240px] text-left">
                   <span className="truncate overflow-hidden whitespace-nowrap block w-full">
                     {project.full_name}
