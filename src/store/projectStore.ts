@@ -55,6 +55,7 @@ export const useProjectStore = create<ProjectStore>()(
           hasHydrated: false,
           isSaved: true,
           secretId: null,
+          projectSecretRefs: {},
         }),
     }),
     {

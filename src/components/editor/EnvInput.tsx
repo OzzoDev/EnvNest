@@ -1,4 +1,4 @@
-import { useFormContext } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { Input } from "../ui/input";
 import SecretToggle from "../utils/SecretToggle";
 import { IoMdClose } from "react-icons/io";
@@ -14,7 +14,7 @@ type EnvInputProps = {
 
 const EnvInput = ({ index, onDelete }: EnvInputProps) => {
   const isSaved = useProjectStore((state) => state.isSaved);
-  const { register, getValues } = useFormContext();
+  const { control, getValues } = useFormContext();
 
   const envVariables = getValues("envVariables");
 
@@ -51,12 +51,18 @@ const EnvInput = ({ index, onDelete }: EnvInputProps) => {
           </Button>
         )}
 
-        <Input
-          type="text"
-          {...register(`envVariables.${index}.name`)}
-          className="w-full"
-          autoComplete="off"
-          spellCheck="false"
+        <Controller
+          name={`envVariables.${index}.name`}
+          control={control}
+          render={({ field }) => (
+            <Input
+              {...field}
+              type="text"
+              autoComplete="off"
+              spellCheck="false"
+              className="w-full"
+            />
+          )}
         />
       </div>
       <SecretToggle name={`envVariables.${index}.value`} />

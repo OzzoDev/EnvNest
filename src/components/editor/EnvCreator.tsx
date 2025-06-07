@@ -94,7 +94,7 @@ const EnvCreator = () => {
       <p className="font-medium text-text-color">Create .env file</p>
       <div className="flex items-end gap-x-8">
         <ModeSelect
-          selectPlaceholder="Select enviornment"
+          selectPlaceholder="Select environment"
           emptyPlaceHolder="No environments found"
           selectLabel="Environments"
           options={
