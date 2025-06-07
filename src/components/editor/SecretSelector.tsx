@@ -9,6 +9,7 @@ import { ENVIRONMENTS } from "@/config";
 const SecretSelector = () => {
   const projectId = useProjectStore((state) => state.projectId);
   const secretId = useProjectStore((state) => state.secretId);
+  const secret = useProjectStore((state) => state.secret);
   const hasHydrated = useProjectStore((state) => state.hasHydrated);
   const isSaved = useProjectStore((state) => state.isSaved);
   const setSecretId = useProjectStore((state) => state.setSecretId);
@@ -86,10 +87,8 @@ const SecretSelector = () => {
   }, [formData.secretId]);
 
   useEffect(() => {
-    if (secretId) {
-      refetchEnvironmentPaths();
-    }
-  }, [secretId, projectId]);
+    refetchEnvironmentPaths();
+  }, [secretId, secret, projectId]);
 
   const environments = Object.keys(environmentPaths ?? {}).map(
     (key) => ENVIRONMENTS.find((env) => env.value === key)?.label || key
@@ -126,15 +125,17 @@ const SecretSelector = () => {
         value={formData.environment}
         onSelect={(value) => setFormData((prev) => ({ ...prev, environment: value }))}
       />
-      <ModeSelect
-        selectPlaceholder="Select path"
-        selectLabel="Paths"
-        isRequired={false}
-        disabled={!isSaved}
-        options={paths}
-        value={formData.path}
-        onSelect={(value) => setFormData((prev) => ({ ...prev, path: value }))}
-      />
+      {formData.environment && (
+        <ModeSelect
+          selectPlaceholder="Select path"
+          selectLabel="Paths"
+          isRequired={false}
+          disabled={!isSaved}
+          options={paths}
+          value={formData.path}
+          onSelect={(value) => setFormData((prev) => ({ ...prev, path: value }))}
+        />
+      )}
     </div>
   );
 };

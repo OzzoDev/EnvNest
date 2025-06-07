@@ -37,6 +37,7 @@ const EnvEditor = () => {
   const secret = useProjectStore((state) => state.secret);
   const setIsSaved = useProjectStore((state) => state.setIsSaved);
   const setSecretId = useProjectStore((state) => state.setSecretId);
+  const deleteProjectSecretRef = useProjectStore((state) => state.deleteProjectSecretRef);
 
   const [updateSuccess, setUpdateSuccess] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -80,9 +81,11 @@ const EnvEditor = () => {
   }, [project]);
 
   useEffect(() => {
-    if (secret) {
-      reset({ envVariables: getEnvVariables() ?? [] });
-    }
+    console.log("Secrret should change: ", secret);
+
+    // if (secret) {
+    reset({ envVariables: getEnvVariables() || [] });
+    // }
   }, [secret]);
 
   const { fields: envVariables } = useFieldArray({
@@ -120,6 +123,8 @@ const EnvEditor = () => {
   const { mutate: deleteSecret } = trpc.secret.delete.useMutation({
     onSuccess: () => {
       toast.success("Successfully deleted .env file");
+
+      deleteProjectSecretRef(projectId!);
       setSecretId(null);
     },
     onError: () => {
@@ -169,7 +174,8 @@ const EnvEditor = () => {
 
   return (
     <FormProvider {...formMethods}>
-      <form>
+      <div>
+        <p className="font-medium text-text-color mb-4">View and edit .env file</p>
         <div className="flex flex-col gap-y-8">
           <div className="flex justify-between">
             <SecretSelector />
@@ -283,7 +289,7 @@ const EnvEditor = () => {
             </ul>
           )}
         </div>
-      </form>
+      </div>
     </FormProvider>
   );
 };

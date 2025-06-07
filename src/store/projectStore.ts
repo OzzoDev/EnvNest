@@ -21,6 +21,7 @@ type ProjectStore = {
   setSecretId: (secretId: number | null) => void;
   projectSecretRefs: ProjectSecretRefs;
   addProjectSecretRefs: (projectId: number, secretId: number) => void;
+  deleteProjectSecretRef: (projectId: number) => void;
   clearStore: () => void;
 };
 
@@ -47,6 +48,11 @@ export const useProjectStore = create<ProjectStore>()(
             [projectId]: secretId,
           },
         })),
+      deleteProjectSecretRef: (projectId) =>
+        set((state) => {
+          const { [projectId]: _, ...rest } = state.projectSecretRefs;
+          return { projectSecretRefs: rest };
+        }),
       clearStore: () =>
         set({
           projectId: null,
@@ -63,6 +69,7 @@ export const useProjectStore = create<ProjectStore>()(
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
         state?.setIsSaved(true);
+        // state?.clearStore();
       },
     }
   )
