@@ -1,12 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -14,10 +10,6 @@ import {
 import { ENVIRONMENTS } from "@/config";
 import { useProjectStore } from "@/store/projectStore";
 import { trpc } from "@/trpc/client";
-import { ScrollArea } from "../ui/scroll-area";
-import AlertDialog from "../utils/AleartDialog";
-import { GrRevert } from "react-icons/gr";
-import { Badge } from "../ui/badge";
 import { convertToLocalTime } from "@/lib/utils";
 import AuditLogItem from "./AuditlogItem";
 import { toast } from "sonner";
@@ -77,7 +69,7 @@ const ActivityLog = ({ isOpen, setIsOpen, refetchTrigger, updateSecret }: Activi
       <SheetTrigger asChild>
         <Button variant="outline">Activity log</Button>
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className="pr-4 overflow-y-auto">
         <SheetHeader className="mb-8">
           <SheetTitle>Activity log</SheetTitle>
           <SheetDescription className="flex flex-col gap-y-2">
@@ -92,14 +84,11 @@ const ActivityLog = ({ isOpen, setIsOpen, refetchTrigger, updateSecret }: Activi
             </span>
           </SheetDescription>
         </SheetHeader>
-        <ScrollArea className="max-h-[500px] overflow-y-auto pr-4">
-          <ul className="flex flex-col gap-y-8">
-            {auditLogs?.map((audit) => (
-              <AuditLogItem key={audit.id} audit={audit} onRollback={onRollback} />
-            ))}
-          </ul>
-        </ScrollArea>
-        <SheetFooter></SheetFooter>
+        <ul className="flex flex-col gap-y-8">
+          {auditLogs?.map((audit) => (
+            <AuditLogItem key={audit.id} audit={audit} onRollback={onRollback} />
+          ))}
+        </ul>
       </SheetContent>
     </Sheet>
   );
