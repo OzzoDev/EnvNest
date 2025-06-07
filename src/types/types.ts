@@ -139,6 +139,14 @@ export type SecretActiveTable = {
   secret_id: number;
 };
 
+//Track user's history to allow for switching between secrets
+export type SecretHistoryTable = {
+  id: number;
+  profile_id: number;
+  project_id: number;
+  secret_id: number;
+};
+
 // Project collaborators (manual sharing)
 export type CollaboratorTable = {
   id: number;
