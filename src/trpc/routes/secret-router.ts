@@ -38,6 +38,8 @@ export const secretRouter = router({
 
       const secret = await db.secret.getById(safeSecretId);
 
+      await db.secretHistory.create(String(githubId), safeSecretId);
+
       if (!secret) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Secret not found" });
       }
@@ -76,6 +78,14 @@ export const secretRouter = router({
 
       return result;
     }),
+  getHistory: privateProcedure.query(async ({ ctx }) => {
+    const { user } = ctx;
+    const { id: githubId } = user;
+
+    const db = await getDbClient();
+
+    return await db.secretHistory.get(String(githubId));
+  }),
   create: privateProcedure
     .input(
       z.object({
