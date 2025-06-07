@@ -3,22 +3,19 @@ import { executeQuery } from "../db";
 import profileModel from "./profile";
 
 const secretActive = {
-  getByGithubId: async (githubId: string, projectId: number): Promise<SecretActiveTable | null> => {
+  getByProjectAndProfile: async (
+    profileId: number,
+    projectId: number
+  ): Promise<SecretActiveTable | null> => {
     return (
       (
         await executeQuery<SecretActiveTable>(
           `
-            SELECT
-                sa.id,
-                sa.profile_id, 
-                sa.project_id, 
-                sa.secret_id
-            FROM secret_active sa
-            INNER JOIN profile p
-                ON p.id = sa.profile_id
-            WHERE p.github_id = $1 AND sa.project_id = $2   
+            SELECT *
+            FROM secret_active
+            WHERE profile_id = $1 AND project_id = $2   
           `,
-          [githubId, projectId]
+          [profileId, projectId]
         )
       )[0] || null
     );
@@ -40,6 +37,7 @@ const secretActive = {
           `
             INSERT INTO secret_active (profile_id, project_id, secret_id)
             VALUES ($1, $2, $3)
+            ON CONFLICT (profile_id, project_id, secret_id) DO NOTHING
             RETURNING *;    
         `,
           [profileId, projectId, secretId]
@@ -77,7 +75,13 @@ const secretActive = {
     projectId: number,
     secretId: number
   ): Promise<SecretActiveTable | null> => {
-    const existing = await secretActive.getByGithubId(githubId, projectId);
+    const profileId = (await profileModel.getByField({ github_id: githubId }))?.id;
+
+    if (!profileId) {
+      return null;
+    }
+
+    const existing = await secretActive.getByProjectAndProfile(profileId, projectId);
 
     if (existing) {
       return await secretActive.update(githubId, projectId, secretId);
