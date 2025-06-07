@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { EyeOff, Eye } from "lucide-react";
-import { useFormContext, Controller } from "react-hook-form";
+import { useFormContext, Controller, useWatch } from "react-hook-form";
 import { Input } from "../ui/input";
 
 type SecretToggleProps = {
@@ -18,6 +18,14 @@ const SecretToggle = ({ name }: SecretToggleProps) => {
   } = useFormContext();
   const value = getValues(name);
   const [isVisible, setIsVisible] = useState(!value);
+
+  console.log(getValues());
+
+  const watchedValues = useWatch({ control: control });
+
+  useEffect(() => {
+    setIsVisible(!value);
+  }, [watchedValues]);
 
   useEffect(() => {
     if (!isDirty) {

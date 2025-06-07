@@ -59,9 +59,13 @@ const EnvEditor = () => {
   } = formMethods;
 
   const getEnvVariables = () => {
+    if (!secret?.content) {
+      return [];
+    }
+
     return secret?.content.split("&&").map((val) => {
       const [name, value] = val.split("=");
-      return { name, value };
+      return { name, value: value || "" };
     });
   };
 
@@ -166,7 +170,7 @@ const EnvEditor = () => {
     setValue("envVariables", [...getValues("envVariables"), { name: "", value: "" }]);
   };
 
-  const renderEditor = getValues("envVariables") && getValues("envVariables").length !== 0;
+  const renderEditor = !!secret;
 
   return (
     <FormProvider {...formMethods}>
