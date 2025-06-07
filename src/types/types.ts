@@ -143,8 +143,15 @@ export type SecretActiveTable = {
 export type SecretHistoryTable = {
   id: number;
   profile_id: number;
-  project_id: number;
   secret_id: number;
+  created_at: string;
+};
+
+export type SecretHistory = SecretHistoryTable & {
+  project_id: number;
+  project: string;
+  environment: EnvironmentName;
+  path: string;
 };
 
 // Project collaborators (manual sharing)

@@ -7,6 +7,7 @@ import secretModel from "./secret";
 import templateModel from "./template";
 import auditLogModel from "./audit-log";
 import secretActiveModel from "./secret-active";
+import secretHistoryModel from "./secret-history";
 
 let isDbInitialized = false;
 
@@ -29,5 +30,6 @@ export const getDbClient = async (): Promise<TDbClient> => {
     template: templateModel,
     auditLog: auditLogModel,
     secretActive: secretActiveModel,
+    secretHistory: secretHistoryModel,
   };
 };

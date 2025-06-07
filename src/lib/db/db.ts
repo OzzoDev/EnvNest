@@ -128,7 +128,9 @@ export const initDB = async () => {
     CREATE TABLE IF NOT EXISTS secret_history (
       id SERIAL PRIMARY KEY, 
       profile_id INTEGER REFERENCES profile(id) ON DELETE CASCADE,
-      secret_id INTEGER REFERENCES secret(id) ON DELETE CASCADE
+      secret_id INTEGER REFERENCES secret(id) ON DELETE CASCADE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE (profile_id, secret_id)
     );  
   `);
 

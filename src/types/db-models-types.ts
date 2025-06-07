@@ -17,6 +17,7 @@ import {
   SecretActiveTable,
   AuditLogWithUser,
   SecretHistoryTable,
+  SecretHistory,
 } from "./types";
 
 export type TProfileModel = {
@@ -85,7 +86,10 @@ export type TAuditLogModel = {
 };
 
 export type TSecretActive = {
-  getByGithubId: (githubId: string, projectId: number) => Promise<SecretActiveTable | null>;
+  getByProjectAndProfile: (
+    profileId: number,
+    projectId: number
+  ) => Promise<SecretActiveTable | null>;
   create: (
     githubId: string,
     projectId: number,
@@ -104,7 +108,7 @@ export type TSecretActive = {
 };
 
 export type TSecretHistory = {
-  get: (githubId: string) => Promise<SecretHistoryTable[] | null>;
+  get: (githubId: string) => Promise<SecretHistory[] | null>;
   create: (githubId: string, secretId: number) => Promise<SecretHistoryTable | null>;
 };
 

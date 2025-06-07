@@ -1,5 +1,6 @@
 import { getRepos } from "@/api/github/getRepos";
 import { authOptions } from "@/app/(backend)/api/auth/[...nextauth]/route";
+import SecretHistoryLog from "@/components/dashboard/SecretHistoryLog";
 import DashboardHeader from "@/components/layout/dashboard/DashboardHeader";
 import NewProjectForm from "@/components/NewProjectForm";
 import ProjectList from "@/components/ProjectList";
@@ -25,6 +26,7 @@ const DashboardLayout = async ({ children }: Readonly<{ children: ReactNode }>) 
             <NewProjectForm repos={repos} />
           </div>
           <ProjectList />
+          <SecretHistoryLog />
         </div>
         <div className="flex flex-col gap-y-12">
           <DashboardHeader />

@@ -36,8 +36,6 @@ const ProjectWatcher = () => {
   }, [projects]);
 
   useEffect(() => {
-    console.log("SecretId: ", secretId, "ProjectId: ", projectId);
-
     if (secretId) {
       refetchSecret();
     } else {

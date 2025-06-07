@@ -1,27 +1,33 @@
-import { SecretHistoryTable } from "@/types/types";
+import { SecretHistory, SecretHistoryTable } from "@/types/types";
 import { executeQuery } from "../db";
 import profileModel from "./profile";
 
 const secretActive = {
-  get: async (githubId: string): Promise<SecretHistoryTable[] | null> => {
+  get: async (githubId: string): Promise<SecretHistory[] | null> => {
     const profileId = (await profileModel.getByField({ github_id: githubId }))?.id;
 
-    if (profileId) {
+    if (!profileId) {
       return null;
     }
 
-    return await executeQuery<SecretHistoryTable>(
+    return await executeQuery<SecretHistory>(
       `
         SELECT
             sh.id, 
             sh.profile_id, 
             sh.secret_id, 
-            p.id AS project_id
+            sh.created_at,
+            p.id AS project_id, 
+            p.full_name as project, 
+            e.name AS environment, 
+            s.path AS path
         FROM secret_history sh
-        INNER JOIN evironment e
-            ON e.secret_id = sh.secret_id
+        INNER JOIN secret s
+          ON s.id = sh.secret_id
+        INNER JOIN environment e
+            ON e.id = s.environment_id
         INNER JOIN project p
-            ON p.id = e.environment_id
+            ON p.id = e.project_id
         WHERE sh.profile_id = $1
       `,
       [profileId]
@@ -61,6 +67,7 @@ const secretActive = {
         `
             INSERT INTO secret_history (profile_id, secret_id)
             VALUES ($1, $2)
+            ON CONFLICT (profile_id, secret_id) DO NOTHING
             RETURNING *; 
         `,
         [profileId, secretId]

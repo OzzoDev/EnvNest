@@ -25,9 +25,15 @@ export const secretRouter = router({
 
       let safeSecretId = secretId;
 
+      const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+
+      if (!profileId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
+      }
+
       if (!secretId) {
         safeSecretId =
-          (await db.secretActive.getByGithubId(String(githubId), projectId))?.secret_id ?? null;
+          (await db.secretActive.getByProjectAndProfile(profileId, projectId))?.secret_id ?? null;
       } else {
         await db.secretActive.upsert(String(githubId), projectId, secretId);
       }
@@ -84,7 +90,9 @@ export const secretRouter = router({
 
     const db = await getDbClient();
 
-    return await db.secretHistory.get(String(githubId));
+    const logs = await db.secretHistory.get(String(githubId));
+
+    return logs;
   }),
   create: privateProcedure
     .input(
