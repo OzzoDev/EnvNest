@@ -58,11 +58,18 @@ const SecretSelector = () => {
     const prevEnvironment = formData.prevEnvironment;
     const currentEnvironment = formData.environment;
 
+    const environmentKey = ENVIRONMENTS.find((env) => env.label === currentEnvironment)?.value;
+    const firstPath = environmentPaths?.[environmentKey || ""]?.[0].path;
+
     if (prevEnvironment !== currentEnvironment && prevEnvironment) {
-      setFormData((prev) => ({ ...prev, path: undefined, secretId: undefined }));
+      setFormData((prev) => ({ ...prev, path: firstPath || undefined, secretId: undefined }));
       setSecret(null);
     } else {
-      setFormData((prev) => ({ ...prev, prevEnvironment: currentEnvironment }));
+      setFormData((prev) => ({
+        ...prev,
+        path: firstPath || prev.path,
+        prevEnvironment: currentEnvironment,
+      }));
     }
   }, [formData.environment]);
 
@@ -115,27 +122,31 @@ const SecretSelector = () => {
   }
 
   return (
-    <div className="flex gap-x-8">
-      <ModeSelect
-        selectPlaceholder="Select environment"
-        selectLabel="Environments"
-        isRequired={false}
-        disabled={!isSaved}
-        options={environments}
-        value={formData.environment}
-        onSelect={(value) => setFormData((prev) => ({ ...prev, environment: value }))}
-      />
-      {formData.environment && (
+    <div>
+      <p className="font-medium text-text-color mb-4">View and edit .env file</p>
+
+      <div className="flex gap-x-8">
         <ModeSelect
-          selectPlaceholder="Select path"
-          selectLabel="Paths"
+          selectPlaceholder="Select environment"
+          selectLabel="Environments"
           isRequired={false}
           disabled={!isSaved}
-          options={paths}
-          value={formData.path}
-          onSelect={(value) => setFormData((prev) => ({ ...prev, path: value }))}
+          options={environments}
+          value={formData.environment}
+          onSelect={(value) => setFormData((prev) => ({ ...prev, environment: value }))}
         />
-      )}
+        {formData.environment && (
+          <ModeSelect
+            selectPlaceholder="Select path"
+            selectLabel="Paths"
+            isRequired={false}
+            disabled={!isSaved}
+            options={paths}
+            value={formData.path}
+            onSelect={(value) => setFormData((prev) => ({ ...prev, path: value }))}
+          />
+        )}
+      </div>
     </div>
   );
 };
