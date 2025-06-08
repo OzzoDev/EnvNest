@@ -53,14 +53,14 @@ const ActivityLog = ({ isOpen, setIsOpen, refetchTrigger, updateSecret }: Activi
       return;
     }
 
-    const convertedCreatedAt = convertToLocalTime(auditLog.created_at);
+    const [date, time] = convertToLocalTime(auditLog.created_at).split(" ");
 
     updateSecret({
       projectId,
       secretId,
       content: auditLog.content,
       type: "ROLLBACK",
-      updateMessage: `Rolled back to ${auditLog.metadata.type} at ${convertedCreatedAt.date} / ${convertedCreatedAt.time}`,
+      updateMessage: `Rolled back to ${auditLog.metadata.type} at ${date} / ${time}`,
     });
   };
 

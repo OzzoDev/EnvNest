@@ -13,7 +13,7 @@ const auditLog = {
           al.secret_version_id,
           al.action, 
           al.metadata, 
-          al.created_at, 
+          al.created_at AT TIME ZONE 'UTC' AS created_at, 
           p.username AS user,
           sv.content
         FROM audit_log al

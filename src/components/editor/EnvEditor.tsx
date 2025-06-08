@@ -23,7 +23,7 @@ import SecretSelector from "./SecretSelector";
 import { FiPlus } from "react-icons/fi";
 import AlertDialog from "../utils/AleartDialog";
 import { GrRevert } from "react-icons/gr";
-import ActivityLog from "./ActivityLog";
+import ActivityLog from "../dashboard/ActivityLog";
 
 const formSchema = z.object({
   envVariables: z.array(z.object({ name: z.string().nonempty(), value: z.string().nonempty() })),

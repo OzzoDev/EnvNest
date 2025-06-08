@@ -19,7 +19,7 @@ const AuditLogItem = ({ audit, onRollback }: AuditLogItemProps) => {
   const secret = useProjectStore((state) => state.secret);
   const [showContent, setShowContent] = useState<boolean>(false);
 
-  const convertedCreatedAt = convertToLocalTime(audit.created_at);
+  const [date, time] = convertToLocalTime(audit.created_at).split(" ");
 
   const content = audit.content.split("&&");
 
@@ -30,7 +30,7 @@ const AuditLogItem = ({ audit, onRollback }: AuditLogItemProps) => {
       <div className="flex justify-between">
         <Badge className="p-1 h-fit w-fit">{audit.metadata.type as string}</Badge>
         <p>
-          {convertedCreatedAt.date} / {convertedCreatedAt.time}
+          {date} / {time}
         </p>
       </div>
       <div className="flex flex-col gap-y-2 px-1">
@@ -63,7 +63,7 @@ const AuditLogItem = ({ audit, onRollback }: AuditLogItemProps) => {
             <AccordionContent>
               <ScrollArea className="max-h-[120px] overflow-y-auto max-w-[300px]">
                 {content.map((cont, index) => (
-                  <p key={cont + index} className="text-sm">
+                  <p key={cont + index} className="text-sm break-all">
                     {cont}
                   </p>
                 ))}
