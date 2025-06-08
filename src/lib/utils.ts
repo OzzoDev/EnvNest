@@ -1,7 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { parseISO, format, addHours } from "date-fns";
-import { sv } from "date-fns/locale";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -16,19 +14,30 @@ export const sanitizeValues = (values: unknown[]): unknown[] => {
   });
 };
 
-export const convertToLocalTime = (timestamp: string) => {
-  const date = parseISO(timestamp);
-
-  const swedenTime =
-    date.getHours() >= 2 && date.getHours() < 3 ? addHours(date, 2) : addHours(date, 1);
-
-  const formattedDate = format(swedenTime, "yyyy-MM-dd", { locale: sv });
-  const formattedTime = format(swedenTime, "HH:mm", { locale: sv });
-
-  return { full: `${formattedDate} ${formattedTime}`, date: formattedDate, time: formattedTime };
-};
+export const convertToLocalTime = (utcDateString: string): string =>
+  new Date(utcDateString).toLocaleString().split(/:\d{2}(?=[^:]*$)/)[0];
 
 export const capitalize = (str: string): string => {
   if (!str) return str;
   return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+export const timeAgo = (dateString: string): string => {
+  const inputDate = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - inputDate.getTime()) / 1000);
+
+  if (diffInSeconds < 3600) {
+    const minutes = Math.floor(diffInSeconds / 60);
+    return `${minutes}m ago`;
+  } else if (diffInSeconds < 86400) {
+    const hours = Math.floor(diffInSeconds / 3600);
+    return `${hours}h ago`;
+  } else if (diffInSeconds < 31536000) {
+    const days = Math.floor(diffInSeconds / 86400);
+    return `${days}d ago`;
+  } else {
+    const years = Math.floor(diffInSeconds / 31536000);
+    return `${years}y ago`;
+  }
 };

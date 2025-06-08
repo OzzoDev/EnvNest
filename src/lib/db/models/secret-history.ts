@@ -16,7 +16,7 @@ const secretActive = {
             sh.id, 
             sh.profile_id, 
             sh.secret_id, 
-            sh.created_at,
+            sh.created_at AT TIME ZONE 'UTC' AS created_at,
             p.id AS project_id, 
             p.full_name as project, 
             e.name AS environment, 
@@ -70,7 +70,11 @@ const secretActive = {
             VALUES ($1, $2)
             ON CONFLICT (profile_id, secret_id)
             DO UPDATE SET created_at = CURRENT_TIMESTAMP
-            RETURNING *; 
+            RETURNING 
+              id, 
+              profile_id,
+              secret_id, 
+              created_at AT TIME ZONE 'UTC' AS created_at; 
         `,
         [profileId, secretId]
       )

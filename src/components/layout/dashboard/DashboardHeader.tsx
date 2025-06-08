@@ -23,7 +23,7 @@ const DashboardHeader = () => {
     return null;
   }
 
-  const convertedCreatedAt = convertToLocalTime(project.created_at);
+  const [date, time] = convertToLocalTime(project.created_at).split(" ");
 
   return (
     <div className="flex justify-between">
@@ -52,7 +52,7 @@ const DashboardHeader = () => {
         <div className="flex flex-col items-end text-text-color text-sm">
           <p className="text-base font-medium">Project created</p>
           <p>
-            {convertedCreatedAt.date} / {convertedCreatedAt.time}
+            {date} / {time}
           </p>
         </div>
       </div>
