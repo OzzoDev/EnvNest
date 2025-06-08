@@ -2,6 +2,7 @@ import { z } from "zod";
 import { privateProcedure, router } from "../trpc";
 import { EnvironmentName } from "@/types/types";
 import { gethelpersClient } from "@/lib/db/helpers";
+import { TRPCError } from "@trpc/server";
 
 export const githubRouter = router({
   getPaths: privateProcedure
@@ -27,4 +28,17 @@ export const githubRouter = router({
         environment as EnvironmentName
       );
     }),
+  getRepos: privateProcedure.query(async ({ ctx }) => {
+    const { user, session } = ctx;
+    const { accessToken } = session;
+    const { id: githubId } = user;
+
+    if (!accessToken) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    const helpers = await gethelpersClient();
+
+    return await helpers.github.getRepos(accessToken, githubId);
+  }),
 });

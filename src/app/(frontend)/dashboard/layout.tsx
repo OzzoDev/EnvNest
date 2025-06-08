@@ -1,4 +1,3 @@
-import { getRepos } from "@/api/github/getRepos";
 import { authOptions } from "@/app/(backend)/api/auth/[...nextauth]/route";
 import Sidebar from "@/components/dashboard/sidebar/Sidebar";
 import DashboardHeader from "@/components/layout/dashboard/DashboardHeader";
@@ -18,8 +17,6 @@ const DashboardLayout = async ({ children }: Readonly<{ children: ReactNode }>) 
     redirect("/auth");
   }
 
-  const repos = await getRepos(session.accessToken, session.user?.id!);
-
   return (
     <SidebarProvider
       defaultOpen={defaultOpen}
@@ -29,7 +26,7 @@ const DashboardLayout = async ({ children }: Readonly<{ children: ReactNode }>) 
           "--sidebar-width-mobile": "20rem",
         } as React.CSSProperties
       }>
-      <Sidebar repos={repos} />
+      <Sidebar />
       <div className="flex flex-col gap-y-12 p-8 min-h-screen w-full">
         <SidebarTrigger />
         <DashboardHeader />

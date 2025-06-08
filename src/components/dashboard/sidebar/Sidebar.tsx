@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Sidebar as SidebarRoot,
   SidebarContent,
@@ -6,25 +8,22 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
 } from "@/components/ui/sidebar";
-import { GithubRepo } from "@/types/types";
 import NewProjectForm from "./NewProjectForm";
 import ProjectList from "./ProjectList";
 import SecretHistoryLog from "./SecretHistoryLog";
+import { trpc } from "@/trpc/client";
 
-type SidebarProps = {
-  repos: GithubRepo[];
-};
+const Sidebar = () => {
+  const { data: repos } = trpc.github.getRepos.useQuery();
 
-const Sidebar = ({ repos }: SidebarProps) => {
   return (
     <SidebarRoot className="border-r border-muted">
       <SidebarContent className="bg-background">
         <SidebarGroup className=" p-0">
-          <SidebarGroupLabel></SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="flex flex-col items-center gap-y-8 full pt-16">
+            <SidebarMenu className="flex flex-col items-center gap-y-8 full pt-24">
               <div className="flex flex-col gap-y-8">
-                <NewProjectForm repos={repos} />
+                {repos && repos.length && <NewProjectForm repos={repos} />}
                 <ProjectList />
                 <SecretHistoryLog />
               </div>
