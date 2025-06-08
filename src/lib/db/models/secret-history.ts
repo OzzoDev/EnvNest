@@ -29,6 +29,7 @@ const secretActive = {
         INNER JOIN project p
             ON p.id = e.project_id
         WHERE sh.profile_id = $1
+        ORDER BY sh.created_at DESC
       `,
       [profileId]
     );
@@ -67,7 +68,8 @@ const secretActive = {
         `
             INSERT INTO secret_history (profile_id, secret_id)
             VALUES ($1, $2)
-            ON CONFLICT (profile_id, secret_id) DO NOTHING
+            ON CONFLICT (profile_id, secret_id)
+            DO UPDATE SET created_at = CURRENT_TIMESTAMP
             RETURNING *; 
         `,
         [profileId, secretId]
