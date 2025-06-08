@@ -7,6 +7,7 @@ import { useProjectStore } from "@/store/projectStore";
 import AlertDialog from "./utils/AleartDialog";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { ScrollArea } from "./ui/scroll-area";
+import { cn } from "@/lib/utils";
 
 const ProjectList = () => {
   const projectId = useProjectStore((state) => state.projectId);
@@ -40,25 +41,23 @@ const ProjectList = () => {
   return (
     <div>
       <p className="text-lg text-text-color mb-8">Your projects</p>
-      <ScrollArea className="flex flex-col gap-y-4 max-h-[500px] overflow-y-auto">
+      <ScrollArea className="pr-4 flex flex-col gap-y-4 max-h-[500px] overflow-y-auto">
         {projects?.map((project) => {
           return isSaved ? (
-            <div key={project.id} className="my-2">
-              <HoverCard>
-                <HoverCardTrigger asChild>
-                  <Button
-                    onClick={() => selectProject(project.id)}
-                    variant={project.id === projectId ? "secondary" : "ghost"}
-                    className="justify-start w-[240px] text-left">
-                    <span className="truncate overflow-hidden whitespace-nowrap block w-full">
-                      {project.full_name}
-                    </span>
-                  </Button>
-                </HoverCardTrigger>
-                <HoverCardContent className="min-w-[240px] w-full py-2">
-                  {project.full_name}
-                </HoverCardContent>
-              </HoverCard>
+            <div className="my-2 px-1">
+              <Button
+                key={project.id}
+                onClick={() => selectProject(project.id)}
+                variant="ghost"
+                className={cn(
+                  "justify-start w-full text-left break-all whitespace-normal h-auto border-l-2 border-transparent",
+                  {
+                    "hover:bg-transparent hover:text-primary underline text-primary":
+                      projectId === project.id,
+                  }
+                )}>
+                {project.full_name}
+              </Button>
             </div>
           ) : (
             <div key={project.id} className="my-2">
@@ -68,11 +67,17 @@ const ProjectList = () => {
                 action="Continue"
                 actionFn={() => selectProject(project.id)}>
                 <Button
-                  variant={project.id === projectId ? "secondary" : "ghost"}
-                  className="justify-start w-[240px] text-left">
-                  <span className="truncate overflow-hidden whitespace-nowrap block w-full">
-                    {project.full_name}
-                  </span>
+                  key={project.id}
+                  onClick={() => selectProject(project.id)}
+                  variant="ghost"
+                  className={cn(
+                    "justify-start w-full text-left break-all whitespace-normal h-auto border-l-2 border-transparent",
+                    {
+                      "hover:bg-transparent hover:text-primary underline text-primary":
+                        projectId === project.id,
+                    }
+                  )}>
+                  {project.full_name}
                 </Button>
               </AlertDialog>
             </div>

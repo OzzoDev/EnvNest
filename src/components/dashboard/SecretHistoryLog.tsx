@@ -8,6 +8,7 @@ import { Button } from "../ui/button";
 import AlertDialog from "../utils/AleartDialog";
 import { useEffect } from "react";
 import { SecretHistory } from "@/types/types";
+import { cn } from "@/lib/utils";
 
 const SecretHistoryLog = () => {
   const secretId = useProjectStore((state) => state.secretId);
@@ -23,8 +24,6 @@ const SecretHistoryLog = () => {
     refetchLogs();
   }, [secret]);
 
-  console.log("Logs: ", logs);
-
   const loadSecret = (log: SecretHistory) => {
     setProjectId(log.project_id);
     setSecretId(log.secret_id);
@@ -36,36 +35,40 @@ const SecretHistoryLog = () => {
       <ScrollArea className="flex flex-col gap-y-4 max-h-[500px] overflow-y-auto">
         {logs?.map((log) => {
           return isSaved ? (
-            <div key={log.id} className="my-2">
-              <HoverCard>
-                <HoverCardTrigger asChild>
-                  <Button
-                    onClick={() => loadSecret(log)}
-                    variant={log.secret_id === secretId ? "secondary" : "ghost"}
-                    className="justify-start w-[240px] text-left">
-                    <span className="truncate overflow-hidden whitespace-nowrap block w-full">
-                      {log.path}
-                    </span>
-                  </Button>
-                </HoverCardTrigger>
-                <HoverCardContent className="min-w-[240px] w-full py-2">
-                  {log.path}
-                </HoverCardContent>
-              </HoverCard>
+            <div key={log.id} className="my-2 px-1">
+              <Button
+                key={log.id}
+                onClick={() => loadSecret(log)}
+                variant="ghost"
+                className={cn(
+                  "justify-start w-full text-left break-all whitespace-normal h-auto border-l-2 border-transparent",
+                  {
+                    "hover:bg-transparent hover:text-primary underline text-primary":
+                      secretId === log.secret_id,
+                  }
+                )}>
+                {log.path}
+              </Button>
             </div>
           ) : (
-            <div key={log.id} className="my-2">
+            <div key={log.id} className="my-2 px-1">
               <AlertDialog
                 title="Are you sure you want to change .env file?"
                 description="Any unsaved changes will be lost. This action cannot be undone."
                 action="Continue"
                 actionFn={() => loadSecret(log)}>
                 <Button
-                  variant={log.secret_id === secretId ? "secondary" : "ghost"}
-                  className="justify-start w-[240px] text-left">
-                  <span className="truncate overflow-hidden whitespace-nowrap block w-full">
-                    {log.path}
-                  </span>
+                  key={log.id}
+                  onClick={() => loadSecret(log)}
+                  variant="ghost"
+                  className={cn(
+                    "justify-start w-full text-left break-all whitespace-normal h-auto border-l-2 border-transparent",
+                    {
+                      "hover:bg-transparent hover:text-primary underline text-primary":
+                        secretId === log.secret_id,
+                    }
+                  )}>
+                  {log.path}
                 </Button>
               </AlertDialog>
             </div>
