@@ -1,15 +1,14 @@
 "use client";
 
 import { GithubRepo } from "@/types/types";
-import Combobox from "./utils/Combobox";
 import { FormEvent, useEffect, useState } from "react";
-import { Button } from "./ui/button";
 import { trpc } from "@/trpc/client";
 import React from "react";
 import { toast } from "sonner";
 import { useProjectStore } from "@/store/projectStore";
-import AlertDialog from "./utils/AleartDialog";
-import ModeSelect from "./utils/ModeSelect";
+import ModeSelect from "@/components/utils/ModeSelect";
+import { Button } from "@/components/ui/button";
+import AlertDialog from "@/components/utils/AleartDialog";
 
 type NewProjectFormProps = {
   repos: GithubRepo[];

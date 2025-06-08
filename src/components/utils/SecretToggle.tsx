@@ -19,8 +19,6 @@ const SecretToggle = ({ name }: SecretToggleProps) => {
   const value = getValues(name);
   const [isVisible, setIsVisible] = useState(!value);
 
-  console.log(getValues());
-
   const watchedValues = useWatch({ control: control });
 
   useEffect(() => {

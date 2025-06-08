@@ -2,13 +2,12 @@
 
 import { useProjectStore } from "@/store/projectStore";
 import { trpc } from "@/trpc/client";
-import { ScrollArea } from "../ui/scroll-area";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card";
-import { Button } from "../ui/button";
-import AlertDialog from "../utils/AleartDialog";
 import { useEffect } from "react";
 import { SecretHistory } from "@/types/types";
 import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import AlertDialog from "@/components/utils/AleartDialog";
 
 const SecretHistoryLog = () => {
   const secretId = useProjectStore((state) => state.secretId);

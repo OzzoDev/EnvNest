@@ -1,16 +1,18 @@
 import { getRepos } from "@/api/github/getRepos";
 import { authOptions } from "@/app/(backend)/api/auth/[...nextauth]/route";
-import SecretHistoryLog from "@/components/dashboard/SecretHistoryLog";
+import Sidebar from "@/components/dashboard/sidebar/Sidebar";
 import DashboardHeader from "@/components/layout/dashboard/DashboardHeader";
-import NewProjectForm from "@/components/NewProjectForm";
-import ProjectList from "@/components/ProjectList";
 import ProjectWatcher from "@/components/ProjectWatcher";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { getServerSession } from "next-auth";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
 
 const DashboardLayout = async ({ children }: Readonly<{ children: ReactNode }>) => {
   const session = await getServerSession(authOptions);
+  const cookieStore = await cookies();
+  const defaultOpen = JSON.parse(cookieStore.get("sidebar_state")?.value ?? "true");
 
   if (!session?.accessToken) {
     redirect("/auth");
@@ -19,22 +21,22 @@ const DashboardLayout = async ({ children }: Readonly<{ children: ReactNode }>) 
   const repos = await getRepos(session.accessToken, session.user?.id!);
 
   return (
-    <>
-      <div className="p-8 grid grid-cols-[3fr_7fr] grid-rows-1 min-h-screen">
-        <div className="flex flex-col gap-y-12 p-6 w-[300px]">
-          <div className="pb-12 border-b border-muted-foreground">
-            <NewProjectForm repos={repos} />
-          </div>
-          <ProjectList />
-          <SecretHistoryLog />
-        </div>
-        <div className="flex flex-col gap-y-12">
-          <DashboardHeader />
-          {children}
-        </div>
+    <SidebarProvider
+      defaultOpen={defaultOpen}
+      style={
+        {
+          "--sidebar-width": "20rem",
+          "--sidebar-width-mobile": "20rem",
+        } as React.CSSProperties
+      }>
+      <Sidebar repos={repos} />
+      <div className="flex flex-col gap-y-12 p-8 min-h-screen w-full">
+        <SidebarTrigger />
+        <DashboardHeader />
+        {children}
       </div>
       <ProjectWatcher />
-    </>
+    </SidebarProvider>
   );
 };
 

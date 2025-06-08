@@ -1,12 +1,11 @@
 "use client";
 
 import { trpc } from "@/trpc/client";
-import { Button } from "./ui/button";
 import { useEffect } from "react";
 import { useProjectStore } from "@/store/projectStore";
-import AlertDialog from "./utils/AleartDialog";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
-import { ScrollArea } from "./ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import AlertDialog from "@/components/utils/AleartDialog";
 import { cn } from "@/lib/utils";
 
 const ProjectList = () => {
@@ -44,9 +43,8 @@ const ProjectList = () => {
       <ScrollArea className="pr-4 flex flex-col gap-y-4 max-h-[500px] overflow-y-auto">
         {projects?.map((project) => {
           return isSaved ? (
-            <div className="my-2 px-1">
+            <div key={project.id} className="my-2 px-1">
               <Button
-                key={project.id}
                 onClick={() => selectProject(project.id)}
                 variant="ghost"
                 className={cn(

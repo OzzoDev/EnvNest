@@ -92,7 +92,7 @@ const ModeSelect = ({
                 aria-expanded={open}
                 disabled={disabled}
                 className="w-[240px] justify-between">
-                <p className="w-[180px] truncate overflow-hidden whitespace-nowrap text-muted-foreground text-left">
+                <p className="truncate overflow-hidden whitespace-nowrap text-muted-foreground text-left">
                   {typeof value === "string" && value.length > 0
                     ? uniqueOptions.find((otp) => otp.value === value)?.value
                     : selectPlaceholder}
