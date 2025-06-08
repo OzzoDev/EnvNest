@@ -22,6 +22,8 @@ type ProjectStore = {
   projectSecretRefs: ProjectSecretRefs;
   addProjectSecretRefs: (projectId: number, secretId: number) => void;
   deleteProjectSecretRef: (projectId: number) => void;
+  isLoading: boolean;
+  setIsLoading: (isLoading: boolean) => void;
   clearStore: () => void;
 };
 
@@ -35,6 +37,7 @@ export const useProjectStore = create<ProjectStore>()(
       isSaved: true,
       secretId: null,
       projectSecretRefs: {},
+      isLoading: false,
       setProjectId: (projectId: number | null) => set({ projectId }),
       setSecret: (secret: EnvironmentSecret | null) => set({ secret }),
       setProject: (project: ProjectTable | null) => set({ project }),
@@ -53,6 +56,7 @@ export const useProjectStore = create<ProjectStore>()(
           const { [projectId]: _, ...rest } = state.projectSecretRefs;
           return { projectSecretRefs: rest };
         }),
+      setIsLoading: (isLoading: boolean) => set({ isLoading }),
       clearStore: () =>
         set({
           projectId: null,
@@ -62,6 +66,7 @@ export const useProjectStore = create<ProjectStore>()(
           isSaved: true,
           secretId: null,
           projectSecretRefs: {},
+          isLoading: false,
         }),
     }),
     {
@@ -69,6 +74,7 @@ export const useProjectStore = create<ProjectStore>()(
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
         state?.setIsSaved(true);
+        state?.setIsLoading(false);
         // state?.clearStore();
       },
     }

@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import AlertDialog from "@/components/utils/AleartDialog";
 import { cn } from "@/lib/utils";
+import SkeletonWrapper from "@/components/utils/loaders/SkeletonWrapper";
 
 const ProjectList = () => {
   const projectId = useProjectStore((state) => state.projectId);
@@ -14,7 +15,12 @@ const ProjectList = () => {
   const setSecretId = useProjectStore((state) => state.setSecretId);
   const isSaved = useProjectStore((state) => state.isSaved);
 
-  const { data: projects, error, isLoading, refetch } = trpc.project.getAll.useQuery();
+  const {
+    data: projects,
+    error,
+    isLoading: isLoadingProjetcs,
+    refetch,
+  } = trpc.project.getAll.useQuery();
 
   useEffect(() => {
     refetch();
@@ -25,10 +31,6 @@ const ProjectList = () => {
     setProjectId(projectId);
   };
 
-  if (isLoading) {
-    return <p className="text-text-color">Loading projects...</p>;
-  }
-
   if (error) {
     return <p className="text-destructive">Error loading projects</p>;
   }
@@ -38,34 +40,14 @@ const ProjectList = () => {
   }
 
   return (
-    <div>
-      <p className="text-lg text-text-color mb-8">Your projects</p>
-      <ScrollArea className="pr-4 flex flex-col gap-y-4 max-h-[500px] overflow-y-auto">
-        {projects?.map((project) => {
-          return isSaved ? (
-            <div key={project.id} className="my-2 px-1">
-              <Button
-                onClick={() => selectProject(project.id)}
-                variant="ghost"
-                className={cn(
-                  "justify-start w-full text-left break-all whitespace-normal h-auto border-l-2 border-transparent",
-                  {
-                    "hover:bg-transparent hover:text-primary underline text-primary":
-                      projectId === project.id,
-                  }
-                )}>
-                {project.full_name}
-              </Button>
-            </div>
-          ) : (
-            <div key={project.id} className="my-2">
-              <AlertDialog
-                title="Are you sure you want to change project?"
-                description="Any unsaved changes will be lost. This action cannot be undone."
-                action="Continue"
-                actionFn={() => selectProject(project.id)}>
+    <SkeletonWrapper skeletons={8} isLoading={isLoadingProjetcs} className="flex flex-col gap-y-4">
+      <div>
+        <p className="text-lg text-text-color mb-8">Your projects</p>
+        <ScrollArea className="pr-4 flex flex-col gap-y-4 max-h-[500px] overflow-y-auto">
+          {projects?.map((project) => {
+            return isSaved ? (
+              <div key={project.id} className="my-2 px-1">
                 <Button
-                  key={project.id}
                   onClick={() => selectProject(project.id)}
                   variant="ghost"
                   className={cn(
@@ -77,12 +59,34 @@ const ProjectList = () => {
                   )}>
                   {project.full_name}
                 </Button>
-              </AlertDialog>
-            </div>
-          );
-        })}
-      </ScrollArea>
-    </div>
+              </div>
+            ) : (
+              <div key={project.id} className="my-2">
+                <AlertDialog
+                  title="Are you sure you want to change project?"
+                  description="Any unsaved changes will be lost. This action cannot be undone."
+                  action="Continue"
+                  actionFn={() => selectProject(project.id)}>
+                  <Button
+                    key={project.id}
+                    onClick={() => selectProject(project.id)}
+                    variant="ghost"
+                    className={cn(
+                      "justify-start w-full text-left break-all whitespace-normal h-auto border-l-2 border-transparent",
+                      {
+                        "hover:bg-transparent hover:text-primary underline text-primary":
+                          projectId === project.id,
+                      }
+                    )}>
+                    {project.full_name}
+                  </Button>
+                </AlertDialog>
+              </div>
+            );
+          })}
+        </ScrollArea>
+      </div>
+    </SkeletonWrapper>
   );
 };
 

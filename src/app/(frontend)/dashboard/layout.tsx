@@ -1,7 +1,7 @@
 import { authOptions } from "@/app/(backend)/api/auth/[...nextauth]/route";
 import Sidebar from "@/components/dashboard/sidebar/Sidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import ProjectWatcher from "@/components/ProjectWatcher";
+import ProjectWatcher from "@/components/dashboard/ProjectWatcher";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { getServerSession } from "next-auth";
 import { cookies } from "next/headers";
