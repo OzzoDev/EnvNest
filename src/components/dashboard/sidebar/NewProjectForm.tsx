@@ -9,19 +9,24 @@ import { useProjectStore } from "@/store/projectStore";
 import ModeSelect from "@/components/utils/ModeSelect";
 import { Button } from "@/components/ui/button";
 import AlertDialog from "@/components/utils/AleartDialog";
+import SkeletonWrapper from "@/components/utils/loaders/SkeletonWrapper";
 
-type NewProjectFormProps = {
-  repos: GithubRepo[];
-};
-
-const NewProjectForm = ({ repos }: NewProjectFormProps) => {
+const NewProjectForm = () => {
   const [repo, setRepo] = useState<string | null>(null);
   const [filteredRepos, setFilteredRepos] = useState<string[]>([]);
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setIsSaved = useProjectStore((state) => state.setIsSaved);
   const isSaved = useProjectStore((state) => state.isSaved);
 
-  const { refetch, data: existingRepos } = trpc.project.getAll.useQuery();
+  const { data: repos = [], isLoading: isLoadingRepos } = trpc.github.getRepos.useQuery();
+
+  const {
+    refetch,
+    data: existingRepos,
+    isLoading: isLoadingExistingRepos,
+  } = trpc.project.getAll.useQuery(undefined, {
+    enabled: !!(repos && repos?.length > 0),
+  });
 
   useEffect(() => {
     setFilteredRepos(
@@ -69,33 +74,38 @@ const NewProjectForm = ({ repos }: NewProjectFormProps) => {
   };
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-y-4 w-fit">
-      <p className="text-lg text-text-color">Create a new project</p>
-      <ModeSelect
-        searchPlaceholder="Search repositories..."
-        emptyPlaceHolder="No repository found"
-        selectPlaceholder="Select a repository"
-        enableSearch={true}
-        isRequired={false}
-        value={repo}
-        options={filteredRepos}
-        onSelect={(rep) => setRepo(rep)}
-      />
-      {repo &&
-        (isSaved ? (
-          <Button type="submit" variant="secondary">
-            Create
-          </Button>
-        ) : (
-          <AlertDialog
-            title="Create new project with unsaved changes?"
-            description="You current project is unsaved. Any unsaved changes will be lost. This action cannot be undone. Are you sure you want to continue?"
-            action="Continue"
-            actionFn={() => onSubmit()}>
-            <Button variant="secondary">Create</Button>
-          </AlertDialog>
-        ))}
-    </form>
+    <SkeletonWrapper
+      skeletons={2}
+      isLoading={isLoadingRepos || isLoadingExistingRepos}
+      className="flex flex-col gap-y-4">
+      <form onSubmit={onSubmit} className="flex flex-col gap-y-4 w-fit">
+        <p className="text-lg text-text-color">Create a new project</p>
+        <ModeSelect
+          searchPlaceholder="Search repositories..."
+          emptyPlaceHolder="No repository found"
+          selectPlaceholder="Select a repository"
+          enableSearch={true}
+          isRequired={false}
+          value={repo}
+          options={filteredRepos}
+          onSelect={(rep) => setRepo(rep)}
+        />
+        {repo &&
+          (isSaved ? (
+            <Button type="submit" variant="secondary">
+              Create
+            </Button>
+          ) : (
+            <AlertDialog
+              title="Create new project with unsaved changes?"
+              description="You current project is unsaved. Any unsaved changes will be lost. This action cannot be undone. Are you sure you want to continue?"
+              action="Continue"
+              actionFn={() => onSubmit()}>
+              <Button variant="secondary">Create</Button>
+            </AlertDialog>
+          ))}
+      </form>
+    </SkeletonWrapper>
   );
 };
 

@@ -14,16 +14,14 @@ import SecretHistoryLog from "./SecretHistoryLog";
 import { trpc } from "@/trpc/client";
 
 const Sidebar = () => {
-  const { data: repos } = trpc.github.getRepos.useQuery();
-
   return (
     <SidebarRoot className="border-r border-muted">
       <SidebarContent className="bg-background">
         <SidebarGroup className=" p-0">
           <SidebarGroupContent>
-            <SidebarMenu className="flex flex-col items-center gap-y-8 full pt-24">
-              <div className="flex flex-col gap-y-8">
-                {repos && repos.length && <NewProjectForm repos={repos} />}
+            <SidebarMenu className="flex flex-col items-center gap-y-8 full pt-24 px-6">
+              <div className="flex flex-col gap-y-8 w-full">
+                <NewProjectForm />
                 <ProjectList />
                 <SecretHistoryLog />
               </div>

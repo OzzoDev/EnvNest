@@ -1,6 +1,6 @@
 import { authOptions } from "@/app/(backend)/api/auth/[...nextauth]/route";
 import Sidebar from "@/components/dashboard/sidebar/Sidebar";
-import DashboardHeader from "@/components/layout/dashboard/DashboardHeader";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import ProjectWatcher from "@/components/ProjectWatcher";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { getServerSession } from "next-auth";
