@@ -1,17 +1,19 @@
 "use client";
 
-import { GithubRepo } from "@/types/types";
 import { FormEvent, useEffect, useState } from "react";
 import { trpc } from "@/trpc/client";
 import React from "react";
 import { toast } from "sonner";
 import { useProjectStore } from "@/store/projectStore";
 import ModeSelect from "@/components/utils/ModeSelect";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import AlertDialog from "@/components/utils/AleartDialog";
 import SkeletonWrapper from "@/components/utils/loaders/SkeletonWrapper";
+import { useSidebar } from "@/components/ui/sidebar";
+import { GoPlus } from "react-icons/go";
 
 const NewProjectForm = () => {
+  const { state, toggleSidebar } = useSidebar();
   const [repo, setRepo] = useState<string | null>(null);
   const [filteredRepos, setFilteredRepos] = useState<string[]>([]);
   const setProjectId = useProjectStore((state) => state.setProjectId);
@@ -72,6 +74,14 @@ const NewProjectForm = () => {
       url: repoData.html_url,
     });
   };
+
+  if (state === "collapsed") {
+    return (
+      <Button onClick={toggleSidebar} variant="ghost">
+        <GoPlus size={28} />
+      </Button>
+    );
+  }
 
   return (
     <SkeletonWrapper

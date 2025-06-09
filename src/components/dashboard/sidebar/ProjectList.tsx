@@ -8,8 +8,11 @@ import { Button } from "@/components/ui/button";
 import AlertDialog from "@/components/utils/AleartDialog";
 import { cn } from "@/lib/utils";
 import SkeletonWrapper from "@/components/utils/loaders/SkeletonWrapper";
+import { useSidebar } from "@/components/ui/sidebar";
+import { GrProjects } from "react-icons/gr";
 
 const ProjectList = () => {
+  const { state, toggleSidebar } = useSidebar();
   const projectId = useProjectStore((state) => state.projectId);
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setSecretId = useProjectStore((state) => state.setSecretId);
@@ -39,11 +42,25 @@ const ProjectList = () => {
     return <p className="text-lg text-text-color mb-8">No projects created</p>;
   }
 
+  const isCollapsed = state === "collapsed";
+
+  if (isCollapsed) {
+    return (
+      <Button onClick={toggleSidebar} variant="ghost">
+        <GrProjects size={24} />
+      </Button>
+    );
+  }
+
   return (
     <SkeletonWrapper skeletons={8} isLoading={isLoadingProjetcs} className="flex flex-col gap-y-4">
       <div>
         <p className="text-lg text-text-color mb-8">Your projects</p>
-        <ScrollArea className="pr-4 flex flex-col gap-y-4 max-h-[500px] overflow-y-auto">
+        <ScrollArea
+          className={cn(
+            "flex flex-col gap-y-4 max-h-[500px]",
+            isCollapsed ? "overflow-y-hidden" : "overflow-y-auto"
+          )}>
           {projects?.map((project) => {
             return isSaved ? (
               <div key={project.id} className="my-2 px-1">

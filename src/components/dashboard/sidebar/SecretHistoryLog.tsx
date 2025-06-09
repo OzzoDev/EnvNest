@@ -11,8 +11,11 @@ import AlertDialog from "@/components/utils/AleartDialog";
 import { Badge } from "@/components/ui/badge";
 import { ENVIRONMENTS } from "@/config";
 import SkeletonWrapper from "@/components/utils/loaders/SkeletonWrapper";
+import { useSidebar } from "@/components/ui/sidebar";
+import { LuHistory } from "react-icons/lu";
 
 const SecretHistoryLog = () => {
+  const { state, toggleSidebar } = useSidebar();
   const secretId = useProjectStore((state) => state.secretId);
   const isSaved = useProjectStore((state) => state.isSaved);
   const isLoading = useProjectStore((state) => state.isLoading);
@@ -42,11 +45,25 @@ const SecretHistoryLog = () => {
 
   const isLoadingUI = isFetchingLogs || isLoading || !isReadyToRender;
 
+  const isCollapsed = state === "collapsed";
+
+  if (isCollapsed) {
+    return (
+      <Button onClick={toggleSidebar} variant="ghost">
+        <LuHistory size={24} />
+      </Button>
+    );
+  }
+
   return (
     <SkeletonWrapper skeletons={8} isLoading={isLoadingUI} className="flex flex-col gap-y-4">
       <div>
         <p className="text-lg text-text-color mb-8">Your history</p>
-        <ScrollArea className="flex flex-col gap-y-4 max-h-[500px] overflow-y-auto">
+        <ScrollArea
+          className={cn(
+            "flex flex-col gap-y-4 max-h-[500px]",
+            isCollapsed ? "overflow-y-hidden" : "overflow-y-auto"
+          )}>
           {logs?.map((log) => {
             const logContent = (
               <div className="flex flex-col gap-y-2 w-full">
