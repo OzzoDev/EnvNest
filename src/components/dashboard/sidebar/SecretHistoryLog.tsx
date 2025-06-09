@@ -14,6 +14,7 @@ import SkeletonWrapper from "@/components/utils/loaders/SkeletonWrapper";
 import { useSidebar } from "@/components/ui/sidebar";
 import { LuHistory } from "react-icons/lu";
 import { useSidebarStore } from "@/store/sidebarStore";
+import { useVirtualQuery } from "@/hooks/use-virtual-query";
 
 const SecretHistoryLog = () => {
   const { state, isMobile, toggleSidebar } = useSidebar();
@@ -30,12 +31,19 @@ const SecretHistoryLog = () => {
   const {
     data: logs,
     refetch: refetchLogs,
-    isFetching: isFetchingLogs,
-  } = trpc.secret.getHistory.useQuery(undefined, { enabled: false });
+    isLoading: isLoadingLogs,
+  } = useVirtualQuery<SecretHistory[] | null>(
+    () =>
+      trpc.secret.getHistory.useQuery(undefined, {
+        enabled: false,
+      }),
+    [!!isLoading],
+    "logs"
+  );
 
   useEffect(() => {
-    setLoadingStates([isFetchingLogs, isLoading]);
-  }, [isFetchingLogs, isLoading]);
+    setLoadingStates([isLoadingLogs, isLoading]);
+  }, [isLoadingLogs, isLoading]);
 
   useEffect(() => {
     if (!isLoading) {
@@ -47,11 +55,11 @@ const SecretHistoryLog = () => {
   const loadSecret = (log: SecretHistory) => {
     setProjectId(log.project_id);
     setSecretId(log.secret_id);
-    toggleSidebar();
+    isMobile && toggleSidebar();
   };
 
   const isLoadingUI =
-    isFetchingLogs || isLoading || !isReadyToRender || (isLoadingSidebar && isMobile);
+    isLoadingLogs || isLoading || !isReadyToRender || (isLoadingSidebar && isMobile);
 
   const isCollapsed = state === "collapsed" && !isMobile;
 

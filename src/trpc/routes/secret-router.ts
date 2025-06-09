@@ -44,8 +44,6 @@ export const secretRouter = router({
 
       const secret = await db.secret.getById(safeSecretId);
 
-      // await db.secretHistory.create(String(githubId), safeSecretId);
-
       if (!secret) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Secret not found" });
       }

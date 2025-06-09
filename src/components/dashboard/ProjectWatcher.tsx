@@ -18,7 +18,7 @@ const ProjectWatcher = () => {
   const addProjectSecretRefs = useProjectStore((state) => state.addProjectSecretRefs);
   const setisLoading = useProjectStore((state) => state.setIsLoading);
 
-  const { data: projects, isLoading: isLoadingProjects } = trpc.project.getAll.useQuery();
+  const { data: projects, isLoading: isLoadingProjects } = trpc.project.get.useQuery();
 
   const {
     data: updatedSecret,
@@ -36,7 +36,7 @@ const ProjectWatcher = () => {
     data: updatedProject,
     isLoading: isLoadingProject,
     refetch: refetchProject,
-  } = trpc.project.get.useQuery(
+  } = trpc.project.getById.useQuery(
     { projectId: Number(projectId) },
     { enabled: !!projectId && hasHydrated, retry: false }
   );

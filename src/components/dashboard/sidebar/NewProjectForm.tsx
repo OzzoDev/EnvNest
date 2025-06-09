@@ -6,17 +6,18 @@ import React from "react";
 import { toast } from "sonner";
 import { useProjectStore } from "@/store/projectStore";
 import ModeSelect from "@/components/utils/ModeSelect";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import AlertDialog from "@/components/utils/AleartDialog";
 import SkeletonWrapper from "@/components/utils/loaders/SkeletonWrapper";
 import { useSidebar } from "@/components/ui/sidebar";
 import { GoPlus } from "react-icons/go";
 import { useSidebarStore } from "@/store/sidebarStore";
+import { useVirtualQuery } from "@/hooks/use-virtual-query";
+import { GithubRepo, ProjectTable } from "@/types/types";
 
 const NewProjectForm = () => {
   const { state, isMobile, toggleSidebar } = useSidebar();
   const [repo, setRepo] = useState<string | null>(null);
-  const [filteredRepos, setFilteredRepos] = useState<string[]>([]);
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setSecretId = useProjectStore((state) => state.setSecretId);
   const setSecret = useProjectStore((state) => state.setSecret);
@@ -25,27 +26,15 @@ const NewProjectForm = () => {
   const setLoadingStates = useSidebarStore((state) => state.setLoadingStates);
   const isLoadingSidebar = useSidebarStore((state) => state.isLoading);
 
-  const { data: repos = [], isLoading: isLoadingRepos } = trpc.github.getRepos.useQuery();
-
   const {
-    refetch,
-    data: existingRepos,
-    isLoading: isLoadingExistingRepos,
-  } = trpc.project.getAll.useQuery(undefined, {
-    enabled: !!(repos && repos?.length > 0),
-  });
+    data: repos = [],
+    isLoading: isLoadingRepos,
+    refetch: refetchRepos,
+  } = useVirtualQuery<GithubRepo[]>(() => trpc.github.getAvailableRepos.useQuery(), [], "repos");
 
   useEffect(() => {
-    setLoadingStates([isLoadingRepos, isLoadingExistingRepos]);
-  }, [isLoadingRepos, isLoadingExistingRepos]);
-
-  useEffect(() => {
-    setFilteredRepos(
-      repos
-        .filter((repo) => !existingRepos?.some((pro) => pro.repo_id === repo.id))
-        .map((repo) => repo.full_name)
-    );
-  }, [existingRepos]);
+    setLoadingStates([isLoadingRepos]);
+  }, [isLoadingRepos]);
 
   const { mutate } = trpc.project.create.useMutation({
     onError: () => {
@@ -57,8 +46,8 @@ const NewProjectForm = () => {
       setSecretId(null);
       setSecret(null);
       setIsSaved(true);
-      refetch();
-      toggleSidebar();
+      refetchRepos();
+      isMobile && toggleSidebar();
       toast.success(`Project ${data.full_name} created successfully`);
     },
   });
@@ -70,9 +59,7 @@ const NewProjectForm = () => {
       return;
     }
 
-    const repoData = repos
-      .filter((repo) => !existingRepos?.some((pro) => pro.repo_id === repo.id))
-      .find((rep) => rep.full_name === repo);
+    const repoData = repos.find((rep) => rep.full_name === repo);
 
     if (!repoData) {
       return;
@@ -95,7 +82,7 @@ const NewProjectForm = () => {
     );
   }
 
-  const isLoadingUI = isLoadingRepos || isLoadingExistingRepos || (isLoadingSidebar && isMobile);
+  const isLoadingUI = isLoadingRepos || (isLoadingSidebar && isMobile);
 
   return (
     <SkeletonWrapper skeletons={2} isLoading={isLoadingUI} className="flex flex-col gap-y-4">
@@ -108,7 +95,7 @@ const NewProjectForm = () => {
           enableSearch={true}
           isRequired={false}
           value={repo}
-          options={filteredRepos}
+          options={repos.map((rep) => rep.full_name)}
           onSelect={(rep) => setRepo(rep)}
         />
         {repo &&

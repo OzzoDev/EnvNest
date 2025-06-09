@@ -4,30 +4,33 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
 export const projectRouter = router({
-  getAll: privateProcedure.query(async ({ ctx }) => {
+  get: privateProcedure.query(async ({ ctx }) => {
     const { user } = ctx;
     const { id: githubId } = user;
+
     const db = await getDbClient();
 
     return await db.project.getByProfile(githubId);
   }),
-  get: privateProcedure.input(z.object({ projectId: z.number() })).query(async ({ input, ctx }) => {
-    const { projectId } = input;
-    const { user } = ctx;
-    const { id: githubId } = user;
+  getById: privateProcedure
+    .input(z.object({ projectId: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const { projectId } = input;
+      const { user } = ctx;
+      const { id: githubId } = user;
 
-    const db = await getDbClient();
-    const project = await db.project.getById(projectId, githubId);
+      const db = await getDbClient();
+      const project = await db.project.getById(projectId, githubId);
 
-    if (!project) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: `Project with id ${projectId} not found or access denied`,
-      });
-    }
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Project with id ${projectId} not found or access denied`,
+        });
+      }
 
-    return project;
-  }),
+      return project;
+    }),
   create: privateProcedure
     .input(
       z.object({

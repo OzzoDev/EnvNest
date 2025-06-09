@@ -11,6 +11,8 @@ import SkeletonWrapper from "@/components/utils/loaders/SkeletonWrapper";
 import { useSidebar } from "@/components/ui/sidebar";
 import { GrProjects } from "react-icons/gr";
 import { useSidebarStore } from "@/store/sidebarStore";
+import { useVirtualQuery } from "@/hooks/use-virtual-query";
+import { ProjectTable } from "@/types/types";
 
 const ProjectList = () => {
   const { state, isMobile, toggleSidebar } = useSidebar();
@@ -23,28 +25,25 @@ const ProjectList = () => {
 
   const {
     data: projects,
-    error,
     isLoading: isLoadingProjetcs,
-    refetch,
-  } = trpc.project.getAll.useQuery();
+    refetch: refetchProjects,
+  } = useVirtualQuery<ProjectTable[]>(() => trpc.project.get.useQuery(), [!!projectId], "projects");
+
+  console.log("Projects: ", projects);
 
   useEffect(() => {
     setLoadingStates([isLoadingProjetcs]);
   }, [isLoadingProjetcs]);
 
   useEffect(() => {
-    refetch();
+    refetchProjects();
   }, [projectId]);
 
   const selectProject = (projectId: number) => {
     setSecretId(null);
     setProjectId(projectId);
-    toggleSidebar();
+    isMobile && toggleSidebar();
   };
-
-  if (error) {
-    return <p className="text-destructive">Error loading projects</p>;
-  }
 
   if (projects?.length === 0) {
     return <p className="text-lg text-text-color mb-8">No projects created</p>;
@@ -68,7 +67,7 @@ const ProjectList = () => {
         <p className="text-lg text-text-color mb-8">Your projects</p>
         <ScrollArea
           className={cn(
-            "flex flex-col gap-y-4 max-h-[500px]",
+            "flex flex-col gap-y-4 max-h-[300px]",
             isCollapsed ? "overflow-y-hidden" : "overflow-y-auto"
           )}>
           {projects?.map((project) => {

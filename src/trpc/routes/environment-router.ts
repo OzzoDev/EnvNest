@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { privateProcedure, router } from "../trpc";
 import { getDbClient } from "@/lib/db/models";
-import { gethelpersClient } from "@/lib/db/helpers";
+import { getHelpersClient } from "@/lib/db/helpers";
 import { ENVIRONMENTS } from "@/config";
 
 export const environmentRouter = router({
@@ -11,7 +11,7 @@ export const environmentRouter = router({
       const { accessToken } = ctx.session;
       const { owner, repo, projectId } = input;
 
-      const helpers = await gethelpersClient();
+      const helpers = await getHelpersClient();
 
       return (
         await Promise.all(

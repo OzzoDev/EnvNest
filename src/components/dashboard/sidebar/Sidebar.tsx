@@ -50,8 +50,7 @@ const Sidebar = () => {
         </div>
       )}
       <SidebarRoot collapsible="icon" className="border-r border-muted">
-        <SidebarContent
-          className={cn("bg-background", isExtended ? "overflow-y-auto" : "overflow-y-hidden")}>
+        <SidebarContent className={cn("bg-background overflow-y-hidden")}>
           <SidebarGroup className="p-0">
             <SidebarGroupContent>
               <SidebarMenu
@@ -60,7 +59,7 @@ const Sidebar = () => {
                   isCollapsed ? "px-1" : "px-6",
                   { "pt-[78px]": isCollapsed && !isMobile },
                   { "pt-24": !isCollapsed && !isMobile },
-                  { "px-4 pt-6": isMobile }
+                  { "px-4 pt-4": isMobile }
                 )}>
                 <div className="flex flex-col">
                   {(!isCollapsed || isMobile) && (
