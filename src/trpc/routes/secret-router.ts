@@ -44,7 +44,7 @@ export const secretRouter = router({
 
       const secret = await db.secret.getById(safeSecretId);
 
-      await db.secretHistory.create(String(githubId), safeSecretId);
+      // await db.secretHistory.create(String(githubId), safeSecretId);
 
       if (!secret) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Secret not found" });
@@ -94,6 +94,17 @@ export const secretRouter = router({
 
     return logs;
   }),
+  saveToHistory: privateProcedure
+    .input(z.object({ secretId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const { secretId } = input;
+      const { user } = ctx;
+      const { id: githubId } = user;
+
+      const db = await getDbClient();
+
+      return db.secretHistory.create(String(githubId), secretId);
+    }),
   create: privateProcedure
     .input(
       z.object({

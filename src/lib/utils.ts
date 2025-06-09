@@ -27,7 +27,9 @@ export const timeAgo = (dateString: string): string => {
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - inputDate.getTime()) / 1000);
 
-  if (diffInSeconds < 3600) {
+  if (diffInSeconds < 60) {
+    return "Now";
+  } else if (diffInSeconds < 3600) {
     const minutes = Math.floor(diffInSeconds / 60);
     return `${minutes}m ago`;
   } else if (diffInSeconds < 86400) {

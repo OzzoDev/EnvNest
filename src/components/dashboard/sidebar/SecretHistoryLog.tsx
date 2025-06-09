@@ -4,7 +4,7 @@ import { useProjectStore } from "@/store/projectStore";
 import { trpc } from "@/trpc/client";
 import { useEffect } from "react";
 import { SecretHistory } from "@/types/types";
-import { cn, convertToLocalTime, timeAgo } from "@/lib/utils";
+import { cn, timeAgo } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import AlertDialog from "@/components/utils/AleartDialog";
@@ -14,7 +14,6 @@ import SkeletonWrapper from "@/components/utils/loaders/SkeletonWrapper";
 
 const SecretHistoryLog = () => {
   const secretId = useProjectStore((state) => state.secretId);
-  const secret = useProjectStore((state) => state.secret);
   const isSaved = useProjectStore((state) => state.isSaved);
   const isLoading = useProjectStore((state) => state.isLoading);
 
@@ -28,8 +27,10 @@ const SecretHistoryLog = () => {
   } = trpc.secret.getHistory.useQuery();
 
   useEffect(() => {
-    refetchLogs();
-  }, [secret]);
+    if (!isLoading) {
+      refetchLogs();
+    }
+  }, [isLoading]);
 
   const loadSecret = (log: SecretHistory) => {
     setProjectId(log.project_id);

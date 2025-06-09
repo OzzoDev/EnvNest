@@ -29,7 +29,7 @@ const secretActive = {
         INNER JOIN project p
             ON p.id = e.project_id
         WHERE sh.profile_id = $1
-        ORDER BY sh.created_at DESC
+        ORDER BY sh.created_at AT TIME ZONE 'UTC' DESC
       `,
       [profileId]
     );
@@ -55,7 +55,7 @@ const secretActive = {
           WHERE id = (
             SELECT id FROM secret_history
             WHERE profile_id = $1
-            ORDER BY id ASC
+            ORDER BY created_at ASC
             LIMIT 1
           )
         `,
