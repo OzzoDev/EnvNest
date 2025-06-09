@@ -13,15 +13,16 @@ import { ENVIRONMENTS } from "@/config";
 import SkeletonWrapper from "@/components/utils/loaders/SkeletonWrapper";
 import { useSidebar } from "@/components/ui/sidebar";
 import { LuHistory } from "react-icons/lu";
+import { useSidebarStore } from "@/store/sidebarStore";
 
 const SecretHistoryLog = () => {
   const { state, toggleSidebar } = useSidebar();
   const secretId = useProjectStore((state) => state.secretId);
   const isSaved = useProjectStore((state) => state.isSaved);
   const isLoading = useProjectStore((state) => state.isLoading);
-
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setSecretId = useProjectStore((state) => state.setSecretId);
+  const setLoadingStates = useSidebarStore((state) => state.setLoadingStates);
 
   const [isReadyToRender, setIsReadyToRender] = useState(false);
 
@@ -30,6 +31,10 @@ const SecretHistoryLog = () => {
     refetch: refetchLogs,
     isFetching: isFetchingLogs,
   } = trpc.secret.getHistory.useQuery(undefined, { enabled: false });
+
+  useEffect(() => {
+    setLoadingStates([isFetchingLogs, isLoading]);
+  }, [isFetchingLogs, isLoading]);
 
   useEffect(() => {
     if (!isLoading) {

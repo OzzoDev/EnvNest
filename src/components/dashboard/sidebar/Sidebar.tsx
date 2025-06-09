@@ -16,9 +16,12 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { IoMdClose } from "react-icons/io";
+import { useSidebarStore } from "@/store/sidebarStore";
+import SkeletonWrapper from "@/components/utils/loaders/SkeletonWrapper";
 
 const Sidebar = () => {
   const { state, open, setOpen, openMobile, setOpenMobile, isMobile, toggleSidebar } = useSidebar();
+  const isLoading = useSidebarStore((state) => state.isLoading);
   const [isExtended, setIsExtended] = useState<boolean>(state === "expanded");
 
   useEffect(() => {
@@ -42,7 +45,11 @@ const Sidebar = () => {
               )}>
               <div className="flex flex-col">
                 {!isCollapsed && (
-                  <Button onClick={toggleSidebar} variant="ghost" className="self-end">
+                  <Button
+                    onClick={toggleSidebar}
+                    disabled={isLoading}
+                    variant="ghost"
+                    className={cn("self-end", { invisible: isLoading })}>
                     <IoMdClose size={20} />
                   </Button>
                 )}

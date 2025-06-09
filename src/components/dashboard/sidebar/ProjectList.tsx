@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import SkeletonWrapper from "@/components/utils/loaders/SkeletonWrapper";
 import { useSidebar } from "@/components/ui/sidebar";
 import { GrProjects } from "react-icons/gr";
+import { useSidebarStore } from "@/store/sidebarStore";
 
 const ProjectList = () => {
   const { state, toggleSidebar } = useSidebar();
@@ -17,6 +18,7 @@ const ProjectList = () => {
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setSecretId = useProjectStore((state) => state.setSecretId);
   const isSaved = useProjectStore((state) => state.isSaved);
+  const setLoadingStates = useSidebarStore((state) => state.setLoadingStates);
 
   const {
     data: projects,
@@ -24,6 +26,10 @@ const ProjectList = () => {
     isLoading: isLoadingProjetcs,
     refetch,
   } = trpc.project.getAll.useQuery();
+
+  useEffect(() => {
+    setLoadingStates([isLoadingProjetcs]);
+  }, [isLoadingProjetcs]);
 
   useEffect(() => {
     refetch();
@@ -52,8 +58,10 @@ const ProjectList = () => {
     );
   }
 
+  const isLoadingUI = isLoadingProjetcs;
+
   return (
-    <SkeletonWrapper skeletons={8} isLoading={isLoadingProjetcs} className="flex flex-col gap-y-4">
+    <SkeletonWrapper skeletons={8} isLoading={isLoadingUI} className="flex flex-col gap-y-4">
       <div>
         <p className="text-lg text-text-color mb-8">Your projects</p>
         <ScrollArea

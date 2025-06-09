@@ -11,6 +11,7 @@ import AlertDialog from "@/components/utils/AleartDialog";
 import SkeletonWrapper from "@/components/utils/loaders/SkeletonWrapper";
 import { useSidebar } from "@/components/ui/sidebar";
 import { GoPlus } from "react-icons/go";
+import { useSidebarStore } from "@/store/sidebarStore";
 
 const NewProjectForm = () => {
   const { state, toggleSidebar } = useSidebar();
@@ -19,6 +20,7 @@ const NewProjectForm = () => {
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setIsSaved = useProjectStore((state) => state.setIsSaved);
   const isSaved = useProjectStore((state) => state.isSaved);
+  const setLoadingStates = useSidebarStore((state) => state.setLoadingStates);
 
   const { data: repos = [], isLoading: isLoadingRepos } = trpc.github.getRepos.useQuery();
 
@@ -29,6 +31,10 @@ const NewProjectForm = () => {
   } = trpc.project.getAll.useQuery(undefined, {
     enabled: !!(repos && repos?.length > 0),
   });
+
+  useEffect(() => {
+    setLoadingStates([isLoadingRepos, isLoadingExistingRepos]);
+  }, [isLoadingRepos, isLoadingExistingRepos]);
 
   useEffect(() => {
     setFilteredRepos(
@@ -83,11 +89,10 @@ const NewProjectForm = () => {
     );
   }
 
+  const isLoadingUI = isLoadingRepos || isLoadingExistingRepos;
+
   return (
-    <SkeletonWrapper
-      skeletons={2}
-      isLoading={isLoadingRepos || isLoadingExistingRepos}
-      className="flex flex-col gap-y-4">
+    <SkeletonWrapper skeletons={2} isLoading={isLoadingUI} className="flex flex-col gap-y-4">
       <form onSubmit={onSubmit} className="flex flex-col gap-y-4 w-fit">
         <p className="text-lg text-text-color">Create a new project</p>
         <ModeSelect
