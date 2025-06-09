@@ -2,7 +2,7 @@
 
 import { useProjectStore } from "@/store/projectStore";
 import { trpc } from "@/trpc/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { SecretHistory } from "@/types/types";
 import { cn, timeAgo } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -20,15 +20,18 @@ const SecretHistoryLog = () => {
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setSecretId = useProjectStore((state) => state.setSecretId);
 
+  const [isReadyToRender, setIsReadyToRender] = useState(false);
+
   const {
     data: logs,
     refetch: refetchLogs,
-    isLoading: isLoadingLogs,
-  } = trpc.secret.getHistory.useQuery();
+    isFetching: isFetchingLogs,
+  } = trpc.secret.getHistory.useQuery(undefined, { enabled: false });
 
   useEffect(() => {
     if (!isLoading) {
-      refetchLogs();
+      setIsReadyToRender(false);
+      refetchLogs().then(() => setIsReadyToRender(true));
     }
   }, [isLoading]);
 
@@ -37,50 +40,33 @@ const SecretHistoryLog = () => {
     setSecretId(log.secret_id);
   };
 
+  const isLoadingUI = isFetchingLogs || isLoading || !isReadyToRender;
+
   return (
-    <SkeletonWrapper
-      skeletons={8}
-      isLoading={isLoadingLogs || isLoading}
-      className="flex flex-col gap-y-4">
+    <SkeletonWrapper skeletons={8} isLoading={isLoadingUI} className="flex flex-col gap-y-4">
       <div>
         <p className="text-lg text-text-color mb-8">Your history</p>
         <ScrollArea className="flex flex-col gap-y-4 max-h-[500px] overflow-y-auto">
           {logs?.map((log) => {
-            return isSaved ? (
-              <div key={log.id} className="my-2 px-1">
-                <Button
-                  key={log.id}
-                  onClick={() => loadSecret(log)}
-                  variant="ghost"
-                  className={cn(
-                    "justify-start w-full text-left break-all whitespace-normal h-auto border-l-2 border-transparent",
-                    {
-                      "hover:bg-transparent hover:text-foreground": secretId === log.secret_id,
-                    }
-                  )}>
-                  <div className="flex flex-col gap-y-2 w-full">
-                    <span className="text-text-color text-sm">{log.project}</span>
-                    <div className="flex justify-between items-center w-full">
-                      <Badge variant="outline">
-                        {ENVIRONMENTS.find((env) => env.value === log.environment)?.label}
-                      </Badge>
-                      <span className="text-xs">{timeAgo(log.created_at)}</span>
-                    </div>
-                    <p className={cn({ "text-primary underline": secretId === log.secret_id })}>
-                      {log.path}
-                    </p>
-                  </div>
-                </Button>
+            const logContent = (
+              <div className="flex flex-col gap-y-2 w-full">
+                <span className="text-text-color text-sm">{log.project}</span>
+                <div className="flex justify-between items-center w-full">
+                  <Badge variant="outline">
+                    {ENVIRONMENTS.find((env) => env.value === log.environment)?.label}
+                  </Badge>
+                  <span className="text-xs">{timeAgo(log.created_at)}</span>
+                </div>
+                <p className={cn({ "text-primary underline": secretId === log.secret_id })}>
+                  {log.path}
+                </p>
               </div>
-            ) : (
+            );
+
+            return (
               <div key={log.id} className="my-2 px-1">
-                <AlertDialog
-                  title="Are you sure you want to change .env file?"
-                  description="Any unsaved changes will be lost. This action cannot be undone."
-                  action="Continue"
-                  actionFn={() => loadSecret(log)}>
+                {isSaved ? (
                   <Button
-                    key={log.id}
                     onClick={() => loadSecret(log)}
                     variant="ghost"
                     className={cn(
@@ -89,20 +75,27 @@ const SecretHistoryLog = () => {
                         "hover:bg-transparent hover:text-foreground": secretId === log.secret_id,
                       }
                     )}>
-                    <div className="flex flex-col gap-y-2 w-full">
-                      <span className="text-text-color text-sm">{log.project}</span>
-                      <div className="flex justify-between items-center w-full">
-                        <Badge variant="outline">
-                          {ENVIRONMENTS.find((env) => env.value === log.environment)?.label}
-                        </Badge>
-                        <span className="text-xs">{timeAgo(log.created_at)}</span>
-                      </div>
-                      <p className={cn({ "text-primary underline": secretId === log.secret_id })}>
-                        {log.path}
-                      </p>
-                    </div>
+                    {logContent}
                   </Button>
-                </AlertDialog>
+                ) : (
+                  <AlertDialog
+                    title="Are you sure you want to change .env file?"
+                    description="Any unsaved changes will be lost. This action cannot be undone."
+                    action="Continue"
+                    actionFn={() => loadSecret(log)}>
+                    <Button
+                      onClick={() => loadSecret(log)}
+                      variant="ghost"
+                      className={cn(
+                        "justify-start w-full text-left break-all whitespace-normal h-auto border-l-2 border-transparent",
+                        {
+                          "hover:bg-transparent hover:text-foreground": secretId === log.secret_id,
+                        }
+                      )}>
+                      {logContent}
+                    </Button>
+                  </AlertDialog>
+                )}
               </div>
             );
           })}
