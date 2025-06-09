@@ -14,13 +14,16 @@ import { GoPlus } from "react-icons/go";
 import { useSidebarStore } from "@/store/sidebarStore";
 
 const NewProjectForm = () => {
-  const { state, toggleSidebar } = useSidebar();
+  const { state, isMobile, toggleSidebar } = useSidebar();
   const [repo, setRepo] = useState<string | null>(null);
   const [filteredRepos, setFilteredRepos] = useState<string[]>([]);
   const setProjectId = useProjectStore((state) => state.setProjectId);
+  const setSecretId = useProjectStore((state) => state.setSecretId);
+  const setSecret = useProjectStore((state) => state.setSecret);
   const setIsSaved = useProjectStore((state) => state.setIsSaved);
   const isSaved = useProjectStore((state) => state.isSaved);
   const setLoadingStates = useSidebarStore((state) => state.setLoadingStates);
+  const isLoadingSidebar = useSidebarStore((state) => state.isLoading);
 
   const { data: repos = [], isLoading: isLoadingRepos } = trpc.github.getRepos.useQuery();
 
@@ -51,8 +54,11 @@ const NewProjectForm = () => {
     onSuccess: (data) => {
       setRepo(null);
       setProjectId(data.id);
+      setSecretId(null);
+      setSecret(null);
       setIsSaved(true);
       refetch();
+      toggleSidebar();
       toast.success(`Project ${data.full_name} created successfully`);
     },
   });
@@ -81,7 +87,7 @@ const NewProjectForm = () => {
     });
   };
 
-  if (state === "collapsed") {
+  if (state === "collapsed" && !isMobile) {
     return (
       <Button onClick={toggleSidebar} variant="ghost">
         <GoPlus size={28} />
@@ -89,7 +95,7 @@ const NewProjectForm = () => {
     );
   }
 
-  const isLoadingUI = isLoadingRepos || isLoadingExistingRepos;
+  const isLoadingUI = isLoadingRepos || isLoadingExistingRepos || (isLoadingSidebar && isMobile);
 
   return (
     <SkeletonWrapper skeletons={2} isLoading={isLoadingUI} className="flex flex-col gap-y-4">

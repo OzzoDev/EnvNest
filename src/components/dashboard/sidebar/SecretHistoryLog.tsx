@@ -16,13 +16,14 @@ import { LuHistory } from "react-icons/lu";
 import { useSidebarStore } from "@/store/sidebarStore";
 
 const SecretHistoryLog = () => {
-  const { state, toggleSidebar } = useSidebar();
+  const { state, isMobile, toggleSidebar } = useSidebar();
   const secretId = useProjectStore((state) => state.secretId);
   const isSaved = useProjectStore((state) => state.isSaved);
   const isLoading = useProjectStore((state) => state.isLoading);
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setSecretId = useProjectStore((state) => state.setSecretId);
   const setLoadingStates = useSidebarStore((state) => state.setLoadingStates);
+  const isLoadingSidebar = useSidebarStore((state) => state.isLoading);
 
   const [isReadyToRender, setIsReadyToRender] = useState(false);
 
@@ -46,11 +47,13 @@ const SecretHistoryLog = () => {
   const loadSecret = (log: SecretHistory) => {
     setProjectId(log.project_id);
     setSecretId(log.secret_id);
+    toggleSidebar();
   };
 
-  const isLoadingUI = isFetchingLogs || isLoading || !isReadyToRender;
+  const isLoadingUI =
+    isFetchingLogs || isLoading || !isReadyToRender || (isLoadingSidebar && isMobile);
 
-  const isCollapsed = state === "collapsed";
+  const isCollapsed = state === "collapsed" && !isMobile;
 
   if (isCollapsed) {
     return (

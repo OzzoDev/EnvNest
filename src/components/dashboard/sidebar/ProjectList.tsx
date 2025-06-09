@@ -13,12 +13,13 @@ import { GrProjects } from "react-icons/gr";
 import { useSidebarStore } from "@/store/sidebarStore";
 
 const ProjectList = () => {
-  const { state, toggleSidebar } = useSidebar();
+  const { state, isMobile, toggleSidebar } = useSidebar();
   const projectId = useProjectStore((state) => state.projectId);
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setSecretId = useProjectStore((state) => state.setSecretId);
   const isSaved = useProjectStore((state) => state.isSaved);
   const setLoadingStates = useSidebarStore((state) => state.setLoadingStates);
+  const isLoadingSidebar = useSidebarStore((state) => state.isLoading);
 
   const {
     data: projects,
@@ -38,6 +39,7 @@ const ProjectList = () => {
   const selectProject = (projectId: number) => {
     setSecretId(null);
     setProjectId(projectId);
+    toggleSidebar();
   };
 
   if (error) {
@@ -48,7 +50,7 @@ const ProjectList = () => {
     return <p className="text-lg text-text-color mb-8">No projects created</p>;
   }
 
-  const isCollapsed = state === "collapsed";
+  const isCollapsed = state === "collapsed" && !isMobile;
 
   if (isCollapsed) {
     return (
@@ -58,10 +60,10 @@ const ProjectList = () => {
     );
   }
 
-  const isLoadingUI = isLoadingProjetcs;
+  const isLoadingUi = isLoadingProjetcs || (isLoadingSidebar && isMobile);
 
   return (
-    <SkeletonWrapper skeletons={8} isLoading={isLoadingUI} className="flex flex-col gap-y-4">
+    <SkeletonWrapper skeletons={8} isLoading={isLoadingUi} className="flex flex-col gap-y-4">
       <div>
         <p className="text-lg text-text-color mb-8">Your projects</p>
         <ScrollArea
