@@ -2,7 +2,7 @@ import { SecretHistory, SecretHistoryTable } from "@/types/types";
 import { executeQuery } from "../db";
 import profileModel from "./profile";
 
-const secretActive = {
+const secretHistory = {
   get: async (githubId: string): Promise<SecretHistory[] | null> => {
     const profileId = (await profileModel.getByField({ github_id: githubId }))?.id;
 
@@ -69,7 +69,7 @@ const secretActive = {
             INSERT INTO secret_history (profile_id, secret_id)
             VALUES ($1, $2)
             ON CONFLICT (profile_id, secret_id)
-            DO UPDATE SET created_at = CURRENT_TIMESTAMP
+            DO UPDATE SET created_at = NOW()
             RETURNING 
               id, 
               profile_id,
@@ -82,4 +82,4 @@ const secretActive = {
   },
 };
 
-export default secretActive;
+export default secretHistory;

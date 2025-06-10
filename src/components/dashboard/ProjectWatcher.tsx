@@ -16,7 +16,7 @@ const ProjectWatcher = () => {
   const setSecret = useProjectStore((state) => state.setSecret);
   const setSecretId = useProjectStore((state) => state.setSecretId);
   const addProjectSecretRefs = useProjectStore((state) => state.addProjectSecretRefs);
-  const setisLoading = useProjectStore((state) => state.setIsLoading);
+  const setLoadingStates = useProjectStore((state) => state.setLoadingStates);
 
   const { data: projects, isLoading: isLoadingProjects } = trpc.project.get.useQuery();
 
@@ -41,9 +41,6 @@ const ProjectWatcher = () => {
     { enabled: !!projectId && hasHydrated, retry: false }
   );
 
-  const { mutate: saveToHistory, isPending: isSavingToHistory } =
-    trpc.secret.saveToHistory.useMutation();
-
   useEffect(() => {
     if (!projectId && projects && projects?.length > 0) {
       setProjectId(projects[0].id);
@@ -53,7 +50,6 @@ const ProjectWatcher = () => {
   useEffect(() => {
     if (secretId) {
       refetchSecret();
-      saveToHistory({ secretId });
     } else {
       if (projectId) {
         const secretIdRef = projectSecretRefs[projectId!];
@@ -61,6 +57,7 @@ const ProjectWatcher = () => {
           setSecretId(secretIdRef);
         }
       }
+
       setSecret(null);
     }
 
@@ -87,6 +84,11 @@ const ProjectWatcher = () => {
 
     if (projectId) {
       refetchProject();
+
+      const secretIdRef = projectSecretRefs[projectId!];
+      if (secretIdRef && !secretId) {
+        setSecretId(secretIdRef);
+      }
     }
   }, [projectId]);
 
@@ -97,8 +99,8 @@ const ProjectWatcher = () => {
   }, [updatedProject]);
 
   useEffect(() => {
-    setisLoading(isLoadingProjects || isLoadingProject || isLoadingSecret || isSavingToHistory);
-  }, [isLoadingProjects, isLoadingProject, isLoadingSecret, isSavingToHistory]);
+    setLoadingStates([isLoadingProjects, isLoadingProject, isLoadingSecret]);
+  }, [isLoadingProjects, isLoadingProject, isLoadingSecret]);
 
   return null;
 };

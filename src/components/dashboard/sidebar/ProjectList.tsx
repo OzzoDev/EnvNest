@@ -17,23 +17,37 @@ import { ProjectTable } from "@/types/types";
 const ProjectList = () => {
   const { state, isMobile, toggleSidebar } = useSidebar();
   const projectId = useProjectStore((state) => state.projectId);
+  const project = useProjectStore((state) => state.project);
+
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setSecretId = useProjectStore((state) => state.setSecretId);
   const isSaved = useProjectStore((state) => state.isSaved);
+  const isDeletingProject = useProjectStore((state) => state.isDeletingProject);
+  const setIsDeletingProject = useProjectStore((state) => state.setIsDeletingProject);
+
   const setLoadingStates = useSidebarStore((state) => state.setLoadingStates);
   const isLoadingSidebar = useSidebarStore((state) => state.isLoading);
+  const isLoadingDashboard = useProjectStore((state) => state.isLoading);
 
   const {
     data: projects,
     isLoading: isLoadingProjetcs,
     refetch: refetchProjects,
-  } = useVirtualQuery<ProjectTable[]>(() => trpc.project.get.useQuery(), [!!projectId], "projects");
-
-  console.log("Projects: ", projects);
+  } = useVirtualQuery<ProjectTable[]>(
+    () => trpc.project.get.useQuery(),
+    [projectId, project],
+    "projects"
+  );
 
   useEffect(() => {
     setLoadingStates([isLoadingProjetcs]);
   }, [isLoadingProjetcs]);
+
+  useEffect(() => {
+    if (projects) {
+      setIsDeletingProject(false);
+    }
+  }, [projects]);
 
   useEffect(() => {
     refetchProjects();
@@ -59,7 +73,8 @@ const ProjectList = () => {
     );
   }
 
-  const isLoadingUi = isLoadingProjetcs || (isLoadingSidebar && isMobile);
+  const isLoadingUi =
+    isLoadingProjetcs || (isLoadingSidebar && isMobile) || isLoadingDashboard || isDeletingProject;
 
   return (
     <SkeletonWrapper skeletons={8} isLoading={isLoadingUi} className="flex flex-col gap-y-4">

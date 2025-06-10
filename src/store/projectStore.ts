@@ -22,9 +22,12 @@ type ProjectStore = {
   projectSecretRefs: ProjectSecretRefs;
   addProjectSecretRefs: (projectId: number, secretId: number) => void;
   deleteProjectSecretRef: (projectId: number) => void;
+  loadingStates: boolean[];
+  setLoadingStates: (states: boolean[]) => void;
   isLoading: boolean;
-  setIsLoading: (isLoading: boolean) => void;
-  clearStore: () => void;
+  isDeletingProject: boolean;
+  setIsDeletingProject: (isDeletingProject: boolean) => void;
+  deleteProject: () => void;
 };
 
 export const useProjectStore = create<ProjectStore>()(
@@ -37,7 +40,8 @@ export const useProjectStore = create<ProjectStore>()(
       isSaved: true,
       secretId: null,
       projectSecretRefs: {},
-      isLoading: false,
+      isLoading: true,
+      isDeletingProject: false,
       setProjectId: (projectId: number | null) => set({ projectId }),
       setSecret: (secret: EnvironmentSecret | null) => set({ secret }),
       setProject: (project: ProjectTable | null) => set({ project }),
@@ -56,26 +60,25 @@ export const useProjectStore = create<ProjectStore>()(
           const { [projectId]: _, ...rest } = state.projectSecretRefs;
           return { projectSecretRefs: rest };
         }),
-      setIsLoading: (isLoading: boolean) => set({ isLoading }),
-      clearStore: () =>
+      loadingStates: [],
+      setLoadingStates: (states) =>
+        set({ loadingStates: states, isLoading: states.some((s) => s) }),
+      deleteProject: () =>
         set({
           projectId: null,
           project: null,
           secret: null,
-          hasHydrated: false,
-          isSaved: true,
           secretId: null,
-          projectSecretRefs: {},
-          isLoading: false,
+          isDeletingProject: true,
         }),
+      setIsDeletingProject: (isDeletingProject: boolean) => set({ isDeletingProject }),
     }),
     {
       name: "project-store",
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
         state?.setIsSaved(true);
-        state?.setIsLoading(false);
-        // state?.clearStore();
+        state?.setLoadingStates([true]);
       },
     }
   )

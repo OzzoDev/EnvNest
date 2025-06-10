@@ -52,22 +52,30 @@ const SecretSelector = () => {
     } else {
       setFormData({});
     }
-  }, [secretId, environmentPaths]);
+  }, [environmentPaths, secretId]);
 
   useEffect(() => {
     const prevEnvironment = formData.prevEnvironment;
     const currentEnvironment = formData.environment;
 
     const environmentKey = ENVIRONMENTS.find((env) => env.label === currentEnvironment)?.value;
-    const firstPath = environmentPaths?.[environmentKey || ""]?.[0].path;
+
+    const path =
+      secretId && environmentPaths?.[environmentKey || ""]
+        ? environmentPaths?.[environmentKey || ""].find((path) => path.id === secretId)?.path
+        : environmentPaths?.[environmentKey || ""]?.[0].path ?? undefined;
 
     if (prevEnvironment !== currentEnvironment && prevEnvironment) {
-      setFormData((prev) => ({ ...prev, path: firstPath || undefined, secretId: undefined }));
+      setFormData((prev) => ({
+        ...prev,
+        path,
+        secretId: undefined,
+      }));
       setSecret(null);
     } else {
       setFormData((prev) => ({
         ...prev,
-        path: firstPath || prev.path,
+        path,
         prevEnvironment: currentEnvironment,
       }));
     }

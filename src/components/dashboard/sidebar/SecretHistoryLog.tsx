@@ -26,40 +26,39 @@ const SecretHistoryLog = () => {
   const setLoadingStates = useSidebarStore((state) => state.setLoadingStates);
   const isLoadingSidebar = useSidebarStore((state) => state.isLoading);
 
-  const [isReadyToRender, setIsReadyToRender] = useState(false);
+  const [isReadyToRender, setIsReadyToRender] = useState(true);
 
   const {
     data: logs,
     refetch: refetchLogs,
     isLoading: isLoadingLogs,
-  } = useVirtualQuery<SecretHistory[] | null>(
-    () =>
-      trpc.secret.getHistory.useQuery(undefined, {
-        enabled: false,
-      }),
-    [!!isLoading],
-    "logs"
-  );
+  } = useVirtualQuery<SecretHistory[] | null>(() => trpc.secret.getHistory.useQuery(), [], "logs");
+
+  const { mutate: saveToHistory, isPending: isSavingToHistory } =
+    trpc.secret.saveToHistory.useMutation({
+      onSettled: () => {
+        setIsReadyToRender(false);
+        refetchLogs().then(() => setIsReadyToRender(true));
+      },
+    });
 
   useEffect(() => {
     setLoadingStates([isLoadingLogs, isLoading]);
   }, [isLoadingLogs, isLoading]);
 
-  useEffect(() => {
-    if (!isLoading) {
-      setIsReadyToRender(false);
-      refetchLogs().then(() => setIsReadyToRender(true));
-    }
-  }, [isLoading]);
-
   const loadSecret = (log: SecretHistory) => {
     setProjectId(log.project_id);
     setSecretId(log.secret_id);
     isMobile && toggleSidebar();
+    saveToHistory({ secretId: log.secret_id });
   };
 
   const isLoadingUI =
-    isLoadingLogs || isLoading || !isReadyToRender || (isLoadingSidebar && isMobile);
+    isLoadingLogs ||
+    isLoading ||
+    (isLoadingSidebar && isMobile) ||
+    !isReadyToRender ||
+    isSavingToHistory;
 
   const isCollapsed = state === "collapsed" && !isMobile;
 
@@ -90,7 +89,10 @@ const SecretHistoryLog = () => {
                   </Badge>
                   <span className="text-xs">{timeAgo(log.created_at)}</span>
                 </div>
-                <p className={cn({ "text-primary underline": secretId === log.secret_id })}>
+                <p
+                  className={cn({
+                    "text-primary underline": secretId === log.secret_id,
+                  })}>
                   {log.path}
                 </p>
               </div>

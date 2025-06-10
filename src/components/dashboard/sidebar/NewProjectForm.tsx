@@ -13,7 +13,7 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { GoPlus } from "react-icons/go";
 import { useSidebarStore } from "@/store/sidebarStore";
 import { useVirtualQuery } from "@/hooks/use-virtual-query";
-import { GithubRepo, ProjectTable } from "@/types/types";
+import { GithubRepo } from "@/types/types";
 
 const NewProjectForm = () => {
   const { state, isMobile, toggleSidebar } = useSidebar();
@@ -32,11 +32,7 @@ const NewProjectForm = () => {
     refetch: refetchRepos,
   } = useVirtualQuery<GithubRepo[]>(() => trpc.github.getAvailableRepos.useQuery(), [], "repos");
 
-  useEffect(() => {
-    setLoadingStates([isLoadingRepos]);
-  }, [isLoadingRepos]);
-
-  const { mutate } = trpc.project.create.useMutation({
+  const { mutate: createProject, isPending: isCreatingProject } = trpc.project.create.useMutation({
     onError: () => {
       toast.error("Error creating new project");
     },
@@ -52,6 +48,10 @@ const NewProjectForm = () => {
     },
   });
 
+  useEffect(() => {
+    setLoadingStates([isLoadingRepos, isCreatingProject]);
+  }, [isLoadingRepos, isCreatingProject]);
+
   const onSubmit = (e?: FormEvent | React.MouseEvent) => {
     e?.preventDefault();
 
@@ -65,7 +65,7 @@ const NewProjectForm = () => {
       return;
     }
 
-    mutate({
+    createProject({
       repo_id: repoData.id,
       name: repoData.name,
       full_name: repoData.full_name,

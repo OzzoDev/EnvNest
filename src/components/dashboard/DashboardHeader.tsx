@@ -11,11 +11,12 @@ import Link from "next/link";
 const DashboardHeader = () => {
   const project = useProjectStore((state) => state.project);
   const projectId = useProjectStore((state) => state.projectId);
-  const clearStore = useProjectStore((state) => state.clearStore);
 
-  const { mutate: deleteProject } = trpc.project.delete.useMutation({
+  const deleteProject = useProjectStore((state) => state.deleteProject);
+
+  const { mutate } = trpc.project.delete.useMutation({
     onSuccess: () => {
-      clearStore();
+      deleteProject();
     },
   });
 
@@ -38,14 +39,14 @@ const DashboardHeader = () => {
           <Link
             href={project?.url!}
             className={buttonVariants({ variant: "link", textSize: "lg" })}>
-            <Github /> Github
+            <Github aria-hidden="true" />
           </Link>
           <span aria-hidden="true" className="w-[2px] h-8 bg-secondary" />
           <AlertDialog
             title="Delete project"
             description={`Are you sure you want to delete ${project.full_name}. This action can't be undone`}
             action="Delete"
-            actionFn={() => deleteProject({ projectId: Number(projectId) })}>
+            actionFn={() => mutate({ projectId: Number(projectId) })}>
             <Button variant="secondary">Delete</Button>
           </AlertDialog>
         </div>

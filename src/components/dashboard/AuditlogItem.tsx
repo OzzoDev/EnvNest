@@ -56,7 +56,7 @@ const AuditLogItem = ({ audit, onRollback }: AuditLogItemProps) => {
           className="w-full flex flex-col p-0">
           <AccordionItem value="item-1" className="flex flex-col border-0">
             <AccordionTrigger
-              className={cn(buttonVariants({ variant: "ghost" }), "ml-auto mr-auto mb-4")}>
+              className={cn(buttonVariants({ variant: "ghost" }), "ml-auto mr-auto mb-4 mt-2")}>
               {showContent ? "Hide Content" : "Show content"}
               {showContent ? <ChevronUp /> : <ChevronDown />}
             </AccordionTrigger>
