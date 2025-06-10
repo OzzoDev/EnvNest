@@ -47,12 +47,15 @@
 - [x] Store content in zustand store and save to db on user actions
 - [x] Make env file editor as a list of inputs wit key/value pair (value input must be like password toggle)
 - [x] Prompt user to enter a change message when the env needs to be saved and save these message to audit log
-- [] Audit log model to handle creating and getting logs
-- [] Render the Audit log
-- [] Handle rollback to previous versions
+- [x] Audit log model to handle creating and getting logs
+- [x] Render the Audit log
+- [x] Handle rollback to previous versions
 - [x] Filter available paths to avoid duplicate paths in same enviornment
 - [x] Select component to select a given secret
-- [] Create a new secret_history table to use to track user activity and allow for easy switching between latest (5) secrets
+- [x] Create a new secret_history table to use to track user activity and allow for easy switching between latest (5) secrets
+- [x] Sidebar to be able to hide/show project form, project list and history logs
+- [] Loading and error states
+- [] Make moblie responsive
 
 ---
 

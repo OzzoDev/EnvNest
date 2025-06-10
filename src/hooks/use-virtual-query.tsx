@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useVirtualCache } from "@/store/virtualQueryCache";
 import { hash } from "ohash";
+import { useSidebarStore } from "@/store/sidebarStore";
 
 type QueryHook<T> = () => {
   data: T | undefined;
   isLoading: boolean;
+  error?: unknown;
   refetch: () => Promise<{ data: T | undefined }>;
 };
 
@@ -15,20 +17,32 @@ export function useVirtualQuery<T>(
 ) {
   const key = customKey ?? hash(deps);
   const { cache, setCache } = useVirtualCache();
+  const setError = useSidebarStore((state) => state.setError);
   const cachedData = cache[key] as T | undefined;
 
-  const { data, isLoading, refetch: originalRefetch } = queryHook();
+  const { data, error: initialError, isLoading, refetch: originalRefetch } = queryHook();
 
   const [internalLoading, setInternalLoading] = useState(false);
 
   const refetch = async () => {
     setInternalLoading(true);
-    const result = await originalRefetch();
-    if (result.data !== undefined) {
-      setCache(key, result.data);
+    try {
+      const result = await originalRefetch();
+
+      if (result.data !== undefined) {
+        setCache(key, result.data);
+      }
+      return result;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Something went wrong.");
+      }
+      return { data: undefined, error: err };
+    } finally {
+      setInternalLoading(false);
     }
-    setInternalLoading(false);
-    return result;
   };
 
   useEffect(() => {
@@ -36,11 +50,21 @@ export function useVirtualQuery<T>(
 
     const fetchData = async () => {
       setInternalLoading(true);
-      const result = await refetch();
-      if (mounted && result.data !== undefined) {
-        setCache(key, result.data);
+
+      try {
+        const result = await refetch();
+        if (mounted && result.data !== undefined) {
+          setCache(key, result.data);
+        }
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Something went wrong.");
+        }
+      } finally {
+        setInternalLoading(false);
       }
-      setInternalLoading(false);
     };
 
     fetchData();
@@ -54,7 +78,15 @@ export function useVirtualQuery<T>(
     if (data !== undefined && !cachedData) {
       setCache(key, data);
     }
-  }, [data]);
+
+    if (initialError) {
+      if (initialError instanceof Error) {
+        setError(initialError.message);
+      } else {
+        setError("Something went wrong.");
+      }
+    }
+  }, [data, initialError]);
 
   return {
     data: (cache[key] as T | undefined) ?? data,

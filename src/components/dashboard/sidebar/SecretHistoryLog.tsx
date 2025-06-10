@@ -32,7 +32,11 @@ const SecretHistoryLog = () => {
     data: logs,
     refetch: refetchLogs,
     isLoading: isLoadingLogs,
-  } = useVirtualQuery<SecretHistory[] | null>(() => trpc.secret.getHistory.useQuery(), [], "logs");
+  } = useVirtualQuery<SecretHistory[] | null>(
+    () => trpc.secret.getHistory.useQuery(undefined, { retry: false }),
+    [],
+    "logs"
+  );
 
   const { mutate: saveToHistory, isPending: isSavingToHistory } =
     trpc.secret.saveToHistory.useMutation({

@@ -7,30 +7,22 @@ import {
   SidebarGroupContent,
   SidebarMenu,
   useSidebar,
-  SidebarHeader,
 } from "@/components/ui/sidebar";
 import NewProjectForm from "./NewProjectForm";
 import ProjectList from "./ProjectList";
 import SecretHistoryLog from "./SecretHistoryLog";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { IoMdClose } from "react-icons/io";
-import { useSidebarStore } from "@/store/sidebarStore";
 import { GoPlus } from "react-icons/go";
 import { GrProjects } from "react-icons/gr";
 import { LuHistory } from "react-icons/lu";
+import { useSidebarStore } from "@/store/sidebarStore";
+import { MdErrorOutline } from "react-icons/md";
 
 const Sidebar = () => {
   const { state, isMobile, toggleSidebar } = useSidebar();
-  const isLoading = useSidebarStore((state) => state.isLoading);
-  const [isExtended, setIsExtended] = useState<boolean>(state === "expanded");
-
-  useEffect(() => {
-    setTimeout(() => {
-      setIsExtended(state === "expanded");
-    }, 100);
-  }, [state]);
+  const error = useSidebarStore((state) => state.error);
 
   const isCollapsed = state === "collapsed";
 
@@ -67,11 +59,19 @@ const Sidebar = () => {
                       <IoMdClose size={20} />
                     </Button>
                   )}
-                  <div className="flex flex-col gap-y-8 w-full">
-                    <NewProjectForm />
-                    <ProjectList />
-                    <SecretHistoryLog />
-                  </div>
+                  {error && !isCollapsed ? (
+                    <div className="pt-44 flex flex-col gap-y-12 items-center">
+                      <MdErrorOutline size={32} className="text-destructive" />
+                      <p className="text-center text-lg text-destructive font-medium">{error}</p>
+                      <Button onClick={() => window.location.reload()}>Try again</Button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-y-8 w-full">
+                      <NewProjectForm />
+                      <ProjectList />
+                      <SecretHistoryLog />
+                    </div>
+                  )}
                 </div>
               </SidebarMenu>
             </SidebarGroupContent>

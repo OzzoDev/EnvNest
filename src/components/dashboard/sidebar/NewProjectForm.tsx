@@ -30,7 +30,11 @@ const NewProjectForm = () => {
     data: repos = [],
     isLoading: isLoadingRepos,
     refetch: refetchRepos,
-  } = useVirtualQuery<GithubRepo[]>(() => trpc.github.getAvailableRepos.useQuery(), [], "repos");
+  } = useVirtualQuery<GithubRepo[]>(
+    () => trpc.github.getAvailableRepos.useQuery(undefined, { retry: false }),
+    [],
+    "repos"
+  );
 
   const { mutate: createProject, isPending: isCreatingProject } = trpc.project.create.useMutation({
     onError: () => {
@@ -82,7 +86,7 @@ const NewProjectForm = () => {
     );
   }
 
-  const isLoadingUI = isLoadingRepos || (isLoadingSidebar && isMobile);
+  const isLoadingUI = isLoadingRepos || isLoadingSidebar;
 
   return (
     <SkeletonWrapper skeletons={2} isLoading={isLoadingUI} className="flex flex-col gap-y-4">

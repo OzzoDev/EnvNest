@@ -13,14 +13,17 @@ export const githubRouter = router({
     const { accessToken } = session;
 
     if (!accessToken) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "You are not authorized. Please log in and try again.",
+      });
     }
 
     const db = await getDbClient();
 
     const helpers = await getHelpersClient();
 
-    const repos = await helpers.github.getRepos(accessToken, githubId);
+    const repos = await helpers.github.getRepos(accessToken!, githubId);
 
     const projects = await db.project.getByProfile(githubId);
 
@@ -55,7 +58,10 @@ export const githubRouter = router({
     const { id: githubId } = user;
 
     if (!accessToken) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "You are not authorized. Please log in and try again.",
+      });
     }
 
     const helpers = await getHelpersClient();

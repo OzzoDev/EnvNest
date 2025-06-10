@@ -34,7 +34,7 @@ const ProjectList = () => {
     isLoading: isLoadingProjetcs,
     refetch: refetchProjects,
   } = useVirtualQuery<ProjectTable[]>(
-    () => trpc.project.get.useQuery(),
+    () => trpc.project.get.useQuery(undefined, { retry: false }),
     [projectId, project],
     "projects"
   );
@@ -74,7 +74,7 @@ const ProjectList = () => {
   }
 
   const isLoadingUi =
-    isLoadingProjetcs || (isLoadingSidebar && isMobile) || isLoadingDashboard || isDeletingProject;
+    isLoadingProjetcs || isLoadingSidebar || isLoadingDashboard || isDeletingProject;
 
   return (
     <SkeletonWrapper skeletons={8} isLoading={isLoadingUi} className="flex flex-col gap-y-4">
