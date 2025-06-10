@@ -63,11 +63,7 @@ const Sidebar = () => {
                 )}>
                 <div className="flex flex-col">
                   {(!isCollapsed || isMobile) && (
-                    <Button
-                      onClick={toggleSidebar}
-                      disabled={isLoading && !isMobile}
-                      variant="ghost"
-                      className={cn("self-end mb-4", { invisible: isLoading && !isMobile })}>
+                    <Button onClick={toggleSidebar} variant="ghost" className="self-end mb-4">
                       <IoMdClose size={20} />
                     </Button>
                   )}
