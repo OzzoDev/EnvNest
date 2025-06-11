@@ -49,8 +49,8 @@ const Sidebar = () => {
                 className={cn(
                   "flex flex-col gap-y-8 full ",
                   isCollapsed ? "px-1" : "px-6",
-                  { "pt-[78px]": isCollapsed && !isMobile },
-                  { "pt-24": !isCollapsed && !isMobile },
+                  { "pt-28": isCollapsed && !isMobile },
+                  { "pt-28": !isCollapsed && !isMobile },
                   { "px-4 pt-4": isMobile }
                 )}>
                 <div className="flex flex-col">

@@ -27,7 +27,7 @@ const DashboardLayout = async ({ children }: Readonly<{ children: ReactNode }>) 
         } as React.CSSProperties
       }>
       <Sidebar />
-      <div className="flex flex-col gap-y-12 p-8 min-h-screen w-full">
+      <div className="flex flex-col gap-y-12 p-6 min-h-screen w-full max-w-screen overflow-x-hidden">
         <DashboardHeader />
         {children}
       </div>

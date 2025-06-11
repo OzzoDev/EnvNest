@@ -11,8 +11,8 @@ const NavBar = async () => {
   return (
     <div className="bg-background sticky z-50 top-0 inset-x-0">
       <header className="relative bg-background">
-        <div className="border-b border-muted px-8">
-          <div className="flex items-center justify-between py-4">
+        <div className="border-b border-muted p-6">
+          <div className="flex items-center justify-between">
             <Link href="/">
               <h1 className="text-2xl font-semibold text-text-color tracking-wide">
                 Env<span className="text-primary tracking-wide">Vault</span>

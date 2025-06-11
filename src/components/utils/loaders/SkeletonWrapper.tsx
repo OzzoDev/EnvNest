@@ -1,4 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -13,8 +14,8 @@ type SkeletonWrapperProps = {
 
 const SkeletonWrapper = ({
   skeletons,
-  width = "full",
-  height = "10",
+  width = "w-full",
+  height = "h-10",
   isLoading,
   className,
   children,
@@ -26,7 +27,7 @@ const SkeletonWrapper = ({
   return (
     <ul className={className}>
       {Array.from({ length: skeletons }).map(() => (
-        <Skeleton key={uuidv4()} className={`w-${width} h-${height}`} />
+        <Skeleton key={uuidv4()} className={cn(width, height)} />
       ))}
     </ul>
   );

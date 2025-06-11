@@ -18,6 +18,7 @@ import { GithubRepo } from "@/types/types";
 const NewProjectForm = () => {
   const { state, isMobile, toggleSidebar } = useSidebar();
   const [repo, setRepo] = useState<string | null>(null);
+  const projectId = useProjectStore((state) => state.projectId);
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setSecretId = useProjectStore((state) => state.setSecretId);
   const setSecret = useProjectStore((state) => state.setSecret);
@@ -51,6 +52,10 @@ const NewProjectForm = () => {
       toast.success(`Project ${data.full_name} created successfully`);
     },
   });
+
+  useEffect(() => {
+    refetchRepos();
+  }, [projectId]);
 
   useEffect(() => {
     setLoadingStates([isLoadingRepos, isCreatingProject]);
