@@ -7,6 +7,7 @@ import { trpc } from "@/trpc/client";
 import { useProjectStore } from "@/store/projectStore";
 import ModeSelect from "../utils/ModeSelect";
 import { toast } from "sonner";
+import SkeletonWrapper from "../utils/loaders/SkeletonWrapper";
 
 type FormData = {
   environment?: string | null;
@@ -16,7 +17,8 @@ type FormData = {
 
 const EnvCreator = () => {
   const [formData, setFormData] = useState<FormData>({});
-
+  const isLoading = useProjectStore((state) => state.isLoading);
+  const isDeletingProject = useProjectStore((state) => state.isDeletingProject);
   const project = useProjectStore((state) => state.project);
   const projectId = useProjectStore((state) => state.projectId);
   const setSecretId = useProjectStore((state) => state.setSecretId);
@@ -85,54 +87,58 @@ const EnvCreator = () => {
 
   const isValid = formData?.environment && formData.path;
 
-  if (!project) {
-    return null;
-  }
+  const isLoadingUi = isLoading || isDeletingProject;
 
   return (
-    <form onSubmit={handleSumbit} className="flex flex-col gap-y-4">
-      <p className="font-medium text-text-color">Create .env file</p>
-      <div className="flex items-end gap-x-8">
-        <ModeSelect
-          selectPlaceholder="Select environment"
-          emptyPlaceHolder="No environments found"
-          selectLabel="Environments"
-          options={
-            environments
-              ?.map((env) => env?.label)
-              .filter((label): label is string => Boolean(label)) || []
-          }
-          value={formData.environment ?? null}
-          onSelect={(value) => setFormData((prev) => ({ ...prev, environment: value }))}
-        />
-        {formData.environment && (
+    <SkeletonWrapper
+      skeletons={2}
+      isLoading={isLoadingUi}
+      width="w-64"
+      className="flex flex-col gap-y-4">
+      <form onSubmit={handleSumbit} className="flex flex-col gap-y-4">
+        <p className="font-medium text-text-color">Create .env file</p>
+        <div className="flex items-end gap-x-8">
           <ModeSelect
-            selectPlaceholder="Select path"
-            emptyPlaceHolder="No paths found"
-            enableSearch={true}
-            options={paths ?? []}
-            value={formData.path ?? null}
-            onSelect={(value) => setFormData((prev) => ({ ...prev, path: value }))}
+            selectPlaceholder="Select environment"
+            emptyPlaceHolder="No environments found"
+            selectLabel="Environments"
+            options={
+              environments
+                ?.map((env) => env?.label)
+                .filter((label): label is string => Boolean(label)) || []
+            }
+            value={formData.environment ?? null}
+            onSelect={(value) => setFormData((prev) => ({ ...prev, environment: value }))}
           />
-        )}
-        {formData.path && (
-          <ModeSelect
-            selectPlaceholder="Select template"
-            emptyPlaceHolder="No template found"
-            selectLabel="Templates"
-            isRequired={false}
-            options={templates?.map((template) => template.name) ?? []}
-            value={formData.template ?? null}
-            onSelect={(value) => setFormData((prev) => ({ ...prev, template: value }))}
-          />
-        )}
-        {isValid && (
-          <Button type="submit" variant="secondary" className="w-fit mt-6">
-            Create
-          </Button>
-        )}{" "}
-      </div>
-    </form>
+          {formData.environment && (
+            <ModeSelect
+              selectPlaceholder="Select path"
+              emptyPlaceHolder="No paths found"
+              enableSearch={true}
+              options={paths ?? []}
+              value={formData.path ?? null}
+              onSelect={(value) => setFormData((prev) => ({ ...prev, path: value }))}
+            />
+          )}
+          {formData.path && (
+            <ModeSelect
+              selectPlaceholder="Select template"
+              emptyPlaceHolder="No template found"
+              selectLabel="Templates"
+              isRequired={false}
+              options={templates?.map((template) => template.name) ?? []}
+              value={formData.template ?? null}
+              onSelect={(value) => setFormData((prev) => ({ ...prev, template: value }))}
+            />
+          )}
+          {isValid && (
+            <Button type="submit" variant="secondary" className="w-fit mt-6">
+              Create
+            </Button>
+          )}
+        </div>
+      </form>
+    </SkeletonWrapper>
   );
 };
 

@@ -1,7 +1,15 @@
-import Dashboard from "@/components/dashboard/Dashboard";
+"use client";
+
+import EnvCreator from "@/components/editor/EnvCreator";
+import EnvEditor from "@/components/editor/EnvEditor";
 
 const DashboardPage = () => {
-  return <Dashboard />;
+  return (
+    <>
+      <EnvCreator />
+      <EnvEditor />
+    </>
+  );
 };
 
 export default DashboardPage;

@@ -5,6 +5,7 @@ import { trpc } from "@/trpc/client";
 import { useEffect, useMemo, useState } from "react";
 import ModeSelect from "../utils/ModeSelect";
 import { ENVIRONMENTS } from "@/config";
+import SkeletonWrapper from "../utils/loaders/SkeletonWrapper";
 
 const SecretSelector = () => {
   const projectId = useProjectStore((state) => state.projectId);
@@ -12,6 +13,8 @@ const SecretSelector = () => {
   const secret = useProjectStore((state) => state.secret);
   const hasHydrated = useProjectStore((state) => state.hasHydrated);
   const isSaved = useProjectStore((state) => state.isSaved);
+  const isLoading = useProjectStore((state) => state.isLoading);
+  const isDeletingProject = useProjectStore((state) => state.isDeletingProject);
   const setSecretId = useProjectStore((state) => state.setSecretId);
   const setSecret = useProjectStore((state) => state.setSecret);
 
@@ -125,36 +128,42 @@ const SecretSelector = () => {
 
   const hide = Object.keys(environmentPaths ?? {}).length === 0;
 
-  if (hide) {
+  const isLoadingUi = isLoading || isDeletingProject;
+
+  if (hide && !isLoadingUi) {
     return null;
   }
 
   return (
     <div>
-      <p className="font-medium text-text-color mb-4">View and edit .env file</p>
+      <SkeletonWrapper skeletons={1} isLoading={isLoadingUi} width="w-64" className="mb-4">
+        <p className="font-medium text-text-color mb-4">View and edit .env file</p>
+      </SkeletonWrapper>
 
-      <div className="flex gap-x-8">
-        <ModeSelect
-          selectPlaceholder="Select environment"
-          selectLabel="Environments"
-          isRequired={false}
-          disabled={!isSaved}
-          options={environments}
-          value={formData.environment}
-          onSelect={(value) => setFormData((prev) => ({ ...prev, environment: value }))}
-        />
-        {formData.environment && (
+      <SkeletonWrapper skeletons={2} isLoading={isLoadingUi} width="w-64" className="flex gap-x-4">
+        <div className="flex gap-x-4">
           <ModeSelect
-            selectPlaceholder="Select path"
-            selectLabel="Paths"
+            selectPlaceholder="Select environment"
+            selectLabel="Environments"
             isRequired={false}
             disabled={!isSaved}
-            options={paths}
-            value={formData.path}
-            onSelect={(value) => setFormData((prev) => ({ ...prev, path: value }))}
+            options={environments}
+            value={formData.environment}
+            onSelect={(value) => setFormData((prev) => ({ ...prev, environment: value }))}
           />
-        )}
-      </div>
+          {formData.environment && (
+            <ModeSelect
+              selectPlaceholder="Select path"
+              selectLabel="Paths"
+              isRequired={false}
+              disabled={!isSaved}
+              options={paths}
+              value={formData.path}
+              onSelect={(value) => setFormData((prev) => ({ ...prev, path: value }))}
+            />
+          )}
+        </div>
+      </SkeletonWrapper>
     </div>
   );
 };
