@@ -25,12 +25,14 @@ import AlertDialog from "../utils/AleartDialog";
 import { GrRevert } from "react-icons/gr";
 import ActivityLog from "../dashboard/ActivityLog";
 import SkeletonWrapper from "../utils/loaders/SkeletonWrapper";
+import { usePathname } from "next/navigation";
 
-const formSchema = z.object({
+export const formSchema = z.object({
   envVariables: z.array(z.object({ name: z.string().nonempty(), value: z.string().nonempty() })),
 });
 
 const EnvEditor = () => {
+  const pathname = usePathname();
   const projectId = useProjectStore((state) => state.projectId);
   const project = useProjectStore((state) => state.project);
   const isLoading = useProjectStore((state) => state.isLoading);
@@ -48,18 +50,6 @@ const EnvEditor = () => {
   const [updateMessage, setUpdateMessage] = useState<string>("");
   const [isValid, setIsValid] = useState<boolean>(false);
 
-  const formMethods = useForm({
-    resolver: zodResolver(formSchema),
-  });
-
-  const {
-    reset,
-    handleSubmit,
-    getValues,
-    setValue,
-    formState: { isDirty },
-  } = formMethods;
-
   const getEnvVariables = () => {
     if (!secret?.content) {
       return [];
@@ -70,6 +60,20 @@ const EnvEditor = () => {
       return { name, value: value || "" };
     });
   };
+
+  const formMethods = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: { envVariables: getEnvVariables() },
+  });
+
+  const {
+    reset,
+    handleSubmit,
+    getValues,
+    setValue,
+    control,
+    formState: { isDirty },
+  } = formMethods;
 
   useEffect(() => {
     setIsSaved(!isDirty);
@@ -87,14 +91,21 @@ const EnvEditor = () => {
   }, [project]);
 
   useEffect(() => {
-    reset({ envVariables: getEnvVariables() || [] });
-  }, [secret]);
+    const newValues = getEnvVariables();
 
-  const { fields: envVariables } = useFieldArray({
+    if (newValues.length) {
+      replace(newValues);
+    } else {
+      replace([{ name: "", value: "" }]);
+    }
+
+    reset({ envVariables: newValues });
+  }, [secret, pathname]);
+
+  const { fields: envVariables, replace } = useFieldArray({
+    control,
     name: "envVariables",
-    control: formMethods.control,
   });
-
   const { mutate: updateSecret } = trpc.secret.update.useMutation({
     onMutate: () => {
       setUpdateSuccess(false);
@@ -298,12 +309,8 @@ const EnvEditor = () => {
           className="flex flex-col gap-y-8">
           {renderEditor && (
             <ul className="flex flex-col gap-y-4 lg:gap-y-8">
-              {envVariables?.map((_, index) => (
-                <EnvInput
-                  key={`${toggleResetKey}-${index}`}
-                  index={index}
-                  onDelete={onDeleteVariable}
-                />
+              {envVariables?.map((env, index) => (
+                <EnvInput key={env.id} index={index} onDelete={onDeleteVariable} />
               ))}
             </ul>
           )}

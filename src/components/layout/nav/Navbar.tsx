@@ -1,8 +1,8 @@
 import { authOptions } from "@/app/(backend)/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
-import NavControls from "./NavControls";
-import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+import Link from "next/link";
+import NavControls from "./NavControls";
 
 const NavBar = async () => {
   const session = await getServerSession(authOptions);
@@ -19,17 +19,7 @@ const NavBar = async () => {
               </h1>
             </Link>
 
-            {user && (
-              <div>
-                <Link href="/dashboard" className={buttonVariants({ variant: "link" })}>
-                  Dashboard
-                </Link>
-              </div>
-            )}
-
-            <div className="flex items-center">
-              <NavControls user={user} />
-            </div>
+            <NavControls user={user} />
           </div>
         </div>
       </header>

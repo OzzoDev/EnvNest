@@ -1,4 +1,4 @@
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { Input } from "../ui/input";
 import SecretToggle from "../utils/SecretToggle";
 import { IoMdClose } from "react-icons/io";
@@ -6,6 +6,10 @@ import AlertDialog from "../utils/AleartDialog";
 import { Button } from "../ui/button";
 import { useProjectStore } from "@/store/projectStore";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
+import { z } from "zod";
+import { formSchema } from "./EnvEditor";
+import { usePathname } from "next/navigation";
 
 type EnvInputProps = {
   index: number;
@@ -14,12 +18,15 @@ type EnvInputProps = {
 
 const EnvInput = ({ index, onDelete }: EnvInputProps) => {
   const isSaved = useProjectStore((state) => state.isSaved);
-  const { control, getValues } = useFormContext();
+  const { control } = useFormContext();
 
-  const envVariables = getValues("envVariables");
+  const watchedField = useWatch({
+    name: `envVariables.${index}`,
+    control,
+  });
 
-  const name = envVariables[index].name;
-  const value = envVariables[index].value;
+  const name = watchedField?.name || "";
+  const value = watchedField?.value || "";
 
   const isEmpty = !name && !value;
 

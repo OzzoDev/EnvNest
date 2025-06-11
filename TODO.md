@@ -59,37 +59,48 @@
 
 ---
 
-## 🖥️ UI Pages (ShadCN + App Router)
+## Templates page
 
-- [ ] Dashboard after login
-- [ ] Project list view
-- [ ] Create project from GitHub repo
-- [ ] Env file editor (custom component)
-- [ ] Env file version history viewer
-- [ ] Team management (invite/search GitHub users)
+- [] Page to allow user to create templates which can later be used for creating new .env files
 
 ---
 
-## 🔐 Encryption Helpers
+## Collaborator page
 
-- [ ] Create `encryptContent(content, key)`
-- [ ] Create `decryptContent(encrypted, key)`
-- [ ] Strategy for key sharing among project members
-
----
-
-## 🧪 NPM CLI Tool (Final Phase)
-
-- [ ] GitHub login flow (device code flow)
-- [ ] Fetch encrypted file from API
-- [ ] Decrypt locally
-- [ ] Write to `.env` in local project folder
+- [] Organization form
+- [] Invite collaborator to project
+- [] Handle the owner's accesstoken in the db to allow all projects member can fetch from github with this access
 
 ---
 
-## 🧹 Extras
+## Caching
 
-- [ ] Validate `.env` key=value pairs in custom editor
-- [ ] Show diff between env versions
-- [ ] Add unit + integration tests
-- [ ] Polish UI and add loading states
+- [] Use redis to handle chaching on the server when fetching from the github api
+
+---
+
+## Login page
+
+- [] Create Login form
+
+---
+
+## Landing page
+
+- [] Hero section
+- [] CTA (eg. get started today)
+- [] Perks and business overview
+
+---
+
+## CLI tool
+
+- [] CLI tool to install .env file locally
+- [] Handle github login in terminal
+
+## Final touches
+
+- [] Write unit tests
+- [] Test flow
+- [] Make prod ready
+- [] Deploy
