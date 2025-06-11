@@ -1,7 +1,7 @@
 "use client";
 
 import { ENVIRONMENTS } from "@/config";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { trpc } from "@/trpc/client";
 import { useProjectStore } from "@/store/projectStore";
@@ -22,23 +22,32 @@ const EnvCreator = () => {
   const project = useProjectStore((state) => state.project);
   const projectId = useProjectStore((state) => state.projectId);
   const setSecretId = useProjectStore((state) => state.setSecretId);
+  const setError = useProjectStore((state) => state.setError);
 
-  const { data: environments } = trpc.environment.getAvailable.useQuery(
+  const { data: environments, error: environmentsError } = trpc.environment.getAvailable.useQuery(
     { owner: project?.owner!, repo: project?.name!, projectId: Number(projectId) },
-    { enabled: !!project && !!projectId }
+    { enabled: !!project && !!projectId, retry: false }
   );
 
-  const { data: paths, refetch: refetchPaths } = trpc.github.getPaths.useQuery(
+  const {
+    data: paths,
+    error: pathsError,
+    refetch: refetchPaths,
+  } = trpc.github.getPaths.useQuery(
     {
       owner: project?.owner!,
       repo: project?.name!,
       projectId: Number(projectId),
       environment: ENVIRONMENTS.find((env) => env.label === formData.environment)?.value!,
     },
-    { enabled: !!project && !!projectId && !!formData.environment }
+    { enabled: !!project && !!projectId && !!formData.environment, retry: false }
   );
 
-  const { data: templates, refetch: refetchTemplates } = trpc.template.getPublic.useQuery();
+  const {
+    data: templates,
+    error: templatesError,
+    refetch: refetchTemplates,
+  } = trpc.template.getPublic.useQuery(undefined, { retry: false });
 
   const { mutate: createSecret } = trpc.secret.create.useMutation({
     onSuccess: (secretId) => {
@@ -54,6 +63,12 @@ const EnvCreator = () => {
       toast.success(`Error creating ${formData.environment} .env file`);
     },
   });
+
+  useEffect(() => {
+    setError(
+      (environmentsError?.message || pathsError?.message || templatesError?.message) ?? null
+    );
+  }, [environmentsError, pathsError, templatesError]);
 
   const handleSumbit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

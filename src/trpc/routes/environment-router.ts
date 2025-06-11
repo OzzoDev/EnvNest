@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { privateProcedure, router } from "../trpc";
-import { getDbClient } from "@/lib/db/models";
 import { getHelpersClient } from "@/lib/db/helpers";
 import { ENVIRONMENTS } from "@/config";
 

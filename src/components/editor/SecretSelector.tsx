@@ -17,6 +17,7 @@ const SecretSelector = () => {
   const isDeletingProject = useProjectStore((state) => state.isDeletingProject);
   const setSecretId = useProjectStore((state) => state.setSecretId);
   const setSecret = useProjectStore((state) => state.setSecret);
+  const setError = useProjectStore((state) => state.setError);
 
   const [formData, setFormData] = useState<{
     prevEnvironment?: string;
@@ -25,11 +26,18 @@ const SecretSelector = () => {
     secretId?: number;
   }>({ secretId: secretId ?? undefined });
 
-  const { data: environmentPaths, refetch: refetchEnvironmentPaths } =
-    trpc.secret.getAllAsPathAndId.useQuery(
-      { projectId: Number(projectId) },
-      { enabled: !!projectId && hasHydrated }
-    );
+  const {
+    data: environmentPaths,
+    error: environmentPathsError,
+    refetch: refetchEnvironmentPaths,
+  } = trpc.secret.getAllAsPathAndId.useQuery(
+    { projectId: Number(projectId) },
+    { enabled: !!projectId && hasHydrated, retry: false }
+  );
+
+  useEffect(() => {
+    setError(environmentPathsError?.message ?? null);
+  }, [environmentPathsError]);
 
   useEffect(() => {
     if (secretId) {

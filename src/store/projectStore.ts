@@ -27,6 +27,8 @@ type ProjectStore = {
   isLoading: boolean;
   isDeletingProject: boolean;
   setIsDeletingProject: (isDeletingProject: boolean) => void;
+  error: string | null;
+  setError: (error: string | null) => void;
   deleteProject: () => void;
 };
 
@@ -42,6 +44,7 @@ export const useProjectStore = create<ProjectStore>()(
       projectSecretRefs: {},
       isLoading: true,
       isDeletingProject: false,
+      error: null,
       setProjectId: (projectId: number | null) => set({ projectId }),
       setSecret: (secret: EnvironmentSecret | null) => set({ secret }),
       setProject: (project: ProjectTable | null) => set({ project }),
@@ -72,6 +75,7 @@ export const useProjectStore = create<ProjectStore>()(
           isDeletingProject: true,
         }),
       setIsDeletingProject: (isDeletingProject: boolean) => set({ isDeletingProject }),
+      setError: (error: string | null) => set({ error }),
     }),
     {
       name: "project-store",

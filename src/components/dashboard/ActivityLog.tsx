@@ -35,8 +35,13 @@ const ActivityLog = ({ isOpen, setIsOpen, refetchTrigger, updateSecret }: Activi
   const projectId = useProjectStore((state) => state.projectId);
   const secret = useProjectStore((state) => state.secret);
   const secretId = useProjectStore((state) => state.secretId);
+  const setError = useProjectStore((state) => state.setError);
 
-  const { data: auditLogs, refetch } = trpc.auditLog.get.useQuery(
+  const {
+    data: auditLogs,
+    error: auditLogsError,
+    refetch,
+  } = trpc.auditLog.get.useQuery(
     { projectId: projectId!, secretId: secretId! },
     { enabled: !!secretId && !!projectId, retry: false }
   );
@@ -44,6 +49,10 @@ const ActivityLog = ({ isOpen, setIsOpen, refetchTrigger, updateSecret }: Activi
   useEffect(() => {
     refetch();
   }, [refetchTrigger]);
+
+  useEffect(() => {
+    setError(auditLogsError?.message ?? null);
+  }, [auditLogsError]);
 
   const onRollback = (auditLogId: number) => {
     const auditLog = auditLogs?.find((audit) => audit.id === auditLogId);
