@@ -8,8 +8,10 @@ import { ChevronDown } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import MoblieNav from "./MoblieNav";
+import { useEffect, useState } from "react";
 
-const LINKS = [
+export const LINKS = [
   { link: "/dashboard", name: "Editor" },
   { link: "/collaboration", name: "Collaboration" },
   { link: "/templates", name: "Templates" },
@@ -21,38 +23,46 @@ type NavbarControlsProps = {
 
 const NavControls = ({ user }: NavbarControlsProps) => {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   return (
-    <div className="flex gap-x-6">
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline" className="w-48 justify-between">
-            {LINKS.find((link) => link.link === pathname)?.name} <ChevronDown />
+    <>
+      <MoblieNav user={user} />
+      <div className="hidden md:flex gap-x-6">
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="w-48 justify-between">
+              {LINKS.find((link) => link.link === pathname)?.name} <ChevronDown />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-48">
+            <ul className="flex flex-col gap-y-4">
+              {LINKS.filter((link) => link.link !== pathname).map((link, index) => (
+                <Link
+                  key={index + link.name}
+                  href={link.link}
+                  className={cn(buttonVariants({ variant: "link" }), "justify-start")}>
+                  {link.name}
+                </Link>
+              ))}
+            </ul>
+          </PopoverContent>
+        </Popover>
+        {user ? (
+          <Button onClick={() => signOut({ callbackUrl: "/auth" })} variant="default">
+            Sign out
           </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-48">
-          <ul className="flex flex-col gap-y-4">
-            {LINKS.filter((link) => link.link !== pathname).map((link, index) => (
-              <Link
-                key={index + link.name}
-                href={link.link}
-                className={cn(buttonVariants({ variant: "link" }), "justify-start")}>
-                {link.name}
-              </Link>
-            ))}
-          </ul>
-        </PopoverContent>
-      </Popover>
-      {user ? (
-        <Button onClick={() => signOut({ callbackUrl: "/auth" })} variant="default">
-          Sign out
-        </Button>
-      ) : (
-        <Link href="/auth" className={buttonVariants({ variant: "default" })}>
-          Sign in
-        </Link>
-      )}
-    </div>
+        ) : (
+          <Link href="/auth" className={buttonVariants({ variant: "default" })}>
+            Sign in
+          </Link>
+        )}
+      </div>
+    </>
   );
 };
 
