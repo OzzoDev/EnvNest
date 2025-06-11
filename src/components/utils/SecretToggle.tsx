@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "../ui/button";
 import { EyeOff, Eye } from "lucide-react";
-import { useFormContext, Controller, useWatch } from "react-hook-form";
+import { useFormContext, Controller } from "react-hook-form";
 import { Input } from "../ui/input";
 
 type SecretToggleProps = {
@@ -11,25 +11,9 @@ type SecretToggleProps = {
 };
 
 const SecretToggle = ({ name }: SecretToggleProps) => {
-  const {
-    control,
-    getValues,
-    formState: { isDirty },
-  } = useFormContext();
+  const { control, getValues } = useFormContext();
   const value = getValues(name);
   const [isVisible, setIsVisible] = useState(!value);
-
-  const watchedValues = useWatch({ control: control });
-
-  useEffect(() => {
-    setIsVisible(!value);
-  }, [watchedValues]);
-
-  useEffect(() => {
-    if (!isDirty) {
-      setIsVisible(false);
-    }
-  }, [isDirty]);
 
   return (
     <div className="relative w-full">
@@ -39,13 +23,19 @@ const SecretToggle = ({ name }: SecretToggleProps) => {
         render={({ field }) => (
           <>
             {isVisible ? (
-              <Input {...field} type="text" autoComplete="off" className="pr-10" />
+              <Input
+                {...field}
+                type="text"
+                autoComplete="off"
+                className="pr-[55px]"
+                onBlur={() => setIsVisible(false)}
+              />
             ) : (
               <Input
                 type="text"
                 value={"*".repeat(field.value?.length || 0)}
                 readOnly
-                className="cursor-default"
+                className="cursor-default pr-[55px]"
               />
             )}
           </>

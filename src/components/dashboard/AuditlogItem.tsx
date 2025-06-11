@@ -23,7 +23,7 @@ const AuditLogItem = ({ audit, onRollback }: AuditLogItemProps) => {
 
   const content = audit.content.split("&&");
 
-  const isCurrentVersion = secret?.secret_version_id === audit.secret_version_id;
+  const isCurrentVersion = secret?.content === audit.content;
 
   return (
     <div key={audit.created_at} className="flex flex-col gap-y-3 border-b border-secondary">

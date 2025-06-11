@@ -148,8 +148,12 @@ const SecretSelector = () => {
         <p className="font-medium text-text-color mb-4">View and edit .env file</p>
       </SkeletonWrapper>
 
-      <SkeletonWrapper skeletons={2} isLoading={isLoadingUi} width="w-64" className="flex gap-x-4">
-        <div className="flex gap-x-4">
+      <SkeletonWrapper
+        skeletons={2}
+        isLoading={isLoadingUi}
+        width="w-64"
+        className="flex flex-col lg:flex-row gap-4">
+        <div className="flex flex-col lg:flex-row gap-4">
           <ModeSelect
             selectPlaceholder="Select environment"
             selectLabel="Environments"

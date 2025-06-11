@@ -24,8 +24,8 @@ const EnvInput = ({ index, onDelete }: EnvInputProps) => {
   const isEmpty = !name && !value;
 
   return (
-    <div className="flex justify-between gap-x-8">
-      <div className="flex  gap-x-2 w-full">
+    <div className="flex flex-col lg:flex-row justify-between gap-4 lg:gap-8">
+      <div className="flex gap-x-2 w-full">
         {isSaved ? (
           !isEmpty ? (
             <AlertDialog
@@ -65,7 +65,9 @@ const EnvInput = ({ index, onDelete }: EnvInputProps) => {
           )}
         />
       </div>
-      <SecretToggle name={`envVariables.${index}.value`} />
+      <div className="pl-14 lg:p-0 w-full">
+        <SecretToggle name={`envVariables.${index}.value`} />
+      </div>
     </div>
   );
 };

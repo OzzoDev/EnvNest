@@ -179,7 +179,7 @@ const EnvEditor = () => {
   return (
     <FormProvider {...formMethods}>
       <div className="flex flex-col gap-y-8">
-        <div className="flex justify-between items-end">
+        <div className="flex flex-col lg:flex-row justify-between lg:items-end gap-y-8">
           <SecretSelector />
           <SkeletonWrapper
             skeletons={2}
@@ -291,9 +291,13 @@ const EnvEditor = () => {
           )}
         </SkeletonWrapper>
 
-        <SkeletonWrapper skeletons={4} isLoading={isLoadingUi} className="flex flex-col gap-y-8">
+        <SkeletonWrapper
+          skeletons={4}
+          isLoading={isLoadingUi}
+          height="h-20 lg:h-10"
+          className="flex flex-col gap-y-8">
           {renderEditor && (
-            <ul className="flex flex-col gap-y-8">
+            <ul className="flex flex-col gap-y-4 lg:gap-y-8">
               {envVariables?.map((_, index) => (
                 <EnvInput
                   key={`${toggleResetKey}-${index}`}

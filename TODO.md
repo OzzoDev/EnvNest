@@ -55,7 +55,7 @@
 - [x] Create a new secret_history table to use to track user activity and allow for easy switching between latest (5) secrets
 - [x] Sidebar to be able to hide/show project form, project list and history logs
 - [x] Loading and error states
-- [] Make moblie responsive
+- [x] Make moblie responsive
 
 ---
 

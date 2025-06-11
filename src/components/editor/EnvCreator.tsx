@@ -112,7 +112,7 @@ const EnvCreator = () => {
       className="flex flex-col gap-y-4">
       <form onSubmit={handleSumbit} className="flex flex-col gap-y-4">
         <p className="font-medium text-text-color">Create .env file</p>
-        <div className="flex items-end gap-x-8">
+        <div className="flex flex-col lg:flex-row items-start lg:items-end gap-x-8 gap-y-4">
           <ModeSelect
             selectPlaceholder="Select environment"
             emptyPlaceHolder="No environments found"
