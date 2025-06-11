@@ -18,6 +18,7 @@ import { useVirtualQuery } from "@/hooks/use-virtual-query";
 
 const SecretHistoryLog = () => {
   const { state, isMobile, toggleSidebar } = useSidebar();
+  const project = useProjectStore((state) => state.project);
   const secretId = useProjectStore((state) => state.secretId);
   const isSaved = useProjectStore((state) => state.isSaved);
   const isLoading = useProjectStore((state) => state.isLoading);
@@ -27,6 +28,7 @@ const SecretHistoryLog = () => {
   const isLoadingSidebar = useSidebarStore((state) => state.isLoading);
 
   const [isReadyToRender, setIsReadyToRender] = useState(true);
+  const [hasLoadedSecret, setHasLoadedSecret] = useState(false);
 
   const {
     data: logs,
@@ -50,11 +52,20 @@ const SecretHistoryLog = () => {
     setLoadingStates([isLoadingLogs, isLoading]);
   }, [isLoadingLogs, isLoading]);
 
+  useEffect(() => {
+    if (secretId && !hasLoadedSecret) {
+      saveToHistory({ secretId });
+    }
+
+    setHasLoadedSecret(false);
+  }, [secretId]);
+
   const loadSecret = (log: SecretHistory) => {
     setProjectId(log.project_id);
     setSecretId(log.secret_id);
     isMobile && toggleSidebar();
     saveToHistory({ secretId: log.secret_id });
+    setHasLoadedSecret(true);
   };
 
   const isLoadingUI =
