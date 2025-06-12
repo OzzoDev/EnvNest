@@ -1,6 +1,7 @@
 import { LINKS } from "@/config";
 import { Link } from "@/types/types";
 import { clsx, type ClassValue } from "clsx";
+import { FieldError, FieldErrors } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -62,3 +63,31 @@ export const getLinks = (pathname: string, isAuthenticated: boolean): Link[] => 
 
 export const getCurrentLinkName = (pathname: string) =>
   LINKS.find((link) => link.link === pathname)?.name;
+
+export const getFirstErrorMessage = (errors: FieldErrors | undefined | null): string | null => {
+  if (!errors || typeof errors !== "object") {
+    return null;
+  }
+
+  for (const error of Object.values(errors)) {
+    if (!error) continue;
+
+    if (typeof (error as FieldError)?.message === "string") {
+      return (error as FieldError).message ?? null;
+    }
+
+    if (Array.isArray(error)) {
+      for (const item of error) {
+        const nested = getFirstErrorMessage(item as FieldErrors);
+        if (nested) return nested;
+      }
+    }
+
+    if (typeof error === "object" && error !== null) {
+      const nested = getFirstErrorMessage(error as FieldErrors);
+      if (nested) return nested;
+    }
+  }
+
+  return null;
+};

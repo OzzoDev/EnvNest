@@ -1,4 +1,4 @@
-import { TemplateTable } from "@/types/types";
+import { TemplateTable, TemplateVisibility } from "@/types/types";
 import { executeQuery } from "../db";
 
 const template = {
@@ -24,6 +24,25 @@ const template = {
         FROM template
         WHERE visibility = 'public'             
     `);
+  },
+  create: async (
+    name: string,
+    template: string,
+    visibility: TemplateVisibility
+  ): Promise<TemplateTable | null> => {
+    return (
+      (
+        await executeQuery<TemplateTable>(
+          `
+            INSERT INTO template (name, template, visibility)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (name) DO NOTHING
+            RETURNING *; 
+          `,
+          [name, template, visibility]
+        )
+      )[0] ?? null
+    );
   },
 };
 

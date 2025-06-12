@@ -18,6 +18,7 @@ import {
   AuditLogWithUser,
   SecretHistoryTable,
   SecretHistory,
+  TemplateVisibility,
 } from "./types";
 
 export type TProfileModel = {
@@ -72,6 +73,11 @@ export type TSecretModel = {
 export type TTemplateModel = {
   getPublicById: (templateId: number) => Promise<TemplateTable | null>;
   getPublic: () => Promise<TemplateTable[]>;
+  create: (
+    name: string,
+    template: string,
+    visibility: TemplateVisibility
+  ) => Promise<TemplateTable | null>;
 };
 
 export type TAuditLogModel = {

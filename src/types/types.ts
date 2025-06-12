@@ -176,12 +176,14 @@ export type AuditLogTable<T = unknown> = {
 
 export type AuditLogWithUser = AuditLogTable & { user: string; content: string };
 
+export type TemplateVisibility = "public" | "private" | "organization";
+
 //Templates to create a env file
 export type TemplateTable = {
   id: number;
   name: string;
   template: string;
-  visibility: "public" | "private" | "organization";
+  visibility: TemplateVisibility;
 };
 
 //Github organization
