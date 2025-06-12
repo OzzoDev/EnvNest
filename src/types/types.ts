@@ -181,7 +181,7 @@ export type TemplateTable = {
   id: number;
   name: string;
   template: string;
-  visibility: "public" | "private";
+  visibility: "public" | "private" | "organization";
 };
 
 //Github organization
