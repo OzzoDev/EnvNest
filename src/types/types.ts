@@ -181,6 +181,7 @@ export type TemplateVisibility = "public" | "private" | "organization";
 //Templates to create a env file
 export type TemplateTable = {
   id: number;
+  profile_id: number | null;
   name: string;
   template: string;
   visibility: TemplateVisibility;

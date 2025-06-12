@@ -160,6 +160,7 @@ export const initDB = async () => {
   await executeQuery(`
     CREATE TABLE IF NOT EXISTS template (
       id SERIAL PRIMARY KEY, 
+      profile_id INTEGER REFERENCES profile(id) ON DELETE CASCADE,
       name TEXT NOT NULL UNIQUE,
       template TEXT NOT NULL,
       visibility TEXT NOT NULL

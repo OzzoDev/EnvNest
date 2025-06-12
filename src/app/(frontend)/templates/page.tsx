@@ -1,4 +1,5 @@
 import NewTemplateForm from "@/components/templates/NewTemplateForm";
+import TemplateList from "@/components/templates/TemplateList";
 import { CgDanger } from "react-icons/cg";
 
 const TemplatesPage = () => {
@@ -15,7 +16,10 @@ const TemplatesPage = () => {
         not encrypted and can be viewed in plain text.
       </h3>
 
-      <NewTemplateForm />
+      <div className="flex">
+        <TemplateList />
+        <NewTemplateForm />
+      </div>
     </div>
   );
 };

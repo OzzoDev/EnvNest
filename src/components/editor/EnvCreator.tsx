@@ -47,7 +47,7 @@ const EnvCreator = () => {
     data: templates,
     error: templatesError,
     refetch: refetchTemplates,
-  } = trpc.template.getPublic.useQuery(undefined, { retry: false });
+  } = trpc.template.getOwnAndPublic.useQuery(undefined, { retry: false });
 
   const { mutate: createSecret } = trpc.secret.create.useMutation({
     onSuccess: (secretId) => {

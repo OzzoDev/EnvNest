@@ -18,14 +18,18 @@ const template = {
 
     return result[0];
   },
-  getPublic: async (): Promise<TemplateTable[]> => {
-    return await executeQuery<TemplateTable>(`
+  getOwnAndPublic: async (profileId: number): Promise<TemplateTable[]> => {
+    return await executeQuery<TemplateTable>(
+      `
         SELECT * 
         FROM template
-        WHERE visibility = 'public'             
-    `);
+        WHERE visibility = 'public' OR profile_id = $1            
+    `,
+      [profileId]
+    );
   },
   create: async (
+    profileId: number,
     name: string,
     template: string,
     visibility: TemplateVisibility
@@ -34,12 +38,12 @@ const template = {
       (
         await executeQuery<TemplateTable>(
           `
-            INSERT INTO template (name, template, visibility)
-            VALUES ($1, $2, $3)
+            INSERT INTO template (profile_id, name, template, visibility)
+            VALUES ($1, $2, $3, $4)
             ON CONFLICT (name) DO NOTHING
             RETURNING *; 
           `,
-          [name, template, visibility]
+          [profileId, name, template, visibility]
         )
       )[0] ?? null
     );
