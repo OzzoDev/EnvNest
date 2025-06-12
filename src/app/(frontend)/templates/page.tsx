@@ -1,4 +1,5 @@
 import NewTemplateForm from "@/components/templates/NewTemplateForm";
+import { CgDanger } from "react-icons/cg";
 
 const TemplatesPage = () => {
   return (
@@ -8,6 +9,11 @@ const TemplatesPage = () => {
         Choose a visibility option to keep the template private or share it within your
         organization.
       </h2>
+
+      <h3 className="self-start text-destructive">
+        Warning: Do not include any sensitive or secret values in the template, as its content is
+        not encrypted and can be viewed in plain text.
+      </h3>
 
       <NewTemplateForm />
     </div>
