@@ -212,3 +212,8 @@ export type GithubOwner = {
 export type RepoPath = {
   path: string;
 };
+
+export type Link = {
+  link: string;
+  name: string;
+};

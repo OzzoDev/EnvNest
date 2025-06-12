@@ -1,3 +1,5 @@
+import { LINKS } from "@/config";
+import { Link } from "@/types/types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -43,3 +45,20 @@ export const timeAgo = (dateString: string): string => {
     return `${years}y ago`;
   }
 };
+
+export const getLinks = (pathname: string, isAuthenticated: boolean): Link[] => {
+  const protectedRoutes = ["/dashboard", "/collaboration", "/templates"];
+  const onlyPublicRoutes = ["/auth"];
+
+  return LINKS.filter((link) => {
+    const l = link.link;
+
+    const isCurrentRoute = l === pathname;
+    const isHidden = isAuthenticated ? onlyPublicRoutes.includes(l) : protectedRoutes.includes(l);
+
+    return !isCurrentRoute && !isHidden;
+  });
+};
+
+export const getCurrentLinkName = (pathname: string) =>
+  LINKS.find((link) => link.link === pathname)?.name;
