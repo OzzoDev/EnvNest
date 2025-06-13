@@ -79,6 +79,14 @@ export type TTemplateModel = {
     template: string,
     visibility: TemplateVisibility
   ) => Promise<TemplateTable | null>;
+  update: (
+    profileId: number,
+    templateId: number,
+    name?: string,
+    template?: string,
+    visibility?: TemplateVisibility
+  ) => Promise<TemplateTable | null>;
+  delete: (profileId: number, templateId: number) => Promise<TemplateTable | null>;
 };
 
 export type TAuditLogModel = {

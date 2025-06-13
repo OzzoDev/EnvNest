@@ -48,6 +48,50 @@ const template = {
       )[0] ?? null
     );
   },
+  update: async (
+    profileId: number,
+    templateId: number,
+    name?: string,
+    template?: string,
+    visibility?: TemplateVisibility
+  ): Promise<TemplateTable | null> => {
+    const entries = Object.entries({ name, template, visibility }).filter(
+      ([_, value]) => value !== undefined
+    );
+    const setClause = entries.map(([key], i) => `${key} = $${i + 1}`).join(", ");
+    const values = entries.map(([_, value]) => value);
+
+    const templateIdIndex = values.length + 1;
+    const profileIdIndex = values.length + 2;
+
+    return (
+      (
+        await executeQuery<TemplateTable>(
+          `
+          UPDATE profile
+          SET ${setClause}
+          WHERE id = $${templateIdIndex} AND profile_id = $${profileIdIndex}
+          RETURNING *;
+        `,
+          [...values, templateId, profileId]
+        )
+      )[0] ?? null
+    );
+  },
+  delete: async (profileId: number, templateId: number): Promise<TemplateTable | null> => {
+    return (
+      (
+        await executeQuery<TemplateTable>(
+          `
+      DELETE FROM template
+      WHERE id = $1 AND profile_id = $2
+      RETURNING *;      
+    `,
+          [templateId, profileId]
+        )
+      )[0] ?? null
+    );
+  },
 };
 
 export default template;

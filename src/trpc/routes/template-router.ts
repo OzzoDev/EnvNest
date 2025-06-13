@@ -47,4 +47,43 @@ export const templateRouter = router({
 
       return createdTemplate;
     }),
+  update: privateProcedure
+    .input(
+      z.object({
+        templateId: z.number(),
+        name: z.string().optional(),
+        template: z.string().optional(),
+        visibility: z.enum(["private", "organization"]).optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { user } = ctx;
+      const { id: githubId } = user;
+      const { templateId, name, template, visibility } = input;
+
+      const db = await getDbClient();
+
+      const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+
+      if (!profileId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
+      }
+
+      return await db.template.update(profileId, templateId, name, template, visibility);
+    }),
+  delete: privateProcedure.input(z.number()).mutation(async ({ input, ctx }) => {
+    const { user } = ctx;
+    const { id: githubId } = user;
+    const templateId = input;
+
+    const db = await getDbClient();
+
+    const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+
+    if (!profileId) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
+    }
+
+    return await db.template.delete(profileId, templateId);
+  }),
 });
