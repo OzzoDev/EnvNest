@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import { cn, getFirstErrorMessage } from "@/lib/utils";
 import { trpc } from "@/trpc/client";
 import { Loader2 } from "lucide-react";
+import { useTemplateStore } from "@/store/templateStore";
+import { useEffect } from "react";
 
 const visibilityOptions = [
   { label: "Private", value: "private" },
@@ -49,9 +51,24 @@ const defaultValues: FormData = {
 };
 
 const NewTemplateForm = () => {
+  const template = useTemplateStore((state) => state.template);
+  const setTemplate = useTemplateStore((state) => state.setTemplate);
+
+  const resetFormData = () => {
+    return template
+      ? {
+          name: template.name,
+          values: template.template.split("&&").map((temp) => {
+            const [name, value] = temp.split("=");
+            return { name, value };
+          }),
+          visibility: (template.visibility || "private") as "private" | "organization",
+        }
+      : defaultValues;
+  };
   const formMethods = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: defaultValues,
+    defaultValues: resetFormData(),
   });
 
   const {
@@ -73,17 +90,45 @@ const NewTemplateForm = () => {
         toast.message(err.message || "Something went wrong. Please try again");
       },
       onSuccess: () => {
+        setTemplate(null);
         reset(defaultValues);
         toast.success("Template created successfully. It is now available for use");
       },
     });
 
-  const onSubmit = (data: FormData) => {
-    createTemplate({
-      name: data.name,
-      template: data.values.map(({ name, value }) => `${name}=${value}`).join("&&"),
-      visibility: data.visibility,
+  const { mutate: updateTemplate, isPending: isUpdatingTemplate } =
+    trpc.template.update.useMutation({
+      onError: () => {
+        toast.error("Error updating template");
+      },
+      onSuccess: () => {
+        toast.success("Template updated successfully");
+      },
     });
+
+  useEffect(() => {
+    if (template) {
+      reset(resetFormData());
+    }
+
+    console.log("Template: ", template);
+  }, [template]);
+
+  const onSubmit = (data: FormData) => {
+    if (template) {
+      updateTemplate({
+        templateId: template.id,
+        name: data.name,
+        template: data.values.map(({ name, value }) => `${name}=${value}`).join("&&"),
+        visibility: data.visibility,
+      });
+    } else {
+      createTemplate({
+        name: data.name,
+        template: data.values.map(({ name, value }) => `${name}=${value}`).join("&&"),
+        visibility: data.visibility,
+      });
+    }
   };
 
   const onError = (errors: FieldErrors<FormData>) => {
@@ -92,11 +137,11 @@ const NewTemplateForm = () => {
 
   const isEmpty = fields.length === 0;
 
+  const isLoading = isCreatingTemplate || isUpdatingTemplate;
+
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit, onError)}
-      className="flex flex-col gap-y-8 w-full max-w-[500px]">
-      <div className="flex justify-between items-end gap-8">
+    <form onSubmit={handleSubmit(onSubmit, onError)} className="flex flex-col gap-y-16 w-full">
+      <div className="flex items-end gap-12">
         <Controller
           name="visibility"
           control={control}
@@ -140,9 +185,9 @@ const NewTemplateForm = () => {
 
       {isEmpty && <p className="text-center text-muted-foreground">Template is empty...</p>}
 
-      <ul className="flex flex-col gap-y-4">
+      <ul className="flex flex-col gap-y-12">
         {fields.map((field, index) => (
-          <div key={field.id} className="grid grid-cols-[1fr_1fr] gap-x-4 items-center">
+          <div key={field.id} className="grid grid-cols-[1fr_1fr] gap-x-12 items-center">
             <div className="flex gap-x-4 w-full">
               <Button type="button" variant="ghost" onClick={() => remove(index)} className="w-12">
                 <MdClose />
@@ -155,9 +200,17 @@ const NewTemplateForm = () => {
       </ul>
 
       {!isEmpty && (
-        <Button type="submit" className="self-center">
-          Create {isCreatingTemplate && <Loader2 className="animate-spin h-5 w-5" />}
-        </Button>
+        <div className="flex gap-x-4">
+          <Button type="submit" className="flex items-center gap-2 w-fit">
+            {template ? "Update" : "Create"}
+            {isLoading && <Loader2 className="animate-spin h-5 w-5" />}
+          </Button>
+          {template && (
+            <Button type="button" variant="outline" onClick={() => setTemplate(null)}>
+              Cancel
+            </Button>
+          )}
+        </div>
       )}
     </form>
   );

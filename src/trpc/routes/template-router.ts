@@ -84,6 +84,12 @@ export const templateRouter = router({
       throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
     }
 
-    return await db.template.delete(profileId, templateId);
+    const deletedTemplate = await db.template.delete(profileId, templateId);
+
+    if (!deletedTemplate) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "Error deleting template" });
+    }
+
+    return;
   }),
 });
