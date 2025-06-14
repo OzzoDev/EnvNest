@@ -158,7 +158,7 @@ const NewTemplateForm = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit, onError)} className="flex flex-col gap-y-16 w-full">
-      <div className="flex items-end gap-12">
+      <div className="flex items-end gap-4 lg:gap-12">
         <Controller
           name="visibility"
           control={control}
@@ -204,14 +204,22 @@ const NewTemplateForm = () => {
 
       <ul className="flex flex-col gap-y-12">
         {fields.map((field, index) => (
-          <div key={field.id} className="grid grid-cols-[1fr_1fr] gap-x-12 items-center">
+          <div
+            key={field.id}
+            className="flex flex-col md:grid grid-cols-[1fr_1fr] gap-x-4 lg:gap-x-12 gap-y-4 items-center">
             <div className="flex gap-x-4 w-full">
               <Button type="button" variant="ghost" onClick={() => remove(index)} className="w-12">
                 <MdClose />
               </Button>
               <Input placeholder="Name" {...register(`values.${index}.name`)} className="w-full" />
             </div>
-            <Input placeholder="Value" {...register(`values.${index}.value`)} />
+            <div className="pl-[64px] md:p-0 w-full">
+              <Input
+                placeholder="Value"
+                {...register(`values.${index}.value`)}
+                className="w-full"
+              />
+            </div>
           </div>
         ))}
       </ul>
