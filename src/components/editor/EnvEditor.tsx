@@ -41,16 +41,18 @@ const EnvEditor = () => {
   const secret = useProjectStore((state) => state.secret);
   const setIsSaved = useProjectStore((state) => state.setIsSaved);
   const setSecretId = useProjectStore((state) => state.setSecretId);
+  const setSecret = useProjectStore((state) => state.setSecret);
   const deleteProjectSecretRef = useProjectStore((state) => state.deleteProjectSecretRef);
 
   const [updateSuccess, setUpdateSuccess] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isActivityLogOpen, setIsActicityLogOpen] = useState<boolean>(false);
-  const [toggleResetKey, setToggleResetKey] = useState<number>(0);
   const [updateMessage, setUpdateMessage] = useState<string>("");
   const [isValid, setIsValid] = useState<boolean>(false);
 
   const getEnvVariables = () => {
+    console.log("Secret: ", secret);
+
     if (!secret?.content) {
       return [];
     }
@@ -118,8 +120,6 @@ const EnvEditor = () => {
 
       reset({ envVariables });
 
-      setToggleResetKey((prev) => prev + 1);
-
       setUpdateSuccess(true);
       setIsActicityLogOpen(false);
 
@@ -139,6 +139,7 @@ const EnvEditor = () => {
 
       deleteProjectSecretRef(projectId!);
       setSecretId(null);
+      setSecret(null);
     },
     onError: () => {
       toast.error("Error deleting .env file. Please try again");
@@ -190,7 +191,7 @@ const EnvEditor = () => {
   return (
     <FormProvider {...formMethods}>
       <div className="flex flex-col gap-y-8">
-        <div className="flex flex-col lg:flex-row justify-between lg:items-end gap-y-8">
+        <div className="flex flex-col xl:flex-row justify-between xl:items-end gap-8">
           <SecretSelector />
           <SkeletonWrapper
             skeletons={2}

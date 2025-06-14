@@ -112,7 +112,7 @@ const EnvCreator = () => {
       className="flex flex-col gap-y-4">
       <form onSubmit={handleSumbit} className="flex flex-col gap-y-4">
         <p className="font-medium text-text-color">Create .env file</p>
-        <div className="flex flex-col lg:flex-row items-start lg:items-end gap-x-8 gap-y-4">
+        <div className="flex flex-col xl:flex-row items-start  gap-x-8 gap-y-4">
           <ModeSelect
             selectPlaceholder="Select environment"
             emptyPlaceHolder="No environments found"
@@ -140,14 +140,13 @@ const EnvCreator = () => {
               selectPlaceholder="Select template"
               emptyPlaceHolder="No template found"
               selectLabel="Templates"
-              isRequired={false}
               options={templates?.map((template) => template.name) ?? []}
               value={formData.template ?? null}
               onSelect={(value) => setFormData((prev) => ({ ...prev, template: value }))}
             />
           )}
           {isValid && (
-            <Button type="submit" variant="secondary" className="w-fit mt-6">
+            <Button type="submit" variant="secondary" className="w-fit mt-1">
               Create
             </Button>
           )}

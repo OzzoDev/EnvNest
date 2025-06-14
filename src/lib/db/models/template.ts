@@ -2,14 +2,17 @@ import { TemplateTable, TemplateVisibility } from "@/types/types";
 import { executeQuery } from "../db";
 
 const template = {
-  getPublicById: async (templateId: number): Promise<TemplateTable | null> => {
+  getOwnAndPublicById: async (
+    profileId: number,
+    templateId: number
+  ): Promise<TemplateTable | null> => {
     const result = await executeQuery<TemplateTable>(
       `
         SELECT * 
         FROM template
-        WHERE id = $1 AND visibility = 'public'           
+        WHERE id = $1 AND visibility = 'public' OR profile_id = $2          
     `,
-      [templateId]
+      [templateId, profileId]
     );
 
     if (result.length === 0) {

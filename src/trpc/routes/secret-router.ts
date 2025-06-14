@@ -119,6 +119,12 @@ export const secretRouter = router({
 
       const db = await getDbClient();
 
+      const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+
+      if (!profileId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
+      }
+
       const project = await db.project.getById(projectId, githubId);
 
       const projectKey = (await db.project.getKey(projectId, githubId))?.encrypted_key;
@@ -130,7 +136,7 @@ export const secretRouter = router({
       const decryptedKey = aesDecrypt(projectKey, process.env.ENCRYPTION_ROOT_KEY!);
 
       const template = templateId
-        ? (await db.template.getPublicById(templateId))?.template || ""
+        ? (await db.template.getOwnAndPublicById(profileId, templateId))?.template || ""
         : "";
 
       const encryptedContent = aesEncrypt(template, decryptedKey);

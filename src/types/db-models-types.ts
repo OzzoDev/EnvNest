@@ -71,7 +71,7 @@ export type TSecretModel = {
 };
 
 export type TTemplateModel = {
-  getPublicById: (templateId: number) => Promise<TemplateTable | null>;
+  getOwnAndPublicById: (profileId: number, templateId: number) => Promise<TemplateTable | null>;
   getOwnAndPublic: (profileId: number) => Promise<TemplateTable[]>;
   create: (
     profileId: number,

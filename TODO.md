@@ -61,7 +61,7 @@
 
 ## Templates page
 
-- [] Page to allow user to create templates which can later be used for creating new .env files
+- [x] Page to allow user to create templates which can later be used for creating new .env files
 
 ---
 

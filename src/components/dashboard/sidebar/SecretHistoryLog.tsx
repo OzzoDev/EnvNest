@@ -18,8 +18,9 @@ import { useVirtualQuery } from "@/hooks/use-virtual-query";
 
 const SecretHistoryLog = () => {
   const { state, isMobile, toggleSidebar } = useSidebar();
-  const project = useProjectStore((state) => state.project);
   const secretId = useProjectStore((state) => state.secretId);
+  const secret = useProjectStore((state) => state.secret);
+
   const isSaved = useProjectStore((state) => state.isSaved);
   const isLoading = useProjectStore((state) => state.isLoading);
   const setProjectId = useProjectStore((state) => state.setProjectId);
@@ -59,6 +60,12 @@ const SecretHistoryLog = () => {
 
     setHasLoadedSecret(false);
   }, [secretId]);
+
+  useEffect(() => {
+    if (!secret && !secretId) {
+      refetchLogs();
+    }
+  }, [secret]);
 
   const loadSecret = (log: SecretHistory) => {
     setProjectId(log.project_id);
