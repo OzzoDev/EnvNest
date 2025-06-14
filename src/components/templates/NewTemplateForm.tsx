@@ -86,6 +86,9 @@ const NewTemplateForm = () => {
 
   const { mutate: createTemplate, isPending: isCreatingTemplate } =
     trpc.template.create.useMutation({
+      onMutate: () => {
+        setTemplate(undefined);
+      },
       onError: (err) => {
         toast.message(err.message || "Something went wrong. Please try again");
       },
@@ -98,10 +101,15 @@ const NewTemplateForm = () => {
 
   const { mutate: updateTemplate, isPending: isUpdatingTemplate } =
     trpc.template.update.useMutation({
-      onError: () => {
-        toast.error("Error updating template");
+      onMutate: () => {
+        setTemplate(undefined);
+      },
+      onError: (err) => {
+        toast.message(err.message || "Something went wrong. Please try again");
       },
       onSuccess: () => {
+        setTemplate(null);
+        reset(defaultValues);
         toast.success("Template updated successfully");
       },
     });
@@ -110,8 +118,6 @@ const NewTemplateForm = () => {
     if (template) {
       reset(resetFormData());
     }
-
-    console.log("Template: ", template);
   }, [template]);
 
   const onSubmit = (data: FormData) => {

@@ -69,7 +69,19 @@ export const templateRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
       }
 
-      return await db.template.update(profileId, templateId, name, template, visibility);
+      const updatedTemplate = await db.template.update(
+        profileId,
+        templateId,
+        name,
+        template,
+        visibility
+      );
+
+      if (!updatedTemplate) {
+        throw new TRPCError({ code: "CONFLICT", message: "Template name must be unique" });
+      }
+
+      return updatedTemplate;
     }),
   delete: privateProcedure.input(z.number()).mutation(async ({ input, ctx }) => {
     const { user } = ctx;

@@ -15,8 +15,6 @@ const TemplateList = () => {
   const isSaved = useTemplateStore((state) => state.isSaved);
   const setTemplate = useTemplateStore((state) => state.setTemplate);
 
-  const [isReadyToRender, setIsReadyToRender] = useState<boolean>(false);
-
   const {
     data: templates,
     error: templatesError,
@@ -26,9 +24,6 @@ const TemplateList = () => {
 
   const { mutate: deleteTemplate, isPending: isDeletingTemplate } =
     trpc.template.delete.useMutation({
-      onMutate: () => {
-        setIsReadyToRender(false);
-      },
       onError: () => {
         toast.error("Error deleting template. Please try again");
       },
@@ -39,33 +34,18 @@ const TemplateList = () => {
     });
 
   useEffect(() => {
-    if (templates) {
-      setIsReadyToRender(true);
-    }
-
-    console.log("Templates refetch: ");
-  }, [templates]);
-
-  useEffect(() => {
-    console.log("Selected template: ", selectedTemplate);
-
     if (!selectedTemplate) {
-      setIsReadyToRender(false);
-
-      refetchTemplates().then(({ data }) => {
-        console.log("Templates after refetch:", data);
-        setIsReadyToRender(true);
-      });
+      refetchTemplates();
     }
   }, [selectedTemplate]);
 
-  // const ownTemplates = useMemo(() => {
-  //   return templates?.filter((template) => template.profile_id);
-  // }, [templates, isReadyToRender]);
+  const ownTemplates = useMemo(() => {
+    return templates?.filter((template) => template.profile_id);
+  }, [templates]);
 
-  const isLoadingUi = isLoadingTemplates || isDeletingTemplate || !isReadyToRender;
+  const isLoadingUi = isLoadingTemplates || isDeletingTemplate;
 
-  if (templates?.length === 0) {
+  if (ownTemplates?.length === 0) {
     return <p className="text-sm text-muted-foreground mt-6 ml-2">No templates created</p>;
   }
 
@@ -79,42 +59,40 @@ const TemplateList = () => {
       isLoading={isLoadingUi}
       className="flex flex-col items-start gap-y-4 py-8 px-4">
       <ul className="flex flex-col items-start gap-y-4 py-8 px-4">
-        {templates
-          ?.filter((template) => template.profile_id)
-          ?.map((template, index) => (
-            <div key={index} className="flex gap-4">
+        {ownTemplates?.map((template, index) => (
+          <div key={index} className="flex gap-4">
+            <AlertDialog
+              title="Delete template"
+              description={`Are you sure you want to delete ${template.name}. This action can't be undone`}
+              action="Delete"
+              actionFn={() => deleteTemplate(template.id)}>
+              <Button variant="outline" className="p-2 h-auto">
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </AlertDialog>
+            {isSaved ? (
+              <Button
+                variant="ghost"
+                onClick={() => setTemplate(template)}
+                className={cn({ "text-primary": selectedTemplate?.name === template.name })}>
+                {template.name}
+              </Button>
+            ) : (
               <AlertDialog
-                title="Delete template"
-                description={`Are you sure you want to delete ${template.name}. This action can't be undone`}
-                action="Delete"
-                actionFn={() => deleteTemplate(template.id)}>
-                <Button variant="outline" className="p-2 h-auto">
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </AlertDialog>
-              {isSaved ? (
+                title="Unsaved changes detected"
+                description="You have an incomplete form currently in progress. Are you sure you want to override it? Please note that any unsaved progress will be lost."
+                action="Continue"
+                actionFn={() => setTemplate(template)}>
                 <Button
+                  key={index}
                   variant="ghost"
-                  onClick={() => setTemplate(template)}
                   className={cn({ "text-primary": selectedTemplate?.name === template.name })}>
                   {template.name}
                 </Button>
-              ) : (
-                <AlertDialog
-                  title="Unsaved changes detected"
-                  description="You have an incomplete form currently in progress. Are you sure you want to override it? Please note that any unsaved progress will be lost."
-                  action="Continue"
-                  actionFn={() => setTemplate(template)}>
-                  <Button
-                    key={index}
-                    variant="ghost"
-                    className={cn({ "text-primary": selectedTemplate?.name === template.name })}>
-                    {template.name}
-                  </Button>
-                </AlertDialog>
-              )}
-            </div>
-          ))}
+              </AlertDialog>
+            )}
+          </div>
+        ))}
       </ul>
     </SkeletonWrapper>
   );

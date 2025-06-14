@@ -3,22 +3,20 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 type TemplateStore = {
-  template: TemplateTable | null;
-  setTemplate: (template: TemplateTable | null) => void;
+  template: TemplateTable | null | undefined;
+  setTemplate: (template: TemplateTable | null | undefined) => void;
   isSaved: boolean;
   setIsSaved: (isSaved: boolean) => void;
 };
 
 export const useTemplateStore = create<TemplateStore>()(
-  persist(
-    (set) => ({
+  persist<TemplateStore>(
+    (set): TemplateStore => ({
       template: null,
       isSaved: true,
-      setTemplate: (template: TemplateTable | null) => set({ template }),
-      setIsSaved: (isSaved: boolean) => set({ isSaved }),
+      setTemplate: (template) => set({ template }),
+      setIsSaved: (isSaved) => set({ isSaved }),
     }),
-    {
-      name: "template-store",
-    }
+    { name: "template-store" }
   )
 );

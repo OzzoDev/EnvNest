@@ -64,19 +64,29 @@ const template = {
     const templateIdIndex = values.length + 1;
     const profileIdIndex = values.length + 2;
 
-    return (
-      (
-        await executeQuery<TemplateTable>(
-          `
-          UPDATE profile
-          SET ${setClause}
-          WHERE id = $${templateIdIndex} AND profile_id = $${profileIdIndex}
-          RETURNING *;
-        `,
-          [...values, templateId, profileId]
-        )
-      )[0] ?? null
-    );
+    try {
+      return (
+        (
+          await executeQuery<TemplateTable>(
+            `
+              UPDATE template
+              SET ${setClause}
+              WHERE id = $${templateIdIndex} AND profile_id = $${profileIdIndex}
+              RETURNING *;
+            `,
+            [...values, templateId, profileId]
+          )
+        )[0] ?? null
+      );
+    } catch (err: unknown) {
+      if (typeof err === "object" && err !== null && "code" in err) {
+        const errorCode = (err as { code?: string }).code;
+        if (errorCode === "23505") {
+          return null;
+        }
+      }
+      throw err;
+    }
   },
   delete: async (profileId: number, templateId: number): Promise<TemplateTable | null> => {
     return (
