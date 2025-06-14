@@ -79,7 +79,7 @@ const EnvEditor = () => {
     setIsSaved(!isDirty);
   }, [isDirty]);
 
-  const watchedValues = useWatch({ control: formMethods.control });
+  const watchedValues = useWatch({ control });
 
   useEffect(() => {
     const validated = formSchema.safeParse(watchedValues);

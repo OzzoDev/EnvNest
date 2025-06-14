@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, FieldErrors, useFieldArray, useForm } from "react-hook-form";
+import { Controller, FieldErrors, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Button } from "../ui/button";
@@ -53,6 +53,7 @@ const defaultValues: FormData = {
 const NewTemplateForm = () => {
   const template = useTemplateStore((state) => state.template);
   const setTemplate = useTemplateStore((state) => state.setTemplate);
+  const setIsSaved = useTemplateStore((state) => state.setIsSaved);
 
   const resetFormData = () => {
     return template
@@ -76,6 +77,7 @@ const NewTemplateForm = () => {
     handleSubmit,
     register,
     reset,
+    formState: { isDirty },
     formState: { errors },
   } = formMethods;
 
@@ -83,6 +85,16 @@ const NewTemplateForm = () => {
     control,
     name: "values",
   });
+
+  useEffect(() => {
+    setIsSaved(!isDirty);
+  }, [isDirty]);
+
+  useEffect(() => {
+    if (template) {
+      reset(resetFormData());
+    }
+  }, [template]);
 
   const { mutate: createTemplate, isPending: isCreatingTemplate } =
     trpc.template.create.useMutation({
@@ -114,12 +126,6 @@ const NewTemplateForm = () => {
       },
     });
 
-  useEffect(() => {
-    if (template) {
-      reset(resetFormData());
-    }
-  }, [template]);
-
   const onSubmit = (data: FormData) => {
     if (template) {
       updateTemplate({
@@ -139,6 +145,11 @@ const NewTemplateForm = () => {
 
   const onError = (errors: FieldErrors<FormData>) => {
     toast.error(getFirstErrorMessage(errors) || "Please leave no fields empty");
+  };
+
+  const cancelUpdate = () => {
+    setTemplate(null);
+    reset(defaultValues);
   };
 
   const isEmpty = fields.length === 0;
@@ -212,7 +223,7 @@ const NewTemplateForm = () => {
             {isLoading && <Loader2 className="animate-spin h-5 w-5" />}
           </Button>
           {template && (
-            <Button type="button" variant="outline" onClick={() => setTemplate(null)}>
+            <Button type="button" variant="outline" onClick={cancelUpdate}>
               Cancel
             </Button>
           )}
