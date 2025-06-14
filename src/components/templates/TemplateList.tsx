@@ -9,11 +9,18 @@ import { cn } from "@/lib/utils";
 import AlertDialog from "../utils/AleartDialog";
 import { toast } from "sonner";
 import SkeletonWrapper from "../utils/loaders/SkeletonWrapper";
+import { TemplateTable } from "@/types/types";
 
 const TemplateList = () => {
   const selectedTemplate = useTemplateStore((state) => state.template);
   const isSaved = useTemplateStore((state) => state.isSaved);
   const setTemplate = useTemplateStore((state) => state.setTemplate);
+
+  useEffect(() => {
+    if (!selectedTemplate) {
+      refetchTemplates();
+    }
+  }, [selectedTemplate]);
 
   const {
     data: templates,
@@ -33,11 +40,14 @@ const TemplateList = () => {
       },
     });
 
-  useEffect(() => {
-    if (!selectedTemplate) {
-      refetchTemplates();
+  const handleDeleteTemplate = (templateId: number) => {
+    if (templateId === selectedTemplate?.id) {
+      toast.error("Cancel editing of template to delete it");
+      return;
     }
-  }, [selectedTemplate]);
+
+    deleteTemplate(templateId);
+  };
 
   const ownTemplates = useMemo(() => {
     return templates?.filter((template) => template.profile_id);
@@ -65,7 +75,7 @@ const TemplateList = () => {
               title="Delete template"
               description={`Are you sure you want to delete ${template.name}. This action can't be undone`}
               action="Delete"
-              actionFn={() => deleteTemplate(template.id)}>
+              actionFn={() => handleDeleteTemplate(template.id)}>
               <Button variant="outline" className="p-2 h-auto">
                 <Trash2 className="w-4 h-4" />
               </Button>
