@@ -12,7 +12,7 @@ const collaborator = {
           `
             SELECT * 
             FROM collaborator
-            WHERE profile_id = $1 AND projectId = $2
+            WHERE profile_id = $1 AND project_id = $2
           `,
           [profileId, projectId]
         )
