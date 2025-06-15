@@ -15,9 +15,13 @@ import ModeSelect from "../utils/ModeSelect";
 const ROLES = ["viewer", "editor"];
 
 const formSchema = z.object({
-  username: z.string(),
-  project: z.string(),
-  role: z.enum(["viewer", "editor"]),
+  username: z
+    .string({ message: "Username is required" })
+    .nonempty({ message: "Username is required" }),
+  project: z
+    .string({ message: "Project is required" })
+    .nonempty({ message: "Project is required" }),
+  role: z.enum(["viewer", "editor", ""]),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -25,7 +29,7 @@ type FormData = z.infer<typeof formSchema>;
 const defaultValues: FormData = {
   username: "",
   project: "",
-  role: "viewer",
+  role: "",
 };
 
 const InviteForm = () => {
@@ -49,6 +53,8 @@ const InviteForm = () => {
   };
 
   const onError = (errors: FieldErrors<FormData>) => {
+    console.log("Err: ", errors);
+
     toast.error(getFirstErrorMessage(errors) || "Please leave no fields empty");
   };
 
@@ -83,7 +89,7 @@ const InviteForm = () => {
           />
         )}
       />
-      <Button disabled={!isValid}>Add role</Button>
+      <Button>Add role</Button>
     </form>
   );
 };
