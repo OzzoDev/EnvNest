@@ -163,6 +163,14 @@ export type CollaboratorTable = {
   created_at: string;
 };
 
+export type ProjectWithCollaborators = {
+  full_name: string;
+  collaborators: {
+    username: string;
+    role: string;
+  }[];
+};
+
 // Action logs for audit purposes
 export type AuditLogTable<T = unknown> = {
   id: number;

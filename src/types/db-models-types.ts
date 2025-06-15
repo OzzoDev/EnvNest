@@ -18,6 +18,7 @@ import {
   SecretHistory,
   TemplateVisibility,
   CollaboratorTable,
+  ProjectWithCollaborators,
 } from "./types";
 
 export type TProfileModel = {
@@ -128,6 +129,7 @@ export type TSecretHistory = {
 };
 
 export type TCollaborator = {
+  getCollaboratorsInProject: (projectId: number) => Promise<ProjectWithCollaborators[]>;
   getByProfileId: (profileId: number, projectId: number) => Promise<CollaboratorTable | null>;
   create: (profileId: number, projectId: number, role: string) => Promise<CollaboratorTable | null>;
 };

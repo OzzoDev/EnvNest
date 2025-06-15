@@ -4,6 +4,18 @@ import { getDbClient } from "@/lib/db/models";
 import { TRPCError } from "@trpc/server";
 
 export const collaboratorRouter = router({
+  get: privateProcedure.query(async ({ ctx }) => {
+    const { user } = ctx;
+    const { id: githubId } = user;
+
+    const db = await getDbClient();
+
+    const projectsIds = (await db.project.getByProfile(githubId)).map((project) => project.id);
+
+    return await Promise.all(
+      projectsIds.map((projectId) => db.collaborator.getCollaboratorsInProject(projectId))
+    );
+  }),
   create: privateProcedure
     .input(
       z.object({ username: z.string(), project: z.string(), role: z.enum(["viewer", "editor"]) })

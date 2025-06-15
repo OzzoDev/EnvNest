@@ -1,7 +1,24 @@
-import { CollaboratorTable } from "@/types/types";
+import { CollaboratorTable, ProjectWithCollaborators } from "@/types/types";
 import { executeQuery } from "../db";
 
 const collaborator = {
+  getCollaboratorsInProject: async (projectId: number): Promise<ProjectWithCollaborators[]> => {
+    return await executeQuery<ProjectWithCollaborators>(
+      `
+        SELECT
+            p.full_name,
+            (
+                SELECT json_agg(json_build_object('username', pr.username, 'role', c.role))
+                FROM collaborator c
+                JOIN profile pr ON c.profile_id = pr.id
+                WHERE c.project_id = p.id
+            ) AS collaborators
+            FROM project p
+            WHERE p.id = $1;  
+      `,
+      [projectId]
+    );
+  },
   getByProfileId: async (
     profileId: number,
     projectId: number
