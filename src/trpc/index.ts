@@ -1,4 +1,5 @@
 import { auditLogRouter } from "./routes/audit-log-router";
+import { collaboratorRouter } from "./routes/collaborator-router";
 import { environmentRouter } from "./routes/environment-router";
 import { githubRouter } from "./routes/github-router";
 import { profileRouter } from "./routes/profile-router";
@@ -15,6 +16,7 @@ export const appRouter = router({
   auditLog: auditLogRouter,
   template: templateRouter,
   github: githubRouter,
+  collaborator: collaboratorRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -17,6 +17,7 @@ import {
   SecretHistoryTable,
   SecretHistory,
   TemplateVisibility,
+  CollaboratorTable,
 } from "./types";
 
 export type TProfileModel = {
@@ -126,6 +127,11 @@ export type TSecretHistory = {
   create: (githubId: string, secretId: number) => Promise<SecretHistoryTable | null>;
 };
 
+export type TCollaborator = {
+  getByProfileId: (profileId: number, projectId: number) => Promise<CollaboratorTable | null>;
+  create: (profileId: number, projectId: number, role: string) => Promise<CollaboratorTable | null>;
+};
+
 export type TDbClient = {
   profile: TProfileModel;
   project: TProjectModel;
@@ -135,4 +141,5 @@ export type TDbClient = {
   auditLog: TAuditLogModel;
   secretActive: TSecretActive;
   secretHistory: TSecretHistory;
+  collaborator: TCollaborator;
 };
