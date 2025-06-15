@@ -1,14 +1,16 @@
 import { getDbClient } from "@/lib/db/models";
 import { privateProcedure, router } from "../trpc";
+import { z } from "zod";
 
 export const profileRouter = router({
-  getAll: privateProcedure.query(async () => {
-    try {
-      const db = await getDbClient();
+  get: privateProcedure.query(async () => {
+    const db = await getDbClient();
 
-      return await db.profile.getAll();
-    } catch (err) {
-      console.log(err);
-    }
+    return await db.profile.get();
+  }),
+  searchOne: privateProcedure.input(z.string()).query(async ({ input }) => {
+    const db = await getDbClient();
+
+    return await db.profile.searchOne(input);
   }),
 });

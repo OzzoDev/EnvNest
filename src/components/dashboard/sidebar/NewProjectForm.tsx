@@ -102,7 +102,6 @@ const NewProjectForm = () => {
           emptyPlaceHolder="No repository found"
           selectPlaceholder="Select a repository"
           enableSearch={true}
-          isRequired={false}
           value={repo}
           options={repos.map((rep) => rep.full_name)}
           onSelect={(rep) => setRepo(rep)}

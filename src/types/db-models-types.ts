@@ -7,9 +7,7 @@ import {
   Profile,
   ProjectTable,
   ProjectKeyTable,
-  ServerSecret,
   SecretTable,
-  SecretVersionTable,
   UpdateProjectName,
   TemplateTable,
   EnvironmentSecret,
@@ -22,8 +20,9 @@ import {
 } from "./types";
 
 export type TProfileModel = {
-  getAll: () => Promise<Profile[]>;
+  get: () => Promise<Profile[]>;
   getByField<K extends keyof Profile>(where: Record<K, Profile[K]>): Promise<Profile | undefined>;
+  searchOne: (username: string) => Promise<Profile | null>;
   create: (user: GithubUser) => Promise<Profile>;
   update<K extends keyof Profile>(
     user: GithubUserNoId,

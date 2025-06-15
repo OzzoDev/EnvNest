@@ -15,6 +15,20 @@ const profile = {
 
     return result[0];
   },
+  searchOne: async (username: string): Promise<Profile | null> => {
+    return (
+      (
+        await executeQuery<Profile>(
+          `
+            SELECT *
+            FROM profile
+            WHERE username ILIKE $1
+          `,
+          [`%${username}%`]
+        )
+      )[0] ?? null
+    );
+  },
   create: async (user: GithubUser): Promise<Profile> => {
     const entries = Object.entries(user).filter(([_, value]) => value !== undefined);
     const keys = entries.map(([key]) => key).join(", ");

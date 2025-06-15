@@ -27,7 +27,6 @@ type ModeSelectProps = {
   emptyPlaceHolder?: string;
   selectLabel?: string;
   enableSearch?: boolean;
-  isRequired?: boolean;
   disabled?: boolean;
   value?: string | null;
   options?: string[];
@@ -40,7 +39,6 @@ const ModeSelect = ({
   emptyPlaceHolder = "No items found",
   selectLabel = "Options",
   enableSearch = false,
-  isRequired = false,
   disabled = false,
   value = null,
   options = [],
@@ -74,15 +72,6 @@ const ModeSelect = ({
       }}>
       <PopoverTrigger asChild>
         <div>
-          <p
-            aria-hidden={!!value}
-            className={cn(
-              "text-sm mb-1",
-              isRequired ? "text-destructive" : "text-text-color",
-              value ? "invisible" : "visible"
-            )}>
-            {isRequired ? "Required" : ""}
-          </p>
           <HoverCard openDelay={100} closeDelay={200}>
             <HoverCardTrigger asChild>
               <Button

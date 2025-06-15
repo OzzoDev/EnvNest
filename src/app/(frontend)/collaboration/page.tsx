@@ -1,5 +1,11 @@
+import InviteForm from "@/components/collaboration/InviteForm";
+
 const CollaborationPage = () => {
-  return <p>Collaboration</p>;
+  return (
+    <div className="p-20">
+      <InviteForm />
+    </div>
+  );
 };
 
 export default CollaborationPage;
