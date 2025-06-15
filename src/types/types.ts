@@ -165,10 +165,12 @@ export type CollaboratorTable = {
 
 export type ProjectWithCollaborators = {
   full_name: string;
-  collaborators: {
-    username: string;
-    role: string;
-  }[];
+  collaborators:
+    | {
+        username: string;
+        role: "viewer" | "editor";
+      }[]
+    | null;
 };
 
 // Action logs for audit purposes

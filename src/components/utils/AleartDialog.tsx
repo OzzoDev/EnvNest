@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ButtonHTMLAttributes, cloneElement, ReactElement, ReactNode } from "react";
 import {
   AlertDialog as AlertDialogRoot,
   AlertDialogAction,
@@ -16,10 +16,22 @@ type AlertDialogProps = {
   description: string;
   action: string;
   actionFn: () => void;
-  children: ReactNode;
+  unsafe?: boolean;
+  children: ReactElement<ButtonHTMLAttributes<HTMLButtonElement>>;
 };
 
-const AlertDialog = ({ title, description, action, actionFn, children }: AlertDialogProps) => {
+const AlertDialog = ({
+  title,
+  description,
+  action,
+  actionFn,
+  unsafe = false,
+  children,
+}: AlertDialogProps) => {
+  if (unsafe) {
+    return <>{cloneElement(children, { onClick: actionFn })}</>;
+  }
+
   return (
     <AlertDialogRoot>
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
