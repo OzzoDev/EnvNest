@@ -23,6 +23,7 @@ import {
   OrgWithRole,
   Org,
   OrgProfileTable,
+  OrgRole,
 } from "./types";
 
 export type TProfileModel = {
@@ -145,8 +146,15 @@ export type TOrganization = {
   get: (profileId: number) => Promise<Org[]>;
   isOrgAdmin: (profileId: number, orgId: number) => Promise<boolean>;
   create: (profileId: number, name: string) => Promise<OrgTable | null>;
+  addMember: (profileId: number, orgId: number, role: OrgRole) => Promise<OrgProfileTable | null>;
   update: (orgId: number, name: string) => Promise<OrgTable | null>;
+  updateMemberRole: (
+    profileId: number,
+    orgId: number,
+    role: OrgRole
+  ) => Promise<OrgProfileTable | null>;
   delete: (orgId: number) => Promise<OrgTable | null>;
+  deleteMember: (profileId: number, orgId: number) => Promise<OrgProfileTable | null>;
   leave: (profileId: number, orgId: number) => Promise<OrgProfileTable | null>;
 };
 

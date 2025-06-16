@@ -14,6 +14,7 @@ import { Input } from "../ui/input";
 import ModeSelect from "../utils/ModeSelect";
 import { ROLES } from "@/config";
 import { FiPlus } from "react-icons/fi";
+import { useState } from "react";
 
 const formSchema = z.object({
   members: z.array(
@@ -41,10 +42,11 @@ const getDefualtValues = (members: OrgMember[]): FormData => {
 const OrganizationMembers = () => {
   const members = useOrgStore((state) => state.org)?.members ?? [];
   const org = useOrgStore((state) => state.org);
+  const [controlledMembers, setControlledMembers] = useState<OrgMember[]>(members);
 
   const formMethods = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: getDefualtValues(members),
+    defaultValues: getDefualtValues(controlledMembers),
   });
 
   const { control, getValues, setValue, register, watch, handleSubmit, reset } = formMethods;
@@ -59,7 +61,7 @@ const OrganizationMembers = () => {
   });
 
   const appendField = () => {
-    if (members.length >= 10) {
+    if (controlledMembers.length >= 10) {
       toast.error("No more than 10 collaborators allowed in one project");
       return;
     }
@@ -68,7 +70,7 @@ const OrganizationMembers = () => {
   };
 
   const handleRemoveCollaborator = (index: number) => {
-    const member = members[index];
+    const member = controlledMembers[index];
 
     if (member) {
       //   removeCollaborator({
@@ -99,7 +101,7 @@ const OrganizationMembers = () => {
         <Button onClick={appendField} variant="secondary" className="self-start">
           <FiPlus />
         </Button>
-        {members.length === 0 && (
+        {controlledMembers.length === 0 && (
           <p className="text-muted-foreground text-base">No members in this organization</p>
         )}
       </div>
@@ -129,7 +131,7 @@ const OrganizationMembers = () => {
               <Input
                 {...register(`members.${index}.username`)}
                 placeholder="Github username"
-                disabled={!!members[index]}
+                disabled={!!controlledMembers[index]}
                 className="w-[240px]"
               />
               <Controller
@@ -146,7 +148,7 @@ const OrganizationMembers = () => {
                   />
                 )}
               />
-              <Button className="w-full">{members[index] ? "Update" : "Add"}</Button>
+              <Button className="w-full">{controlledMembers[index] ? "Update" : "Add"}</Button>
             </form>
           </SkeletonWrapper>
         ))}

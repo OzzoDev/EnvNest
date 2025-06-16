@@ -45,6 +45,40 @@ export const organizationRouter = router({
 
     return createdOrg;
   }),
+  addMember: privateProcedure
+    .input(
+      z.object({ username: z.string(), role: z.enum(["viewer", "editor"]), orgId: z.number() })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { user } = ctx;
+      const { id: githubId } = user;
+      const { username, orgId, role } = input;
+
+      const db = await getDbClient();
+
+      const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+
+      if (!profileId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
+      }
+
+      const isOrgAdmin = await db.organization.isOrgAdmin(profileId, orgId);
+
+      if (!isOrgAdmin) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Only organization admin can delete organization",
+        });
+      }
+
+      const member = await db.profile.getByField({ username });
+
+      if (!member) {
+        throw new TRPCError({ code: "NOT_FOUND", message: `User not found username:${username}` });
+      }
+
+      return await db.organization.addMember(member.id, orgId, role);
+    }),
   update: privateProcedure
     .input(z.object({ orgId: z.number(), name: z.string() }))
     .mutation(async ({ input, ctx }) => {
@@ -77,6 +111,40 @@ export const organizationRouter = router({
 
       return updatedOrg;
     }),
+  updateMemberRole: privateProcedure
+    .input(
+      z.object({ username: z.string(), role: z.enum(["viewer", "editor"]), orgId: z.number() })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { user } = ctx;
+      const { id: githubId } = user;
+      const { username, orgId, role } = input;
+
+      const db = await getDbClient();
+
+      const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+
+      if (!profileId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
+      }
+
+      const isOrgAdmin = await db.organization.isOrgAdmin(profileId, orgId);
+
+      if (!isOrgAdmin) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Only organization admin can delete organization",
+        });
+      }
+
+      const member = await db.profile.getByField({ username });
+
+      if (!member) {
+        throw new TRPCError({ code: "NOT_FOUND", message: `User not found username:${username}` });
+      }
+
+      return await db.organization.updateMemberRole(member.id, orgId, role);
+    }),
   delete: privateProcedure.input(z.number()).mutation(async ({ input, ctx }) => {
     const { user } = ctx;
     const { id: githubId } = user;
@@ -107,6 +175,38 @@ export const organizationRouter = router({
 
     return deletedOrg;
   }),
+  deleteMember: privateProcedure
+    .input(z.object({ username: z.string(), orgId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const { user } = ctx;
+      const { id: githubId } = user;
+      const { username, orgId } = input;
+
+      const db = await getDbClient();
+
+      const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+
+      if (!profileId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
+      }
+
+      const isOrgAdmin = await db.organization.isOrgAdmin(profileId, orgId);
+
+      if (!isOrgAdmin) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Only organization admin can delete organization",
+        });
+      }
+
+      const member = await db.profile.getByField({ username });
+
+      if (!member) {
+        throw new TRPCError({ code: "NOT_FOUND", message: `User not found username:${username}` });
+      }
+
+      return await db.organization.deleteMember(member.id, orgId);
+    }),
   leave: privateProcedure.input(z.number()).mutation(async ({ input, ctx }) => {
     const { user } = ctx;
     const { id: githubId } = user;

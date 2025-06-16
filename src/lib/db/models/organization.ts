@@ -1,4 +1,4 @@
-import { Org, OrgProfileTable, OrgTable, OrgWithRole } from "@/types/types";
+import { Org, OrgProfileTable, OrgRole, OrgTable, OrgWithRole } from "@/types/types";
 import { executeQuery } from "../db";
 
 const organization = {
@@ -72,6 +72,25 @@ const organization = {
       return null;
     }
   },
+  addMember: async (
+    profileId: number,
+    orgId: number,
+    role: OrgRole
+  ): Promise<OrgProfileTable | null> => {
+    return (
+      (
+        await executeQuery<OrgProfileTable>(
+          `
+            INSERT INTO org_profile (profile_id, org_id, role)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (org_id, profile_id) DO NOTHING
+            RETURNING *;    
+          `,
+          [profileId, orgId, role]
+        )
+      )[0] ?? null
+    );
+  },
   update: async (orgId: number, name: string): Promise<OrgTable | null> => {
     try {
       return (
@@ -91,6 +110,25 @@ const organization = {
       return Promise.resolve(null);
     }
   },
+  updateMemberRole: async (
+    profileId: number,
+    orgId: number,
+    role: OrgRole
+  ): Promise<OrgProfileTable | null> => {
+    return (
+      (
+        await executeQuery<OrgProfileTable>(
+          `
+            UPDATE org_profile
+            SET role = $1
+            WHERE org_id = $2 AND profile_id = $3
+            RETURNING *;    
+          `,
+          [role, orgId, profileId]
+        )
+      )[0] ?? null
+    );
+  },
   delete: async (orgId: number): Promise<OrgTable | null> => {
     return (
       (
@@ -101,6 +139,20 @@ const organization = {
             RETURNING *;   
           `,
           [orgId]
+        )
+      )[0] ?? null
+    );
+  },
+  deleteMember: async (profileId: number, orgId: number): Promise<OrgProfileTable | null> => {
+    return (
+      (
+        await executeQuery<OrgProfileTable>(
+          `
+            DELETE FROM org_profile
+            WHERE org_id = $1 AND profile_id = $2
+            RETURNING *;    
+          `,
+          [orgId, profileId]
         )
       )[0] ?? null
     );
