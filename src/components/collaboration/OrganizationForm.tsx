@@ -60,14 +60,34 @@ const OrganizationForm = () => {
     onSuccess: () => {
       toast.success("Organization created successfully");
 
-      reset(getDefaultValues(selectedOrg));
+      reset(getDefaultValues(null));
+
+      setSelectedOrg(null);
+    },
+  });
+
+  const { mutate: udpateOrg, isPending: isUpdatingOrg } = trpc.organization.update.useMutation({
+    onMutate: () => {
+      setSelectedOrg(undefined);
+    },
+    onError: (err) => {
+      toast.error(err.message || "Something went wrong. Please try again");
+    },
+    onSuccess: () => {
+      toast.success("Organization updated successfully");
+
+      reset(getDefaultValues(null));
 
       setSelectedOrg(null);
     },
   });
 
   const onSumbit: SubmitHandler<FormData> = (data) => {
-    createOrg(data.name);
+    if (selectedOrg) {
+      udpateOrg({ orgId: selectedOrg.id, name: data.name });
+    } else {
+      createOrg(data.name);
+    }
   };
 
   const onError: SubmitErrorHandler<FormData> = (errors) => {
@@ -79,7 +99,10 @@ const OrganizationForm = () => {
       <p className="text-lg">{selectedOrg ? "Update organization" : "Create new organization"}</p>
       <form onSubmit={handleSubmit(onSumbit, onError)} className="flex gap-8">
         <Input {...register("name")} placeholder="Organization name" className="w-[240px]" />
-        <Button>Create {isCreatingOrg && <Loader2 className="animate-spin h-5 w-5" />}</Button>
+        <Button>
+          {selectedOrg ? "Update" : "Create"}{" "}
+          {(isCreatingOrg || isUpdatingOrg) && <Loader2 className="animate-spin h-5 w-5" />}
+        </Button>
       </form>
     </div>
   );
