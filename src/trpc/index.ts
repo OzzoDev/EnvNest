@@ -2,6 +2,7 @@ import { auditLogRouter } from "./routes/audit-log-router";
 import { collaboratorRouter } from "./routes/collaborator-router";
 import { environmentRouter } from "./routes/environment-router";
 import { githubRouter } from "./routes/github-router";
+import { organizationRouter } from "./routes/organization-router";
 import { profileRouter } from "./routes/profile-router";
 import { projectRouter } from "./routes/project-router";
 import { secretRouter } from "./routes/secret-router";
@@ -17,6 +18,7 @@ export const appRouter = router({
   template: templateRouter,
   github: githubRouter,
   collaborator: collaboratorRouter,
+  organization: organizationRouter,
 });
 
 export type AppRouter = typeof appRouter;

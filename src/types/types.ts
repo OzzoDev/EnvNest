@@ -23,7 +23,7 @@ export type Profile = GithubUser & {
 };
 
 // Organization
-export type Org = {
+export type OrgTable = {
   id: number;
   name: string;
   created_at: string;

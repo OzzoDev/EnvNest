@@ -9,6 +9,7 @@ import auditLogModel from "./audit-log";
 import secretActiveModel from "./secret-active";
 import secretHistoryModel from "./secret-history";
 import collaboratorModel from "./collaborator";
+import organizationModel from "./organization";
 
 let isDbInitialized = false;
 
@@ -33,5 +34,6 @@ export const getDbClient = async (): Promise<TDbClient> => {
     secretActive: secretActiveModel,
     secretHistory: secretHistoryModel,
     collaborator: collaboratorModel,
+    organization: organizationModel,
   };
 };

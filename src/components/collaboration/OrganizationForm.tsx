@@ -7,6 +7,8 @@ import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { getFirstErrorMessage } from "@/lib/utils";
+import { trpc } from "@/trpc/client";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   name: z
@@ -16,18 +18,29 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-const getDefualtValues: FormData = { name: "" };
+const defaultValues: FormData = { name: "" };
 
 const OrganizationForm = () => {
   const formMethods = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: getDefualtValues,
+    defaultValues,
   });
 
-  const { register, handleSubmit } = formMethods;
+  const { register, reset, handleSubmit } = formMethods;
+
+  const { mutate: createOrg, isPending: isCreatingOrg } = trpc.organization.create.useMutation({
+    onError: (err) => {
+      toast.error(err.message || "Something went wrong. Please try again");
+    },
+    onSuccess: () => {
+      toast.success("Organization created successfully");
+
+      reset(defaultValues);
+    },
+  });
 
   const onSumbit: SubmitHandler<FormData> = (data) => {
-    //
+    createOrg(data.name);
   };
 
   const onError: SubmitErrorHandler<FormData> = (errors) => {
@@ -38,8 +51,8 @@ const OrganizationForm = () => {
     <div className="flex flex-col gap-8">
       <p className="text-lg">Create a new organization</p>
       <form onSubmit={handleSubmit(onSumbit, onError)} className="flex gap-8">
-        <Input {...register} placeholder="Organization name" className="w-[240px]" />
-        <Button>Create</Button>
+        <Input {...register("name")} placeholder="Organization name" className="w-[240px]" />
+        <Button>Create {isCreatingOrg && <Loader2 className="animate-spin h-5 w-5" />}</Button>
       </form>
     </div>
   );

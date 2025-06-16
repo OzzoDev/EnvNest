@@ -19,6 +19,7 @@ import {
   TemplateVisibility,
   CollaboratorTable,
   ProjectWithCollaborators,
+  OrgTable,
 } from "./types";
 
 export type TProfileModel = {
@@ -137,6 +138,10 @@ export type TCollaborator = {
   delete: (profileId: number, projectId: number) => Promise<CollaboratorTable | null>;
 };
 
+export type TOrganization = {
+  create: (profileId: number, name: string) => Promise<OrgTable | null>;
+};
+
 export type TDbClient = {
   profile: TProfileModel;
   project: TProjectModel;
@@ -147,4 +152,5 @@ export type TDbClient = {
   secretActive: TSecretActive;
   secretHistory: TSecretHistory;
   collaborator: TCollaborator;
+  organization: TOrganization;
 };
