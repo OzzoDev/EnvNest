@@ -225,9 +225,17 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
         </AccordionTrigger>
         <AccordionContent>
           <div className="flex flex-col gap-y-8 p-6">
-            <Button onClick={appendField} variant="secondary" className="self-start">
-              <FiPlus />
-            </Button>
+            <div className="flex items-center gap-8">
+              <Button onClick={appendField} variant="secondary" className="self-start">
+                <FiPlus />
+              </Button>
+              {!controlledProject.collaborators ||
+                (controlledProject.collaborators.length === 0 && (
+                  <p className="text-muted-foreground text-base">
+                    No collaborators has access to this project
+                  </p>
+                ))}
+            </div>
             <ul className="flex flex-col gap-y-8 border-t pt-8 w-fit">
               {projectCollaborator.map((collaborator, index) => (
                 <SkeletonWrapper
