@@ -45,4 +45,64 @@ export const organizationRouter = router({
 
     return createdOrg;
   }),
+  delete: privateProcedure.input(z.number()).mutation(async ({ input, ctx }) => {
+    const { user } = ctx;
+    const { id: githubId } = user;
+    const orgId = input;
+
+    const db = await getDbClient();
+
+    const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+
+    if (!profileId) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
+    }
+
+    const isOrgAdmin = await db.organization.isOrgAdmin(profileId, orgId);
+
+    if (!isOrgAdmin) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Only organization admin can delete organization",
+      });
+    }
+
+    const deletedOrg = await db.organization.delete(orgId);
+
+    if (!deletedOrg) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "Organization not found" });
+    }
+
+    return deletedOrg;
+  }),
+  leave: privateProcedure.input(z.number()).mutation(async ({ input, ctx }) => {
+    const { user } = ctx;
+    const { id: githubId } = user;
+    const orgId = input;
+
+    const db = await getDbClient();
+
+    const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+
+    if (!profileId) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
+    }
+
+    const isOrgAdmin = await db.organization.isOrgAdmin(profileId, orgId);
+
+    if (isOrgAdmin) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Organization admin cannot leave organization",
+      });
+    }
+
+    const leftOrg = await db.organization.leave(profileId, orgId);
+
+    if (!leftOrg) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "Organization not found" });
+    }
+
+    return leftOrg;
+  }),
 });

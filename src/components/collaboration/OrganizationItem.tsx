@@ -5,12 +5,15 @@ import { Badge } from "../ui/badge";
 import { capitalize } from "@/lib/utils";
 import { Button } from "../ui/button";
 import AlertDialog from "../utils/AleartDialog";
+import { trpc } from "@/trpc/client";
+import { toast } from "sonner";
 
 type OrganizationItemProps = {
   org: OrgWithRole;
+  onDestructive: () => void;
 };
 
-const OrganizationItem = ({ org }: OrganizationItemProps) => {
+const OrganizationItem = ({ org, onDestructive }: OrganizationItemProps) => {
   const isAdmin = org.role === "admin";
 
   return (
@@ -29,7 +32,7 @@ const OrganizationItem = ({ org }: OrganizationItemProps) => {
             isAdmin ? "delete" : "leave"
           } this organization. This action can't be undone`}
           action={isAdmin ? "Delete" : "Leave"}
-          actionFn={isAdmin ? () => {} : () => {}}>
+          actionFn={onDestructive}>
           <Button variant="secondary" size="sm">
             {isAdmin ? "Delete" : "Leave"}
           </Button>

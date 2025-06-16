@@ -18,12 +18,22 @@ const organization = {
                 WHERE orp.org_id = o.id AND p.id != $1
             ) AS members
         FROM org o
-        INNER JOIN org_profile op
+        LEFT JOIN org_profile op
             ON op.org_id = o.id
-        WHERE o.id = $1    
       `,
       [profileId]
     );
+  },
+  isOrgAdmin: async (profileId: number, orgId: number): Promise<boolean> => {
+    return !!(await executeQuery(
+      `
+        SELECT
+            id
+        FROM org_profile
+        WHERE profile_id = $1 AND org_id = $2 AND role = 'admin'    
+    `,
+      [profileId, orgId]
+    ));
   },
   create: async (profileId: number, name: string): Promise<OrgTable | null> => {
     try {
@@ -61,6 +71,34 @@ const organization = {
       await executeQuery("ROLLBACK");
       return null;
     }
+  },
+  delete: async (orgId: number): Promise<OrgTable | null> => {
+    return (
+      (
+        await executeQuery<OrgTable>(
+          `
+            DELETE FROM org
+            WHERE id = $1  
+            RETURNING *;   
+          `,
+          [orgId]
+        )
+      )[0] ?? null
+    );
+  },
+  leave: async (profileId: number, orgId: number): Promise<OrgProfileTable | null> => {
+    return (
+      (
+        await executeQuery<OrgProfileTable>(
+          `
+            DELETE FROM org_profile
+            WHERE profile_id = $1 AND org_id = $2
+            RETURNING *;     
+          `,
+          [profileId, orgId]
+        )
+      )[0] ?? null
+    );
   },
 };
 

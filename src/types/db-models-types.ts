@@ -22,6 +22,7 @@ import {
   OrgTable,
   OrgWithRole,
   Org,
+  OrgProfileTable,
 } from "./types";
 
 export type TProfileModel = {
@@ -142,7 +143,10 @@ export type TCollaborator = {
 
 export type TOrganization = {
   get: (profileId: number) => Promise<Org[]>;
+  isOrgAdmin: (profileId: number, orgId: number) => Promise<boolean>;
   create: (profileId: number, name: string) => Promise<OrgTable | null>;
+  delete: (orgId: number) => Promise<OrgTable | null>;
+  leave: (profileId: number, orgId: number) => Promise<OrgProfileTable | null>;
 };
 
 export type TDbClient = {
