@@ -34,7 +34,7 @@ export type OrgRole = "admin" | "viewer" | "editor";
 export type OrgWithRole = OrgTable & { role: OrgRole };
 
 export type OrgMember = {
-  role: OrgRole;
+  role: Omit<OrgRole, "admin">;
   name: string;
   profileId: number;
 };

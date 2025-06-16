@@ -12,3 +12,5 @@ export const LINKS: Link[] = [
   { link: "/collaboration", name: "Collaboration" },
   { link: "/templates", name: "Templates" },
 ];
+
+export const ROLES = ["viewer", "editor"];

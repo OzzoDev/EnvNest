@@ -17,13 +17,14 @@ import { FiPlus } from "react-icons/fi";
 import { toast } from "sonner";
 import { trpc } from "@/trpc/client";
 import SkeletonWrapper from "../utils/loaders/SkeletonWrapper";
-
-const ROLES = ["viewer", "editor"];
+import { ROLES } from "@/config";
 
 const formSchema = z.object({
   collaborators: z.array(
     z.object({
-      username: z.string().nonempty("Username is required"),
+      username: z
+        .string({ message: "Username is required" })
+        .nonempty({ message: "Username is required" }),
       role: z.enum(["viewer", "editor"]),
     })
   ),
@@ -282,7 +283,6 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
                     <Button className="w-full">
                       {controlledProject.collaborators?.[index] ? "Update" : "Add"}
                     </Button>
-                    {/* {isAddingRole && <Loader2 className="animate-spin h-5 w-5" />} */}
                   </form>
                 </SkeletonWrapper>
               ))}

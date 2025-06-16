@@ -1,5 +1,6 @@
 import OrganizationForm from "@/components/collaboration/OrganizationForm";
 import OrganizationList from "@/components/collaboration/OrganizationList";
+import OrganizationMembers from "@/components/collaboration/OrganizationMembers";
 import ProjectAccessHandler from "@/components/collaboration/ProjectAccessHandler";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -22,7 +23,10 @@ const CollaborationPage = () => {
                 <OrganizationList />
               </div>
             </div>
-            <OrganizationForm />
+            <div className="flex flex-col gap-8">
+              <OrganizationForm />
+              <OrganizationMembers />
+            </div>
           </div>
         </TabsContent>
       </Tabs>
