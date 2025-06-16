@@ -20,6 +20,7 @@ import {
   CollaboratorTable,
   ProjectWithCollaborators,
   OrgTable,
+  OrgWithRole,
 } from "./types";
 
 export type TProfileModel = {
@@ -139,6 +140,7 @@ export type TCollaborator = {
 };
 
 export type TOrganization = {
+  get: (profileId: number) => Promise<OrgWithRole[]>;
   create: (profileId: number, name: string) => Promise<OrgTable | null>;
 };
 

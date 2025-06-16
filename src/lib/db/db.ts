@@ -54,7 +54,7 @@ export const initDB = async () => {
       id SERIAL PRIMARY KEY,
       org_id INTEGER REFERENCES org(id) ON DELETE CASCADE,
       profile_id INTEGER REFERENCES profile(id) ON DELETE CASCADE,
-      role TEXT NOT NULL DEFAULT 'member',
+      role TEXT NOT NULL DEFAULT 'viewer',
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       UNIQUE(org_id, profile_id)
     );

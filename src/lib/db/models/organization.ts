@@ -1,7 +1,23 @@
-import { OrgProfileTable, OrgTable } from "@/types/types";
+import { OrgProfileTable, OrgTable, OrgWithRole } from "@/types/types";
 import { executeQuery } from "../db";
 
 const organization = {
+  get: async (profileId: number): Promise<OrgWithRole[]> => {
+    return await executeQuery<OrgWithRole>(
+      `
+        SELECT
+            o.id,
+            o.name, 
+            o.created_at, 
+            op.role
+        FROM org o
+        INNER JOIN org_profile op
+            ON op.org_id = o.id
+        WHERE o.id = $1    
+      `,
+      [profileId]
+    );
+  },
   create: async (profileId: number, name: string): Promise<OrgTable | null> => {
     try {
       await executeQuery("BEGIN");

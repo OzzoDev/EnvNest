@@ -29,12 +29,16 @@ export type OrgTable = {
   created_at: string;
 };
 
+export type OrgRole = "admin" | "viewer" | "editor";
+
+export type OrgWithRole = OrgTable & { role: OrgRole };
+
 // Organization members (junction table)
 export type OrgProfileTable = {
   id: number;
   org_id: number;
   profile_id: number;
-  role: "member" | "admin" | "viewer" | "editor";
+  role: OrgRole;
   created_at: string;
 };
 

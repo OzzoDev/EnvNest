@@ -4,6 +4,26 @@ import { getDbClient } from "@/lib/db/models";
 import { TRPCError } from "@trpc/server";
 
 export const organizationRouter = router({
+  get: privateProcedure.query(async ({ ctx }) => {
+    const { user } = ctx;
+    const { id: githubId } = user;
+    const db = await getDbClient();
+
+    const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+
+    if (!profileId) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
+    }
+
+    return (await db.organization.get(profileId)).sort((a, b) => {
+      if (a.role === b.role) return 0;
+      if (a.role === "admin") return -1;
+      if (b.role === "admin") return 1;
+      if (a.role === "editor") return -1;
+      if (b.role === "editor") return 1;
+      return 0;
+    });
+  }),
   create: privateProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
     const { user } = ctx;
     const { id: githubId } = user;
