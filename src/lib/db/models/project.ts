@@ -68,6 +68,21 @@ const project = {
 
     return result[0];
   },
+  isProjectOwner: async (githubId: string, projectId: number): Promise<boolean> => {
+    return !!(
+      await executeQuery(
+        `
+          SELECT
+            project.id
+          FROM profile
+          INNER JOIN project
+            ON project.profile_id = profile.id
+          WHERE profile.github_id = $1 AND project.id = $2  
+        `,
+        [githubId, projectId]
+      )
+    )[0];
+  },
   create: async (projectData: CreateProject, rootEncryptionKey: string): Promise<ProjectTable> => {
     try {
       await executeQuery("BEGIN");

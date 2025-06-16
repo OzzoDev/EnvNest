@@ -7,6 +7,7 @@ const collaborator = {
       `
         SELECT
             p.full_name,
+            p.id AS project_id,
             (
                 SELECT json_agg(json_build_object('username', pr.username, 'role', c.role))
                 FROM collaborator c
@@ -51,6 +52,20 @@ const collaborator = {
             RETURNING *;
           `,
           [profileId, projectId, role]
+        )
+      )[0] ?? null
+    );
+  },
+  delete: async (profileId: number, projectId: number): Promise<CollaboratorTable | null> => {
+    return (
+      (
+        await executeQuery<CollaboratorTable>(
+          `
+            DELETE FROM collaborator
+            WHERE profile_id = $1 AND project_id = $2
+            RETURNING *;
+          `,
+          [profileId, projectId]
         )
       )[0] ?? null
     );

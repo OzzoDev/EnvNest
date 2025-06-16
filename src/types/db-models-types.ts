@@ -42,6 +42,7 @@ export type TProjectModel = {
   getByProfile: (githubId: number) => Promise<ProjectTable[]>;
   getById: (projectId: number, githubId: number) => Promise<ProjectTable>;
   getKey: (projectId: number, githubId: number) => Promise<ProjectKeyTable | null>;
+  isProjectOwner: (githubId: string, projectId: number) => Promise<boolean>;
   create: (projectData: CreateProject, encryptionKey: string) => Promise<ProjectTable>;
   addProject: (projectData: CreateProject) => Promise<ProjectTable>;
   addKey: (projectId: number, encryptedKey: string) => Promise<ProjectKeyTable>;
@@ -132,6 +133,7 @@ export type TCollaborator = {
   getCollaboratorsInProject: (projectId: number) => Promise<ProjectWithCollaborators[]>;
   getByProfileId: (profileId: number, projectId: number) => Promise<CollaboratorTable | null>;
   create: (profileId: number, projectId: number, role: string) => Promise<CollaboratorTable | null>;
+  delete: (profileId: number, projectId: number) => Promise<CollaboratorTable | null>;
 };
 
 export type TDbClient = {

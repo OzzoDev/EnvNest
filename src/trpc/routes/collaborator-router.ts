@@ -37,10 +37,12 @@ export const collaboratorRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Project not found" });
       }
 
-      const collaboratorId = (await db.profile.getByField({ username }))?.id;
+      const profile = await db.profile.getByField({ username });
+
+      const collaboratorId = profile?.id;
 
       if (!collaboratorId) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+        throw new TRPCError({ code: "NOT_FOUND", message: `User not found username:${username}` });
       }
 
       const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
@@ -49,19 +51,54 @@ export const collaboratorRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
       }
 
-      if (collaboratorId === profileId) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "You cannot add yourself as a collaborator",
-        });
-      }
+      // if (collaboratorId === profileId) {
+      //   throw new TRPCError({
+      //     code: "BAD_REQUEST",
+      //     message: "You cannot add yourself as a collaborator",
+      //   });
+      // }
 
       const isNew = !(await db.collaborator.getByProfileId(profileId, projectId));
 
       if (!isNew) {
-        throw new TRPCError({ code: "CONFLICT", message: "User is already collaborator" });
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: `User is already collaborator username:${username}`,
+        });
       }
 
-      return await db.collaborator.create(collaboratorId, projectId, role);
+      const collaborator = await db.collaborator.create(collaboratorId, projectId, role);
+
+      return { username: profile.username, role: collaborator?.role };
+    }),
+  delete: privateProcedure
+    .input(z.object({ username: z.string(), projectId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const { user } = ctx;
+      const { id: githubId } = user;
+      const { username, projectId } = input;
+
+      const db = await getDbClient();
+
+      const isProjectOwner = await db.project.isProjectOwner(String(githubId), projectId);
+
+      const profile = await db.profile.getByField({ username });
+
+      const collaboratorId = profile?.id;
+
+      if (!collaboratorId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: `User not found username:${username}` });
+      }
+
+      if (!isProjectOwner) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Only project owner can remove collaborator",
+        });
+      }
+
+      const collaborator = await db.collaborator.delete(collaboratorId, projectId);
+
+      return { username: profile.username, role: collaborator?.role };
     }),
 });

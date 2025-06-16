@@ -165,6 +165,7 @@ export type CollaboratorTable = {
 
 export type ProjectWithCollaborators = {
   full_name: string;
+  project_id: number;
   collaborators:
     | {
         username: string;
