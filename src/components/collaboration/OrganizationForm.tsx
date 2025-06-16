@@ -9,6 +9,9 @@ import { toast } from "sonner";
 import { getFirstErrorMessage } from "@/lib/utils";
 import { trpc } from "@/trpc/client";
 import { Loader2 } from "lucide-react";
+import { useOrgStore } from "@/store/orgStore";
+import { useEffect } from "react";
+import { Org } from "@/types/types";
 
 const formSchema = z.object({
   name: z
@@ -18,24 +21,48 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-const defaultValues: FormData = { name: "" };
+const getDefaultValues = (org: Org | null | undefined): FormData => {
+  return { name: org ? org.name : "" };
+};
 
 const OrganizationForm = () => {
+  const setSelectedOrg = useOrgStore((state) => state.setOrg);
+  const selectedOrg = useOrgStore((state) => state.org);
+  const setIsSaved = useOrgStore((state) => state.setIsSaved);
+
   const formMethods = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues,
+    defaultValues: getDefaultValues(selectedOrg),
   });
 
-  const { register, reset, handleSubmit } = formMethods;
+  const {
+    register,
+    reset,
+    handleSubmit,
+    formState: { isDirty },
+  } = formMethods;
+
+  useEffect(() => {
+    setIsSaved(!isDirty);
+  }, [isDirty]);
+
+  useEffect(() => {
+    reset(getDefaultValues(selectedOrg));
+  }, [selectedOrg]);
 
   const { mutate: createOrg, isPending: isCreatingOrg } = trpc.organization.create.useMutation({
+    onMutate: () => {
+      setSelectedOrg(undefined);
+    },
     onError: (err) => {
       toast.error(err.message || "Something went wrong. Please try again");
     },
     onSuccess: () => {
       toast.success("Organization created successfully");
 
-      reset(defaultValues);
+      reset(getDefaultValues(selectedOrg));
+
+      setSelectedOrg(null);
     },
   });
 
@@ -49,7 +76,7 @@ const OrganizationForm = () => {
 
   return (
     <div className="flex flex-col gap-8">
-      <p className="text-lg">Create a new organization</p>
+      <p className="text-lg">{selectedOrg ? "Update organization" : "Create new organization"}</p>
       <form onSubmit={handleSubmit(onSumbit, onError)} className="flex gap-8">
         <Input {...register("name")} placeholder="Organization name" className="w-[240px]" />
         <Button>Create {isCreatingOrg && <Loader2 className="animate-spin h-5 w-5" />}</Button>

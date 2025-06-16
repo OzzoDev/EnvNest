@@ -1,19 +1,22 @@
 "use client";
 
-import { OrgWithRole } from "@/types/types";
+import { Org } from "@/types/types";
 import { Badge } from "../ui/badge";
 import { capitalize } from "@/lib/utils";
 import { Button } from "../ui/button";
 import AlertDialog from "../utils/AleartDialog";
-import { trpc } from "@/trpc/client";
-import { toast } from "sonner";
+import { useOrgStore } from "@/store/orgStore";
 
 type OrganizationItemProps = {
-  org: OrgWithRole;
+  org: Org;
   onDestructive: () => void;
 };
 
 const OrganizationItem = ({ org, onDestructive }: OrganizationItemProps) => {
+  const selectedOrg = useOrgStore((state) => state.org);
+  const setSelectedOrg = useOrgStore((state) => state.setOrg);
+  const isSaved = useOrgStore((state) => state.isSaved);
+
   const isAdmin = org.role === "admin";
 
   return (
@@ -37,9 +40,16 @@ const OrganizationItem = ({ org, onDestructive }: OrganizationItemProps) => {
             {isAdmin ? "Delete" : "Leave"}
           </Button>
         </AlertDialog>
-        <Button variant="outline" size="sm">
-          Manage
-        </Button>
+        <AlertDialog
+          title="Change organization"
+          description="You have not saved your current organization. Create or update it to save it. Any unsaved changes will be lost"
+          action="Continue"
+          actionFn={() => setSelectedOrg(org)}
+          unsafe={isSaved}>
+          <Button variant="outline" size="sm" disabled={org.id === selectedOrg?.id}>
+            Manage
+          </Button>
+        </AlertDialog>
       </div>
     </li>
   );

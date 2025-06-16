@@ -5,9 +5,12 @@ import SkeletonWrapper from "../utils/loaders/SkeletonWrapper";
 import OrganizationItem from "./OrganizationItem";
 import { toast } from "sonner";
 import { Org } from "@/types/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useOrgStore } from "@/store/orgStore";
 
 const OrganizationList = () => {
+  const selectedOrg = useOrgStore((state) => state.org);
+  const setSelectedOrg = useOrgStore((state) => state.setOrg);
   const [isReadyToRender, setIsReadyToRender] = useState<boolean>(true);
 
   const {
@@ -17,6 +20,19 @@ const OrganizationList = () => {
     error: orgError,
   } = trpc.organization.get.useQuery(undefined, { retry: false });
 
+  useEffect(() => {
+    if (selectedOrg === null) {
+      setIsReadyToRender(false);
+      refetchOrgs();
+    }
+  }, [selectedOrg]);
+
+  useEffect(() => {
+    if (orgs) {
+      setIsReadyToRender(true);
+    }
+  }, [orgs]);
+
   const { mutate: deleteOrg, isPending: isDeletingOrg } = trpc.organization.delete.useMutation({
     onError: (err) => {
       toast.error(err.message || "Something went wrong. Please try again");
@@ -25,7 +41,9 @@ const OrganizationList = () => {
       toast.success("Organization deleted successfully");
 
       setIsReadyToRender(false);
-      refetchOrgs().then(() => setIsReadyToRender(true));
+      refetchOrgs();
+
+      setSelectedOrg(null);
     },
   });
 
@@ -37,7 +55,9 @@ const OrganizationList = () => {
       toast.success("Organization left successfully");
 
       setIsReadyToRender(false);
-      refetchOrgs().then(() => setIsReadyToRender(true));
+      refetchOrgs();
+
+      setSelectedOrg(null);
     },
   });
 
