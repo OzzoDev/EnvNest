@@ -133,6 +133,7 @@ export type TCollaborator = {
   getCollaboratorsInProject: (projectId: number) => Promise<ProjectWithCollaborators[]>;
   getByProfileId: (profileId: number, projectId: number) => Promise<CollaboratorTable | null>;
   create: (profileId: number, projectId: number, role: string) => Promise<CollaboratorTable | null>;
+  update: (profileId: number, projectId: number, role: string) => Promise<CollaboratorTable | null>;
   delete: (profileId: number, projectId: number) => Promise<CollaboratorTable | null>;
 };
 

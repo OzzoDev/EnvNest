@@ -56,6 +56,24 @@ const collaborator = {
       )[0] ?? null
     );
   },
+  update: async (
+    profileId: number,
+    projectId: number,
+    role: string
+  ): Promise<CollaboratorTable | null> => {
+    return (
+      (
+        await executeQuery<CollaboratorTable>(
+          `
+            UPDATE collaborator
+            SET role = $3
+            WHERE profile_id = $1 AND project_id = $2  
+          `,
+          [profileId, projectId, role]
+        )
+      )[0] ?? null
+    );
+  },
   delete: async (profileId: number, projectId: number): Promise<CollaboratorTable | null> => {
     return (
       (

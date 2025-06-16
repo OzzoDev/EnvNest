@@ -71,6 +71,38 @@ export const collaboratorRouter = router({
 
       return { username: profile.username, role: collaborator?.role };
     }),
+  update: privateProcedure
+    .input(
+      z.object({ username: z.string(), projectId: z.number(), role: z.enum(["viewer", "editor"]) })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { user } = ctx;
+      const { id: githubId } = user;
+      const { username, projectId, role } = input;
+
+      const db = await getDbClient();
+
+      const profile = await db.profile.getByField({ username });
+
+      const collaboratorId = profile?.id;
+
+      if (!collaboratorId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: `User not found username:${username}` });
+      }
+
+      const isProjectOwner = await db.project.isProjectOwner(String(githubId), projectId);
+
+      if (!isProjectOwner) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Only project owner can update role",
+        });
+      }
+
+      await db.collaborator.update(collaboratorId, projectId, role);
+
+      return { username, role };
+    }),
   delete: privateProcedure
     .input(z.object({ username: z.string(), projectId: z.number() }))
     .mutation(async ({ input, ctx }) => {

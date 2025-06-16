@@ -111,6 +111,25 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
       },
     });
 
+  const { mutate: updateRole, isPending: isUpdatingRole } = trpc.collaborator.update.useMutation({
+    onError: (err) => {
+      toast.error(err.message || "Something went wrong. Please try again");
+    },
+    onSuccess: (data) => {
+      const safeData: { username: string; role: "viewer" | "editor" } = {
+        username: data.username,
+        role: data.role === "viewer" || data.role === "editor" ? data.role : "viewer",
+      };
+
+      setControlledProject((prev) => ({
+        ...prev,
+        collaborators: (prev.collaborators ?? []).map((col) =>
+          col.username === safeData.username ? safeData : col
+        ),
+      }));
+    },
+  });
+
   const numCollaborators = controlledProject.collaborators?.length ?? 0;
 
   const {
@@ -170,10 +189,16 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
       return;
     }
 
-    addCollaboratror({ project: controlledProject.full_name, username, role });
+    const isNew = !controlledProject.collaborators?.[index];
+
+    if (isNew) {
+      addCollaboratror({ project: controlledProject.full_name, username, role });
+    } else {
+      updateRole({ projectId: project.project_id, username, role });
+    }
   };
 
-  const isLoadingUi = isRemovingCollaborator || isAddingCollaborator;
+  const isLoadingUi = isRemovingCollaborator || isAddingCollaborator || isUpdatingRole;
 
   return (
     <Accordion
