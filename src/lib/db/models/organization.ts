@@ -1,15 +1,22 @@
-import { OrgProfileTable, OrgTable, OrgWithRole } from "@/types/types";
+import { Org, OrgProfileTable, OrgTable, OrgWithRole } from "@/types/types";
 import { executeQuery } from "../db";
 
 const organization = {
-  get: async (profileId: number): Promise<OrgWithRole[]> => {
-    return await executeQuery<OrgWithRole>(
+  get: async (profileId: number): Promise<Org[]> => {
+    return await executeQuery<Org>(
       `
         SELECT
             o.id,
             o.name, 
             o.created_at, 
-            op.role
+            op.role,
+            (
+                SELECT json_agg(json_build_object('role',orp.role, 'name', p.username, 'profile_id', orp.profile_id))
+                FROM org_profile orp
+                INNER JOIN profile p
+                    ON p.id = orp.profile_id
+                WHERE orp.org_id = o.id AND p.id != $1
+            ) AS members
         FROM org o
         INNER JOIN org_profile op
             ON op.org_id = o.id

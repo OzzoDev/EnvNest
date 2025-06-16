@@ -33,6 +33,14 @@ export type OrgRole = "admin" | "viewer" | "editor";
 
 export type OrgWithRole = OrgTable & { role: OrgRole };
 
+export type OrgMember = {
+  role: OrgRole;
+  name: string;
+  profileId: number;
+};
+
+export type Org = OrgTable & { role: OrgRole; members: OrgMember[] | null };
+
 // Organization members (junction table)
 export type OrgProfileTable = {
   id: number;

@@ -23,6 +23,8 @@ const OrganizationList = () => {
     return <p className="text-muted-foreground text-sm">No orgranizations created</p>;
   }
 
+  console.log("Orgs: ", orgs);
+
   return (
     <SkeletonWrapper
       skeletons={5}
