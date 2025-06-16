@@ -1,3 +1,4 @@
+import OrganizationForm from "@/components/collaboration/OrganizationForm";
 import ProjectAccessHandler from "@/components/collaboration/ProjectAccessHandler";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -12,10 +13,10 @@ const CollaborationPage = () => {
         <TabsContent value="Accesss" className="p-10">
           <ProjectAccessHandler />
         </TabsContent>
-        <TabsContent value="Organizations" className="p-10"></TabsContent>
+        <TabsContent value="Organizations" className="p-10">
+          <OrganizationForm />
+        </TabsContent>
       </Tabs>
-      {/* <AccessHandler />
-      <InviteForm /> */}
     </div>
   );
 };
