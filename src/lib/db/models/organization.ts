@@ -72,6 +72,25 @@ const organization = {
       return null;
     }
   },
+  update: async (orgId: number, name: string): Promise<OrgTable | null> => {
+    try {
+      return (
+        (
+          await executeQuery<OrgTable>(
+            `
+                UPDATE org
+                SET name = $1
+                WHERE id = $2
+                RETURNING *;   
+            `,
+            [name, orgId]
+          )
+        )[0] ?? null
+      );
+    } catch {
+      return Promise.resolve(null);
+    }
+  },
   delete: async (orgId: number): Promise<OrgTable | null> => {
     return (
       (

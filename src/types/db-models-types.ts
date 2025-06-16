@@ -145,6 +145,7 @@ export type TOrganization = {
   get: (profileId: number) => Promise<Org[]>;
   isOrgAdmin: (profileId: number, orgId: number) => Promise<boolean>;
   create: (profileId: number, name: string) => Promise<OrgTable | null>;
+  update: (orgId: number, name: string) => Promise<OrgTable | null>;
   delete: (orgId: number) => Promise<OrgTable | null>;
   leave: (profileId: number, orgId: number) => Promise<OrgProfileTable | null>;
 };

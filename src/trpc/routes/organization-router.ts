@@ -45,6 +45,38 @@ export const organizationRouter = router({
 
     return createdOrg;
   }),
+  update: privateProcedure
+    .input(z.object({ orgId: z.number(), name: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const { user } = ctx;
+      const { id: githubId } = user;
+      const { orgId, name } = input;
+
+      const db = await getDbClient();
+
+      const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+
+      if (!profileId) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
+      }
+
+      const isOrgAdmin = await db.organization.isOrgAdmin(profileId, orgId);
+
+      if (!isOrgAdmin) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Only organization admin can delete organization",
+        });
+      }
+
+      const updatedOrg = await db.organization.update(orgId, name);
+
+      if (!updatedOrg) {
+        throw new TRPCError({ code: "CONFLICT", message: "Organization name must be unique" });
+      }
+
+      return updatedOrg;
+    }),
   delete: privateProcedure.input(z.number()).mutation(async ({ input, ctx }) => {
     const { user } = ctx;
     const { id: githubId } = user;
