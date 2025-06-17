@@ -69,6 +69,7 @@ export const initDB = async () => {
       full_name TEXT NOT NULL,
       owner TEXT NOT NULL,
       url TEXT NOT NULL,
+      private BOOLEAN NOT NULL DEFAULT false,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       UNIQUE(profile_id, name)
     );

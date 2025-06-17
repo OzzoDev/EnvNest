@@ -13,11 +13,14 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { GoPlus } from "react-icons/go";
 import { useSidebarStore } from "@/store/sidebarStore";
 import { useVirtualQuery } from "@/hooks/use-virtual-query";
-import { GithubRepo } from "@/types/types";
+import { GithubRepo, OrgTable } from "@/types/types";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import Select from "@/components/utils/Select";
 
 const NewProjectForm = () => {
   const { state, isMobile, toggleSidebar } = useSidebar();
   const [repo, setRepo] = useState<string | null>(null);
+  const [org, setOrg] = useState<string | null>(null);
   const projectId = useProjectStore((state) => state.projectId);
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setSecretId = useProjectStore((state) => state.setSecretId);
@@ -35,6 +38,16 @@ const NewProjectForm = () => {
     () => trpc.github.getAvailableRepos.useQuery(undefined, { retry: false }),
     [],
     "repos"
+  );
+
+  const {
+    data: orgs = [],
+    isLoading: isLoadingOrgs,
+    refetch: refetchOrgs,
+  } = useVirtualQuery<OrgTable[]>(
+    () => trpc.organization.getAsAdmin.useQuery(undefined, { retry: false }),
+    [],
+    "orgs"
   );
 
   const { mutate: createProject, isPending: isCreatingProject } = trpc.project.create.useMutation({
@@ -55,6 +68,7 @@ const NewProjectForm = () => {
 
   useEffect(() => {
     refetchRepos();
+    refetchOrgs();
   }, [projectId]);
 
   useEffect(() => {
@@ -91,7 +105,17 @@ const NewProjectForm = () => {
     );
   }
 
-  const isLoadingUI = isLoadingRepos || isLoadingSidebar;
+  const canCreateInOrg = (): boolean => {
+    const repoData = repos.find((rep) => rep.full_name === repo);
+
+    if (!repoData || repoData.private || !orgs || orgs.length === 0) {
+      return false;
+    }
+
+    return true;
+  };
+
+  const isLoadingUI = isLoadingRepos || isLoadingOrgs || isLoadingSidebar;
 
   return (
     <SkeletonWrapper skeletons={2} isLoading={isLoadingUI} className="flex flex-col gap-y-4">
@@ -108,17 +132,98 @@ const NewProjectForm = () => {
         />
         {repo &&
           (isSaved ? (
-            <Button type="submit" variant="secondary">
-              Create
-            </Button>
+            <>
+              {canCreateInOrg() ? (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button type="button" variant="secondary">
+                      Create
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="flex flex-col gap-8 w-[240px] bg-background">
+                    <p className="text-sm text-muted-foreground">
+                      Want to share this project with your team? Create it under an organization to
+                      give members access.
+                    </p>
+                    <Select
+                      placeholder="Select organization"
+                      label="Organizations"
+                      data={orgs.map((o) => o.name)}
+                      onSelect={(o) => setOrg(o)}
+                    />
+                    <div className="flex flex-col gap-4">
+                      <Button
+                        type="button"
+                        onClick={() => onSubmit()}
+                        disabled={!org}
+                        variant="default"
+                        className="w-full">
+                        Create
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={() => onSubmit()}
+                        variant="outline"
+                        className="w-full">
+                        Set private
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              ) : (
+                <Button type="submit" variant="secondary">
+                  Create
+                </Button>
+              )}
+            </>
           ) : (
-            <AlertDialog
-              title="Create new project with unsaved changes?"
-              description="You current project is unsaved. Any unsaved changes will be lost. This action cannot be undone. Are you sure you want to continue?"
-              action="Continue"
-              actionFn={() => onSubmit()}>
-              <Button variant="secondary">Create</Button>
-            </AlertDialog>
+            <>
+              {canCreateInOrg() ? (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button type="button" variant="secondary">
+                      Create
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="flex flex-col gap-8 w-[240px] bg-background">
+                    <p className="text-sm text-muted-foreground">
+                      Want to share this project with your team? Create it under an organization to
+                      give members access.
+                    </p>
+                    <Select
+                      placeholder="Select organization"
+                      label="Organizations"
+                      data={orgs.map((o) => o.name)}
+                      onSelect={(o) => setOrg(o)}
+                    />
+                    <div className="flex flex-col gap-4">
+                      <AlertDialog
+                        title="Create new project with unsaved changes?"
+                        description="You current project is unsaved. Any unsaved changes will be lost. This action cannot be undone. Are you sure you want to continue?"
+                        action="Create"
+                        actionFn={() => onSubmit()}>
+                        <Button variant="default">Create</Button>
+                      </AlertDialog>
+                      <AlertDialog
+                        title="Create new project with unsaved changes?"
+                        description="You current project is unsaved. Any unsaved changes will be lost. This action cannot be undone. Are you sure you want to continue?"
+                        action="Create"
+                        actionFn={() => onSubmit()}>
+                        <Button variant="outline">Create</Button>
+                      </AlertDialog>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              ) : (
+                <AlertDialog
+                  title="Create new project with unsaved changes?"
+                  description="You current project is unsaved. Any unsaved changes will be lost. This action cannot be undone. Are you sure you want to continue?"
+                  action="Create"
+                  actionFn={() => onSubmit()}>
+                  <Button variant="secondary">Create</Button>
+                </AlertDialog>
+              )}
+            </>
           ))}
       </form>
     </SkeletonWrapper>

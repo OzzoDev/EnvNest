@@ -63,7 +63,9 @@ const OrganizationMembers = () => {
 
   useEffect(() => {
     reset(getDefualtValues(controlledMembers));
-    setOrg({ ...org, members: controlledMembers } as Org);
+    if (org) {
+      setOrg({ ...org, members: controlledMembers } as Org);
+    }
   }, [controlledMembers]);
 
   const {

@@ -59,6 +59,7 @@ export type ProjectTable = {
   full_name: string;
   owner: string;
   url: string;
+  private: boolean;
   created_at: string;
 };
 
@@ -66,7 +67,7 @@ export type CreateProject = Omit<ProjectTable, "id" | "created_at">;
 
 export type UpdateProjectName = Omit<
   ProjectTable,
-  "id" | "profile_id" | "owner" | "url" | "created_at"
+  "id" | "profile_id" | "owner" | "url" | "private" | "created_at"
 >;
 
 //All data for project and secret
@@ -224,7 +225,7 @@ export type GithubRepo = {
   fork: boolean;
   disabled: boolean;
   archived: boolean;
-  private: false;
+  private: boolean;
   html_url: string;
   created_at: string;
 };

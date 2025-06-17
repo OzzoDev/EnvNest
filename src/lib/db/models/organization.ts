@@ -25,6 +25,21 @@ const organization = {
       [profileId]
     );
   },
+  getAsAdmin: async (profileId: number): Promise<OrgTable[]> => {
+    return await executeQuery<OrgTable>(
+      `
+          SELECT
+            o.id, 
+            o.name, 
+            o.created_at
+          FROM org o
+          INNER JOIN org_profile op
+            ON op.org_id = o.id
+          WHERE op.profile_id = $1 AND op.role = 'admin'  
+        `,
+      [profileId]
+    );
+  },
   getMember: async (profileId: number, orgId: number): Promise<OrgProfileTable | null> => {
     return (
       (

@@ -7,6 +7,7 @@ export const organizationRouter = router({
   get: privateProcedure.query(async ({ ctx }) => {
     const { user } = ctx;
     const { id: githubId } = user;
+
     const db = await getDbClient();
 
     const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
@@ -23,6 +24,20 @@ export const organizationRouter = router({
       if (b.role === "editor") return 1;
       return 0;
     });
+  }),
+  getAsAdmin: privateProcedure.query(async ({ ctx }) => {
+    const { user } = ctx;
+    const { id: githubId } = user;
+
+    const db = await getDbClient();
+
+    const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+
+    if (!profileId) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
+    }
+
+    return await db.organization.getAsAdmin(profileId);
   }),
   create: privateProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
     const { user } = ctx;

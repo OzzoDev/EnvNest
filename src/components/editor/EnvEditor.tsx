@@ -56,8 +56,6 @@ const EnvEditor = () => {
   const [isValid, setIsValid] = useState<boolean>(false);
 
   const getEnvVariables = () => {
-    console.log("Secret: ", secret);
-
     if (!secret?.content) {
       return [];
     }
@@ -306,16 +304,18 @@ const EnvEditor = () => {
                   )}
                 </div>
               </div>
-              <div className="flex gap-4 self-end">
-                <Button
-                  variant="outline"
-                  onClick={() => copyToClipBoard(secret.content.split("&&").join("\n"))}>
-                  Copy
-                </Button>
-                <Button variant="outline" onClick={() => setShowAll(!showAll)}>
-                  {showAll ? "Hide all" : "Show all"}
-                </Button>
-              </div>
+              {envVariables && envVariables.length > 0 && (
+                <div className="flex gap-4 self-end">
+                  <Button
+                    variant="outline"
+                    onClick={() => copyToClipBoard(secret.content.split("&&").join("\n"))}>
+                    Copy
+                  </Button>
+                  <Button variant="outline" onClick={() => setShowAll(!showAll)}>
+                    {showAll ? "Hide all" : "Show all"}
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </SkeletonWrapper>
