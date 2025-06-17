@@ -39,10 +39,12 @@ export const projectRouter = router({
         full_name: z.string(),
         owner: z.string(),
         url: z.string(),
+        isPrivate: z.boolean(),
+        orgId: z.number().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const { repo_id, name, full_name, owner, url } = input;
+      const { repo_id, name, full_name, owner, url, isPrivate, orgId } = input;
 
       const { user } = ctx;
       const { id: github_id } = user;
@@ -56,8 +58,9 @@ export const projectRouter = router({
       }
 
       const project = await db.project.create(
-        { profile_id: profile.id, repo_id, name, full_name, owner, url },
-        process.env.ENCRYPTION_ROOT_KEY!
+        { profile_id: profile.id, repo_id, name, full_name, owner, url, private: isPrivate },
+        process.env.ENCRYPTION_ROOT_KEY!,
+        orgId
       );
 
       return project;

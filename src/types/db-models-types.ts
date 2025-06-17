@@ -24,6 +24,7 @@ import {
   Org,
   OrgProfileTable,
   OrgRole,
+  OrgProjectTable,
 } from "./types";
 
 export type TProfileModel = {
@@ -48,9 +49,14 @@ export type TProjectModel = {
   getById: (projectId: number, githubId: number) => Promise<ProjectTable>;
   getKey: (projectId: number, githubId: number) => Promise<ProjectKeyTable | null>;
   isProjectOwner: (githubId: string, projectId: number) => Promise<boolean>;
-  create: (projectData: CreateProject, encryptionKey: string) => Promise<ProjectTable>;
+  create: (
+    projectData: CreateProject,
+    encryptionKey: string,
+    orgId?: number
+  ) => Promise<ProjectTable>;
   addProject: (projectData: CreateProject) => Promise<ProjectTable>;
   addKey: (projectId: number, encryptedKey: string) => Promise<ProjectKeyTable>;
+  addOrg: (projectId: number, orgId: number) => Promise<OrgProjectTable>;
   updateName: (project: UpdateProjectName) => Promise<ProjectTable | null>;
   delete: (projectId: number) => Promise<ProjectTable>;
 };

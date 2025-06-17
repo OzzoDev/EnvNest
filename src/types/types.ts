@@ -100,6 +100,11 @@ export type ProjectKeyTable = {
   created_at: string;
 };
 
+export type OrgProjectTable = {
+  projectId: number;
+  orgId: number;
+};
+
 // Environments under a project (e.g., "development", "production")
 export type EnvironmentTable = {
   id: number;

@@ -15,7 +15,7 @@ const collaborator = {
                 WHERE c.project_id = p.id
             ) AS collaborators
             FROM project p
-            WHERE p.id = $1;  
+            WHERE p.id = $1 AND p.private IS FALSE;  
       `,
       [projectId]
     );

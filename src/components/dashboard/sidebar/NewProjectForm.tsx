@@ -88,12 +88,16 @@ const NewProjectForm = () => {
       return;
     }
 
+    const orgId = orgs.find((o) => o.name === org)?.id;
+
     createProject({
       repo_id: repoData.id,
       name: repoData.name,
       full_name: repoData.full_name,
       owner: repoData.owner.login!,
       url: repoData.html_url,
+      isPrivate: repoData.private,
+      orgId,
     });
   };
 

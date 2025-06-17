@@ -76,6 +76,14 @@ export const initDB = async () => {
   `);
 
   await executeQuery(`
+    CREATE TABLE IF NOT EXISTS org_project (
+      project_id INTEGER REFERENCES project(id) ON DELETE CASCADE,
+      org_id INTEGER REFERENCES org(id) ON DELETE CASCADE,
+      PRIMARY KEY (project_id, org_id)
+    )  
+  `);
+
+  await executeQuery(`
     CREATE TABLE IF NOT EXISTS project_key (
       id SERIAL PRIMARY KEY,
       project_id INTEGER REFERENCES project(id) ON DELETE CASCADE,

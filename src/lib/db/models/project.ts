@@ -1,4 +1,10 @@
-import { CreateProject, ProjectTable, ProjectKeyTable, UpdateProjectName } from "@/types/types";
+import {
+  CreateProject,
+  ProjectTable,
+  ProjectKeyTable,
+  UpdateProjectName,
+  OrgProjectTable,
+} from "@/types/types";
 import { executeQuery } from "../db";
 import { aesEncrypt, generateAESKey } from "@/lib/aes-helpers";
 
@@ -6,18 +12,19 @@ const project = {
   getByProfile: async (githubId: number): Promise<ProjectTable[]> => {
     return await executeQuery<ProjectTable>(
       `
-      SELECT
-        project.id AS id,
-        profile.id AS profile_id,
-        project.repo_id AS repo_id,
-        project.name AS name,
-        project.full_name AS full_name,
-        project.url AS url,
-        project.created_at AS created_at
-      FROM project
-      INNER JOIN profile
-        ON profile.id = project.profile_id 
-      WHERE profile.github_id = $1
+        SELECT
+          project.id AS id,
+          project.profile_id AS profile_id,
+          project.repo_id AS repo_id,
+          project.name AS name,
+          project.full_name AS full_name,
+          project.url AS url,
+          project.created_at AS created_at
+        FROM project
+        INNER JOIN org_project ON org_project.project_id = project.id
+        INNER JOIN org_profile ON org_profile.org_id = org_project.org_id
+        INNER JOIN profile ON profile.id = org_profile.profile_id
+        WHERE profile.github_id = $1
     `,
       [githubId]
     );
@@ -83,7 +90,11 @@ const project = {
       )
     )[0];
   },
-  create: async (projectData: CreateProject, rootEncryptionKey: string): Promise<ProjectTable> => {
+  create: async (
+    projectData: CreateProject,
+    rootEncryptionKey: string,
+    orgId?: number
+  ): Promise<ProjectTable> => {
     try {
       await executeQuery("BEGIN");
 
@@ -95,6 +106,10 @@ const project = {
 
       await project.addKey(projectId, aesEncrypt(encryptionKey, rootEncryptionKey));
 
+      if (orgId) {
+        await project.addOrg(projectId, orgId);
+      }
+
       await executeQuery("COMMIT");
 
       return createdProjected;
@@ -104,15 +119,15 @@ const project = {
     }
   },
   addProject: async (projectData: CreateProject): Promise<ProjectTable> => {
-    const { profile_id, repo_id, name, full_name, owner, url } = projectData;
+    const { profile_id, repo_id, name, full_name, owner, url, private: isPrivate } = projectData;
 
     const result = await executeQuery<ProjectTable>(
       `
-        INSERT INTO project (profile_id, repo_id, name, full_name, owner, url)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        INSERT INTO project (profile_id, repo_id, name, full_name, owner, url, private)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING *;    
       `,
-      [profile_id, repo_id, name, full_name, owner, url]
+      [profile_id, repo_id, name, full_name, owner, url, isPrivate]
     );
 
     return result[0];
@@ -128,6 +143,18 @@ const project = {
     );
 
     return result[0];
+  },
+  addOrg: async (projectId: number, orgId: number): Promise<OrgProjectTable> => {
+    return (
+      await executeQuery<OrgProjectTable>(
+        `
+          INSERT INTO org_project (project_id, org_id)
+          VALUES ($1, $2)
+          RETURNING *;
+        `,
+        [projectId, orgId]
+      )
+    )[0];
   },
   updateName: async (project: UpdateProjectName): Promise<ProjectTable | null> => {
     if (!project) {
