@@ -67,8 +67,8 @@
 
 ## Collaborator page
 
-- [] Organization form
-- [] Invite collaborator to project
+- [x] Organization form
+- [x] Invite collaborator to project
 - [] Handle the owner's accesstoken in the db to allow all projects member can fetch from github with this access
 
 ---

@@ -6,10 +6,6 @@ import AlertDialog from "../utils/AleartDialog";
 import { Button } from "../ui/button";
 import { useProjectStore } from "@/store/projectStore";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
-import { z } from "zod";
-import { formSchema } from "./EnvEditor";
-import { usePathname } from "next/navigation";
 
 type EnvInputProps = {
   index: number;
@@ -18,6 +14,7 @@ type EnvInputProps = {
 
 const EnvInput = ({ index, onDelete }: EnvInputProps) => {
   const isSaved = useProjectStore((state) => state.isSaved);
+  const showAll = useProjectStore((state) => state.showAll);
   const { control } = useFormContext();
 
   const watchedField = useWatch({
@@ -73,7 +70,7 @@ const EnvInput = ({ index, onDelete }: EnvInputProps) => {
         />
       </div>
       <div className="pl-14 lg:p-0 w-full">
-        <SecretToggle name={`envVariables.${index}.value`} />
+        <SecretToggle name={`envVariables.${index}.value`} visibilityToggle={showAll} />
       </div>
     </div>
   );
