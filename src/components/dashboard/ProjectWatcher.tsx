@@ -9,7 +9,6 @@ const ProjectWatcher = () => {
   const hasHydrated = useProjectStore((state) => state.hasHydrated);
   const secretId = useProjectStore((state) => state.secretId);
   const projectSecretRefs = useProjectStore((state) => state.projectSecretRefs);
-
   const setIsSaved = useProjectStore((state) => state.setIsSaved);
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setProject = useProjectStore((state) => state.setProject);
@@ -17,6 +16,7 @@ const ProjectWatcher = () => {
   const setSecretId = useProjectStore((state) => state.setSecretId);
   const addProjectSecretRefs = useProjectStore((state) => state.addProjectSecretRefs);
   const setLoadingStates = useProjectStore((state) => state.setLoadingStates);
+  const setShowAll = useProjectStore((state) => state.setShowAll);
 
   const { data: projects, isLoading: isLoadingProjects } = trpc.project.get.useQuery();
 
@@ -64,6 +64,8 @@ const ProjectWatcher = () => {
     if (secretId && projectId) {
       addProjectSecretRefs(projectId, secretId);
     }
+
+    setShowAll(false);
   }, [secretId, projectId]);
 
   useEffect(() => {

@@ -26,6 +26,7 @@ import { GrRevert } from "react-icons/gr";
 import ActivityLog from "../dashboard/ActivityLog";
 import SkeletonWrapper from "../utils/loaders/SkeletonWrapper";
 import { usePathname } from "next/navigation";
+import { copyToClipBoard } from "@/lib/utils";
 
 export const formSchema = z.object({
   envVariables: z.array(z.object({ name: z.string().nonempty(), value: z.string().nonempty() })),
@@ -306,7 +307,11 @@ const EnvEditor = () => {
                 </div>
               </div>
               <div className="flex gap-4 self-end">
-                <Button variant="outline">Copy</Button>
+                <Button
+                  variant="outline"
+                  onClick={() => copyToClipBoard(secret.content.split("&&").join("\n"))}>
+                  Copy
+                </Button>
                 <Button variant="outline" onClick={() => setShowAll(!showAll)}>
                   {showAll ? "Hide all" : "Show all"}
                 </Button>
