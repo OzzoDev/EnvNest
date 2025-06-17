@@ -54,8 +54,10 @@ const OrganizationMembers = () => {
   const { control, getValues, setValue, register, watch, handleSubmit, reset } = formMethods;
 
   useEffect(() => {
-    if (members && members.length > 0) {
+    if (members.length > 0) {
       reset(getDefualtValues(members));
+    } else if (members.length === 0 && getValues("members").length > 0) {
+      reset(getDefualtValues([]));
     }
   }, [members]);
 
@@ -201,7 +203,7 @@ const OrganizationMembers = () => {
   }
 
   return (
-    <div className="flex flex-col gap-y-8 p-6">
+    <div className="flex flex-col gap-y-8 sm:p-6">
       <div className="flex items-center gap-8">
         <Button onClick={appendField} variant="secondary" className="self-start">
           <FiPlus />
@@ -210,29 +212,28 @@ const OrganizationMembers = () => {
           <p className="text-muted-foreground text-base">No members in this organization</p>
         )}
       </div>
-      <ul className="flex flex-col gap-8 border-t pt-8 w-fit">
+      <ul className="flex flex-col items-center md:items-start gap-y-8 md:gap-y-4 lg:gap-y-8 border-t pt-8 w-full md:w-fit">
         {orgMembers.map((member, index) => (
           <SkeletonWrapper
             key={member.id}
             skeletons={4}
             isLoading={isLoadingUi}
             width="w-[200px]"
-            className="flex gap-x-8">
+            className="flex flex-col items-center md:items-start gap-y-8 md:gap-y-4 lg:gap-y-8 border-t pt-8 w-full">
             <form
               key={member.id}
               onSubmit={handleSubmit((data) => onSubmit(data, index))}
-              className="flex gap-x-8">
+              className="flex flex-col md:flex-row gap-4 lg:gap-8 gap-y-4 w-fit md:w-full">
               <AlertDialog
                 title="Remove member"
                 description={`Are you sure you want remove ${member.username} as a member`}
                 action="Remove"
                 actionFn={() => handleRemoveCollaborator(index)}
                 unsafe={isEmptyField(index)}>
-                <Button type="button" variant="outline">
+                <Button type="button" variant="outline" className="w-fit">
                   <MdClose />
                 </Button>
               </AlertDialog>
-
               <Input
                 {...register(`members.${index}.username`)}
                 placeholder="Github username"

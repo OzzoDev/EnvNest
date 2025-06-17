@@ -54,7 +54,7 @@ export const collaboratorRouter = router({
       if (collaboratorId === profileId) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "You cannot add yourself as a collaborator",
+          message: `You cannot add yourself as a collaborator username:${username}`,
         });
       }
 

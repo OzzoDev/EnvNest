@@ -21,7 +21,6 @@ export const useOrgStore = create<OrgStore>()(
       name: "org-store",
       onRehydrateStorage: () => (state) => {
         state?.setIsSaved(true);
-        // state?.setOrg(null);
       },
     }
   )

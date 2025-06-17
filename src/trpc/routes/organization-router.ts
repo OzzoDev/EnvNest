@@ -82,7 +82,7 @@ export const organizationRouter = router({
       if (memberId === profileId) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "You cannot add yourself as a member",
+          message: `You cannot add yourself as a member username:${username}`,
         });
       }
 

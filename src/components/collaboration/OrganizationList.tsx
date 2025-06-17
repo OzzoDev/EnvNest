@@ -79,7 +79,7 @@ const OrganizationList = () => {
   }
 
   if (orgs?.length === 0) {
-    return <p className="text-muted-foreground text-sm">No orgranizations created</p>;
+    return <p className="text-muted-foreground text-sm">No orgranization created</p>;
   }
 
   const isLoadingUi = isLoadingOrgs || isDeletingOrg || isLeavingOrg || !isReadyToRender;

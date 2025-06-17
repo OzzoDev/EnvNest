@@ -97,7 +97,9 @@ const OrganizationForm = () => {
   return (
     <div className="flex flex-col gap-8">
       <p className="text-lg">{selectedOrg ? "Update organization" : "Create new organization"}</p>
-      <form onSubmit={handleSubmit(onSumbit, onError)} className="flex gap-8">
+      <form
+        onSubmit={handleSubmit(onSumbit, onError)}
+        className="flex flex-col sm:flex-row gap-4 sm:gap-8">
         <Input {...register("name")} placeholder="Organization name" className="w-[240px]" />
         <div className="flex gap-4">
           <Button>
@@ -105,7 +107,7 @@ const OrganizationForm = () => {
             {(isCreatingOrg || isUpdatingOrg) && <Loader2 className="animate-spin h-5 w-5" />}
           </Button>
           {selectedOrg && (
-            <Button onClick={() => setSelectedOrg(null)} variant="outline">
+            <Button onClick={() => setSelectedOrg(undefined)} variant="outline">
               Cancel
             </Button>
           )}

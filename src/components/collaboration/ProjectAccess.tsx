@@ -209,14 +209,14 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
       type="single"
       collapsible
       onValueChange={() => setIsVisible((prev) => !prev)}
-      className="w-full flex flex-col p-0">
-      <AccordionItem value="item-1" className="flex flex-col border-0">
+      className="w-full flex flex-col p-0 overflow-hidden">
+      <AccordionItem value="item-1" className="flex flex-col border-0 w-full">
         <AccordionTrigger
           className={cn(
             buttonVariants({ variant: "ghost" }),
             "flex justify-between w-full text-muted-foreground"
           )}>
-          <p className="text-lg ">{controlledProject.full_name}</p>
+          <p className="text-sm sm:text-lg ">{controlledProject.full_name}</p>
           <div className="flex gap-4">
             {numCollaborators > 0 && (
               <div className="flex items-center gap-1">
@@ -228,7 +228,7 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
           </div>
         </AccordionTrigger>
         <AccordionContent>
-          <div className="flex flex-col gap-y-8 p-6">
+          <div className="flex flex-col gap-y-8 p-2 py-6 sm:p-6 w-full">
             <div className="flex items-center gap-8">
               <Button onClick={appendField} variant="secondary" className="self-start">
                 <FiPlus />
@@ -240,29 +240,28 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
                   </p>
                 ))}
             </div>
-            <ul className="flex flex-col gap-y-8 border-t pt-8 w-fit">
+            <ul className="flex flex-col items-center md:items-start gap-y-8 md:gap-y-4 lg:gap-y-8 border-t pt-8 w-full md:w-fit">
               {projectCollaborator.map((collaborator, index) => (
                 <SkeletonWrapper
                   key={collaborator.id}
                   skeletons={4}
                   isLoading={isLoadingUi}
                   width="w-[200px]"
-                  className="flex gap-x-8">
+                  className="flex flex-col items-center md:items-start gap-y-8 md:gap-y-4 lg:gap-y-8 pt-8 w-full">
                   <form
                     key={collaborator.id}
                     onSubmit={handleSubmit((data) => onSubmit(data, index))}
-                    className="flex gap-x-8">
+                    className="flex flex-col md:flex-row gap-4 lg:gap-8 gap-y-4 w-fit md:w-full">
                     <AlertDialog
                       title="Remove collaborator"
                       description={`Are you sure you want remove ${collaborator.username} as a collaborator`}
                       action="Remove"
                       actionFn={() => handleRemoveCollaborator(index)}
                       unsafe={isEmptyField(index)}>
-                      <Button type="button" variant="outline">
+                      <Button type="button" variant="outline" className="w-fit">
                         <MdClose />
                       </Button>
                     </AlertDialog>
-
                     <Input
                       {...register(`collaborators.${index}.username`)}
                       placeholder="Github username"
@@ -283,7 +282,14 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
                         />
                       )}
                     />
-                    <Button className="w-full">
+                    <Button
+                      className="w-full"
+                      disabled={
+                        controlledProject.collaborators?.[index]
+                          ? getValues("collaborators")[index].role ===
+                            controlledProject.collaborators?.[index].role
+                          : false
+                      }>
                       {controlledProject.collaborators?.[index] ? "Update" : "Add"}
                     </Button>
                   </form>
