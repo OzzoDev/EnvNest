@@ -77,7 +77,29 @@ export const organizationRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: `User not found username:${username}` });
       }
 
-      return await db.organization.addMember(member.id, orgId, role);
+      const memberId = member.id;
+
+      if (memberId === profileId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "You cannot add yourself as a member",
+        });
+      }
+
+      const isNew = !(await db.organization.getMember(memberId, orgId));
+
+      if (!isNew) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: `User is already member username:${username}`,
+        });
+      }
+
+      await db.organization.addMember(member.id, orgId, role);
+
+      const newMember = await db.organization.getMember(memberId, orgId);
+
+      return { username: member.username, role: newMember?.role!, profileId: memberId };
     }),
   update: privateProcedure
     .input(z.object({ orgId: z.number(), name: z.string() }))
@@ -143,7 +165,13 @@ export const organizationRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: `User not found username:${username}` });
       }
 
-      return await db.organization.updateMemberRole(member.id, orgId, role);
+      const memberId = member.id;
+
+      await db.organization.updateMemberRole(member.id, orgId, role);
+
+      const newMember = await db.organization.getMember(memberId, orgId);
+
+      return { username: member.username, role: newMember?.role!, profileId: memberId };
     }),
   delete: privateProcedure.input(z.number()).mutation(async ({ input, ctx }) => {
     const { user } = ctx;
@@ -205,7 +233,18 @@ export const organizationRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: `User not found username:${username}` });
       }
 
-      return await db.organization.deleteMember(member.id, orgId);
+      const memberId = member.id;
+
+      if (memberId === profileId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "You cannot add yourself as a member",
+        });
+      }
+
+      await db.organization.deleteMember(member.id, orgId);
+
+      return { username: member.username };
     }),
   leave: privateProcedure.input(z.number()).mutation(async ({ input, ctx }) => {
     const { user } = ctx;

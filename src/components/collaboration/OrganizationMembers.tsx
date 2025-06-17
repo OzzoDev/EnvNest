@@ -1,7 +1,7 @@
 "use client";
 
 import { useOrgStore } from "@/store/orgStore";
-import { OrgMember } from "@/types/types";
+import { Org, OrgMember } from "@/types/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import z from "zod";
@@ -14,7 +14,8 @@ import { Input } from "../ui/input";
 import ModeSelect from "../utils/ModeSelect";
 import { ROLES } from "@/config";
 import { FiPlus } from "react-icons/fi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { trpc } from "@/trpc/client";
 
 const formSchema = z.object({
   members: z.array(
@@ -42,6 +43,7 @@ const getDefualtValues = (members: OrgMember[]): FormData => {
 const OrganizationMembers = () => {
   const members = useOrgStore((state) => state.org)?.members ?? [];
   const org = useOrgStore((state) => state.org);
+  const setOrg = useOrgStore((state) => state.setOrg);
   const [controlledMembers, setControlledMembers] = useState<OrgMember[]>(members);
 
   const formMethods = useForm<FormData>({
@@ -50,6 +52,17 @@ const OrganizationMembers = () => {
   });
 
   const { control, getValues, setValue, register, watch, handleSubmit, reset } = formMethods;
+
+  useEffect(() => {
+    if (members && members.length > 0) {
+      reset(getDefualtValues(members));
+    }
+  }, [members]);
+
+  useEffect(() => {
+    reset(getDefualtValues(controlledMembers));
+    setOrg({ ...org, members: controlledMembers } as Org);
+  }, [controlledMembers]);
 
   const {
     fields: orgMembers,
@@ -60,8 +73,72 @@ const OrganizationMembers = () => {
     name: "members",
   });
 
+  const { mutate: removeMember, isPending: isRemovingMember } =
+    trpc.organization.deleteMember.useMutation({
+      onError: (err) => {
+        toast.error(err.message || "Something went wrong. Please try again");
+      },
+      onSuccess: (data) => {
+        toast.success("Collaborator removed successfully");
+
+        setControlledMembers((prev) => prev.filter((member) => member.name !== data.username));
+      },
+    });
+
+  const { mutate: addMember, isPending: isAddingMember } = trpc.organization.addMember.useMutation({
+    onError: (err) => {
+      const errorMessage = err.message;
+
+      if (!errorMessage) {
+        toast.error("Something went wrong. Please try again");
+        return;
+      }
+
+      const [message, errorUsername] = errorMessage.split("username:");
+
+      const errorMsg = errorUsername ? `${message} '${errorUsername}'` : err.message;
+
+      toast.error(errorMsg);
+
+      setValue(
+        "members",
+        getValues("members").map((member) => ({
+          ...member,
+          username: member.username === errorUsername ? "" : member.username,
+          role: "viewer",
+        }))
+      );
+    },
+    onSuccess: (data) => {
+      toast.success("Member added successfully");
+
+      setControlledMembers((prev) => [
+        ...prev,
+        { name: data.username, role: data.role, profileId: data.profileId },
+      ]);
+    },
+  });
+
+  const { mutate: updateMemberRole, isPending: isUpdatingMemberRole } =
+    trpc.organization.updateMemberRole.useMutation({
+      onError: (err) => {
+        toast.error(err.message || "Something went wrong. Please try again");
+      },
+      onSuccess: (data) => {
+        toast.success("Role updated successfully");
+
+        setControlledMembers((prev) =>
+          prev.map((member) =>
+            member.name === data.username
+              ? { name: data.username, role: data.role, profileId: data.profileId }
+              : member
+          )
+        );
+      },
+    });
+
   const appendField = () => {
-    if (controlledMembers.length >= 10) {
+    if (orgMembers.length >= 10) {
       toast.error("No more than 10 collaborators allowed in one project");
       return;
     }
@@ -73,10 +150,10 @@ const OrganizationMembers = () => {
     const member = controlledMembers[index];
 
     if (member) {
-      //   removeCollaborator({
-      //     projectId: controlledProject.project_id,
-      //     username: collaborator?.username,
-      //   });
+      removeMember({
+        username: member.name,
+        orgId: org?.id!,
+      });
     } else {
       remove(index);
     }
@@ -87,9 +164,37 @@ const OrganizationMembers = () => {
     return !field?.username && field?.role === "viewer";
   };
 
-  const onSubmit = (data: FormData, index: number) => {};
+  const onSubmit = (data: FormData, index: number) => {
+    const { role, username } = data.members[index];
 
-  const isLoadingUi = false;
+    const usernames = getValues("members").map((col) => col.username);
+    const duplicates = new Set(usernames);
+
+    if (duplicates.size !== usernames.length) {
+      toast.error("You cannot add the same user twice inside the same project");
+
+      reset(
+        getDefualtValues(
+          members.map((member, index) => ({
+            ...member,
+            name: index === usernames.lastIndexOf(member.name) ? "" : member.name,
+          }))
+        )
+      );
+
+      return;
+    }
+
+    const isNew = !controlledMembers[index];
+
+    if (isNew) {
+      addMember({ username, role, orgId: org?.id! });
+    } else {
+      updateMemberRole({ username, role, orgId: org?.id! });
+    }
+  };
+
+  const isLoadingUi = isRemovingMember || isAddingMember || isUpdatingMemberRole;
 
   if (!org) {
     return null;
@@ -101,7 +206,7 @@ const OrganizationMembers = () => {
         <Button onClick={appendField} variant="secondary" className="self-start">
           <FiPlus />
         </Button>
-        {controlledMembers.length === 0 && (
+        {orgMembers.length === 0 && (
           <p className="text-muted-foreground text-base">No members in this organization</p>
         )}
       </div>
@@ -118,7 +223,7 @@ const OrganizationMembers = () => {
               onSubmit={handleSubmit((data) => onSubmit(data, index))}
               className="flex gap-x-8">
               <AlertDialog
-                title="Remove collaborator"
+                title="Remove member"
                 description={`Are you sure you want remove ${member.username} as a member`}
                 action="Remove"
                 actionFn={() => handleRemoveCollaborator(index)}
@@ -148,7 +253,15 @@ const OrganizationMembers = () => {
                   />
                 )}
               />
-              <Button className="w-full">{controlledMembers[index] ? "Update" : "Add"}</Button>
+              <Button
+                className="w-full"
+                disabled={
+                  controlledMembers[index]
+                    ? getValues("members")[index].role === controlledMembers[index].role
+                    : false
+                }>
+                {controlledMembers[index] ? "Update" : "Add"}
+              </Button>
             </form>
           </SkeletonWrapper>
         ))}

@@ -16,6 +16,7 @@ const OrganizationList = () => {
   const {
     data: orgs,
     isLoading: isLoadingOrgs,
+    isFetching: isFetchingOrgs,
     refetch: refetchOrgs,
     error: orgError,
   } = trpc.organization.get.useQuery(undefined, { retry: false });
@@ -28,10 +29,10 @@ const OrganizationList = () => {
   }, [selectedOrg]);
 
   useEffect(() => {
-    if (orgs) {
+    if (!isFetchingOrgs && !orgError) {
       setIsReadyToRender(true);
     }
-  }, [orgs]);
+  }, [isFetchingOrgs]);
 
   const { mutate: deleteOrg, isPending: isDeletingOrg } = trpc.organization.delete.useMutation({
     onError: (err) => {
@@ -91,7 +92,11 @@ const OrganizationList = () => {
       className="flex flex-col gap-4">
       <ul className="pl-4">
         {orgs?.map((org) => (
-          <OrganizationItem key={org.id} org={org} onDestructive={() => handleDestructive(org)} />
+          <OrganizationItem
+            key={org.id}
+            org={org as Org}
+            onDestructive={() => handleDestructive(org as Org)}
+          />
         ))}
       </ul>
     </SkeletonWrapper>

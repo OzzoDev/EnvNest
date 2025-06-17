@@ -99,10 +99,17 @@ const OrganizationForm = () => {
       <p className="text-lg">{selectedOrg ? "Update organization" : "Create new organization"}</p>
       <form onSubmit={handleSubmit(onSumbit, onError)} className="flex gap-8">
         <Input {...register("name")} placeholder="Organization name" className="w-[240px]" />
-        <Button>
-          {selectedOrg ? "Update" : "Create"}{" "}
-          {(isCreatingOrg || isUpdatingOrg) && <Loader2 className="animate-spin h-5 w-5" />}
-        </Button>
+        <div className="flex gap-4">
+          <Button>
+            {selectedOrg ? "Update" : "Create"}
+            {(isCreatingOrg || isUpdatingOrg) && <Loader2 className="animate-spin h-5 w-5" />}
+          </Button>
+          {selectedOrg && (
+            <Button onClick={() => setSelectedOrg(null)} variant="outline">
+              Cancel
+            </Button>
+          )}
+        </div>
       </form>
     </div>
   );

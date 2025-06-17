@@ -20,8 +20,23 @@ const organization = {
         FROM org o
         LEFT JOIN org_profile op
             ON op.org_id = o.id
+        WHERE op.profile_id = $1
       `,
       [profileId]
+    );
+  },
+  getMember: async (profileId: number, orgId: number): Promise<OrgProfileTable | null> => {
+    return (
+      (
+        await executeQuery<OrgProfileTable>(
+          `
+            SELECT *
+            FROM org_profile
+            WHERE profile_id = $1 AND org_id = $2    
+          `,
+          [profileId, orgId]
+        )
+      )[0] ?? null
     );
   },
   isOrgAdmin: async (profileId: number, orgId: number): Promise<boolean> => {

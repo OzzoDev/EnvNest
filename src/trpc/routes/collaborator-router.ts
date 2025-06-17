@@ -51,12 +51,12 @@ export const collaboratorRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
       }
 
-      // if (collaboratorId === profileId) {
-      //   throw new TRPCError({
-      //     code: "BAD_REQUEST",
-      //     message: "You cannot add yourself as a collaborator",
-      //   });
-      // }
+      if (collaboratorId === profileId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "You cannot add yourself as a collaborator",
+        });
+      }
 
       const isNew = !(await db.collaborator.getByProfileId(profileId, projectId));
 

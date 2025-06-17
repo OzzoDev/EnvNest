@@ -84,7 +84,6 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
           return;
         }
 
-        const values = getValues("collaborators");
         const [message, errorUsername] = errorMessage.split("username:");
 
         const errorMsg = errorUsername ? `${message} '${errorUsername}'` : err.message;
@@ -93,7 +92,7 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
 
         setValue(
           "collaborators",
-          values.map((val) => ({
+          getValues("collaborators").map((val) => ({
             ...val,
             username: val.username === errorUsername ? "" : val.username,
           }))
@@ -104,6 +103,8 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
           username: data.username,
           role: data.role === "viewer" || data.role === "editor" ? data.role : "viewer",
         };
+
+        toast.success("Collaborator added successfully");
 
         setControlledProject((prev) => ({
           ...prev,
@@ -121,6 +122,8 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
         username: data.username,
         role: data.role === "viewer" || data.role === "editor" ? data.role : "viewer",
       };
+
+      toast.success("Role updated successfuly");
 
       setControlledProject((prev) => ({
         ...prev,

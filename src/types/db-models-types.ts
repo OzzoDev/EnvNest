@@ -144,6 +144,7 @@ export type TCollaborator = {
 
 export type TOrganization = {
   get: (profileId: number) => Promise<Org[]>;
+  getMember: (profileId: number, orgId: number) => Promise<OrgProfileTable | null>;
   isOrgAdmin: (profileId: number, orgId: number) => Promise<boolean>;
   create: (profileId: number, name: string) => Promise<OrgTable | null>;
   addMember: (profileId: number, orgId: number, role: OrgRole) => Promise<OrgProfileTable | null>;
