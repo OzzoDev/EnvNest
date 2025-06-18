@@ -20,7 +20,9 @@ const ProjectList = () => {
   const project = useProjectStore((state) => state.project);
 
   const setProjectId = useProjectStore((state) => state.setProjectId);
+  const setProject = useProjectStore((state) => state.setProject);
   const setSecretId = useProjectStore((state) => state.setSecretId);
+  const setSecret = useProjectStore((state) => state.setSecret);
   const isSaved = useProjectStore((state) => state.isSaved);
   const isDeletingProject = useProjectStore((state) => state.isDeletingProject);
   const setIsDeletingProject = useProjectStore((state) => state.setIsDeletingProject);
@@ -46,6 +48,15 @@ const ProjectList = () => {
   useEffect(() => {
     if (projects) {
       setIsDeletingProject(false);
+
+      const isNotValidProjectId = !projects.some((pro) => pro.id === projectId);
+
+      if (isNotValidProjectId) {
+        setProjectId(null);
+        setProject(null);
+        setSecretId(null);
+        setSecret(null);
+      }
     }
   }, [projects]);
 

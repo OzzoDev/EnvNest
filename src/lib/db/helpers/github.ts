@@ -162,11 +162,14 @@ const github = {
 
         return repoVisibility !== projectVisibility;
       })
-      .map((pro) => ({ id: pro.id, private: !!pro.private }));
+      .map((pro) => ({
+        id: pro.id,
+        private: repos.find((rep) => rep.id === pro.repo_id)?.private ?? pro.private,
+      }));
 
-    await Promise.all([
-      unsyncedProjects.map((pro) => db.project.syncProjectVisibility(pro.id, !pro.private)),
-    ]);
+    await Promise.all(
+      unsyncedProjects.map((pro) => db.project.syncProjectVisibility(pro.id, pro.private))
+    );
   },
 };
 

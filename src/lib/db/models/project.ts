@@ -13,24 +13,24 @@ const project = {
   getByProfile: async (githubId: number): Promise<ProjectTable[]> => {
     return await executeQuery<ProjectTable>(
       `
-       SELECT DISTINCT
-        project.id,
-        project.profile_id,
-        project.repo_id,
-        project.name,
-        project.full_name,
-        project.url,
-        project.owner,
-        project.private,
-        project.created_at
-      FROM project
-      LEFT JOIN org_project ON org_project.project_id = project.id
-      LEFT JOIN org_profile ON org_profile.org_id = org_project.org_id
-      LEFT JOIN profile AS org_profile_user ON org_profile.profile_id = org_profile_user.id
-      JOIN profile AS owner_profile ON project.profile_id = owner_profile.id
-      WHERE
-        org_profile_user.github_id = $1
-        OR owner_profile.github_id = $1;
+        SELECT DISTINCT
+          project.id,
+          project.profile_id,
+          project.repo_id,
+          project.name,
+          project.full_name,
+          project.url,
+          project.owner,
+          project.private,
+          project.created_at
+        FROM project
+        LEFT JOIN org_project ON org_project.project_id = project.id
+        LEFT JOIN org_profile ON org_profile.org_id = org_project.org_id
+        LEFT JOIN profile AS org_profile_user ON org_profile.profile_id = org_profile_user.id
+        JOIN profile AS owner_profile ON project.profile_id = owner_profile.id
+        WHERE
+          (org_profile_user.github_id = $1 OR owner_profile.github_id = $1)
+          AND project.private = false
     `,
       [githubId]
     );
@@ -40,31 +40,30 @@ const project = {
       (
         await executeQuery<ProjectTable>(
           `
-          SELECT DISTINCT
-            project.id,
-            project.profile_id,
-            project.repo_id,
-            project.name,
-            project.full_name,
-            project.url,
-            project.owner,
-            project.private,
-            project.created_at
-          FROM project
-          LEFT JOIN org_project 
-            ON org_project.project_id = project.id
-          LEFT JOIN org_profile 
-            ON org_profile.org_id = org_project.org_id
-          LEFT JOIN profile AS org_profile_user 
-            ON org_profile.profile_id = org_profile_user.id
-          JOIN profile AS owner_profile ON project.profile_id = owner_profile.id
-          WHERE
-            project.id = $1
-            AND (
-              org_profile_user.github_id = $2
-              OR owner_profile.github_id = $2
-            )
-        `,
+            SELECT DISTINCT
+              project.id,
+              project.profile_id,
+              project.repo_id,
+              project.name,
+              project.full_name,
+              project.url,
+              project.owner,
+              project.private,
+              project.created_at
+            FROM project
+            LEFT JOIN org_project 
+              ON org_project.project_id = project.id
+            LEFT JOIN org_profile 
+              ON org_profile.org_id = org_project.org_id
+            LEFT JOIN profile AS org_profile_user 
+              ON org_profile.profile_id = org_profile_user.id
+            JOIN profile AS owner_profile 
+              ON project.profile_id = owner_profile.id
+            WHERE
+              project.id = $1
+              AND (org_profile_user.github_id = $2 OR owner_profile.github_id = $2)
+              AND project.private = false
+          `,
           [projectId, githubId]
         )
       )[0] ?? null
