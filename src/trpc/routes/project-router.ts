@@ -67,9 +67,18 @@ export const projectRouter = router({
     }),
   delete: privateProcedure
     .input(z.object({ projectId: z.number() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      const { user } = ctx;
+      const { id: githubId } = user;
       const { projectId } = input;
       const db = await getDbClient();
+
+      if (!(await db.project.hasWriteAccess(String(githubId), projectId))) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You lack the permission required to perform this action",
+        });
+      }
 
       return await db.project.delete(projectId);
     }),

@@ -119,6 +119,13 @@ export const secretRouter = router({
 
       const db = await getDbClient();
 
+      if (!(await db.project.hasWriteAccess(String(githubId), projectId))) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You lack the permission required to perform this action",
+        });
+      }
+
       const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
 
       if (!profileId) {
@@ -184,6 +191,13 @@ export const secretRouter = router({
 
       const db = await getDbClient();
 
+      if (!(await db.project.hasWriteAccess(String(githubId), projectId))) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You lack the permission required to perform this action",
+        });
+      }
+
       const projectKey = (await db.project.getKey(projectId, githubId))?.encrypted_key;
 
       if (!projectKey) {
@@ -216,15 +230,28 @@ export const secretRouter = router({
       return { ...updatedSecret, content: decryptedUpdatedSecret };
     }),
   delete: privateProcedure
-    .input(z.object({ secretId: z.number().nullable() }))
-    .mutation(async ({ input }) => {
-      const { secretId } = input;
+    .input(z.object({ secretId: z.number().nullable(), projectId: z.number().nullable() }))
+    .mutation(async ({ input, ctx }) => {
+      const { user } = ctx;
+      const { id: githubId } = user;
+      const { secretId, projectId } = input;
 
       if (!secretId) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "SecretId must be provided" });
       }
 
+      if (!projectId) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "ProjectId must be provided" });
+      }
+
       const db = await getDbClient();
+
+      if (!(await db.project.hasWriteAccess(String(githubId), projectId))) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You lack the permission required to perform this action",
+        });
+      }
 
       return await db.secret.delete(secretId);
     }),

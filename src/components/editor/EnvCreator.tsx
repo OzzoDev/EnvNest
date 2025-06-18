@@ -58,8 +58,8 @@ const EnvCreator = () => {
 
       toast.success(`${formData.environment} .env file created successfully`);
     },
-    onError: () => {
-      toast.success(`Error creating ${formData.environment} .env file`);
+    onError: (err) => {
+      toast.error(err.message || "Something went wrong. Please try again");
     },
   });
 

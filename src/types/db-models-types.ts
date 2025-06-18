@@ -49,6 +49,7 @@ export type TProjectModel = {
   getKey: (projectId: number, githubId: number) => Promise<ProjectKeyTable | null>;
   getProjectOwner: (projectId: number) => Promise<Profile | null>;
   isProjectOwner: (githubId: string, projectId: number) => Promise<boolean>;
+  hasWriteAccess: (githubId: string, projectId: number) => Promise<boolean>;
   create: (
     projectData: CreateProject,
     encryptionKey: string,

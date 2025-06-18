@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { EyeOff, Eye } from "lucide-react";
 import { useFormContext, Controller } from "react-hook-form";
@@ -14,11 +14,21 @@ type SecretToggleProps = {
 const SecretToggle = ({ name, visibilityToggle }: SecretToggleProps) => {
   const { control, getValues } = useFormContext();
   const value = getValues(name);
-  const [isVisible, setIsVisible] = useState(!value);
+  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const initialized = useRef(false);
 
-  useEffect(() => {
-    setIsVisible(!!visibilityToggle);
-  }, [visibilityToggle]);
+  // useEffect(() => {
+  //   setIsVisible(!!visibilityToggle);
+  // }, [visibilityToggle]);
+
+  // useEffect(() => {
+  //   if (!initialized.current) {
+  //     setIsVisible(!value);
+  //     initialized.current = true;
+  //   }
+  // }, [value]);
+
+  console.log(isVisible);
 
   return (
     <div className="relative w-full">

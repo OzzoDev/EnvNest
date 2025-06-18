@@ -8,6 +8,7 @@ import { trpc } from "@/trpc/client";
 import { Github, User } from "lucide-react";
 import Link from "next/link";
 import SkeletonWrapper from "../utils/loaders/SkeletonWrapper";
+import { toast } from "sonner";
 
 const DashboardHeader = () => {
   const project = useProjectStore((state) => state.project);
@@ -18,6 +19,9 @@ const DashboardHeader = () => {
   const deleteProjectSecretRef = useProjectStore((state) => state.deleteProjectSecretRef);
 
   const { mutate } = trpc.project.delete.useMutation({
+    onError: (err) => {
+      toast.error(err.message || "Something went wrong. Please try again");
+    },
     onSuccess: () => {
       if (typeof projectId === "number") {
         deleteProjectSecretRef(projectId);

@@ -171,6 +171,41 @@ const project = {
       )
     )[0];
   },
+  hasWriteAccess: async (githubId: string, projectId: number): Promise<boolean> => {
+    return !!(
+      await executeQuery(
+        `
+          SELECT pr.id
+          FROM profile pr
+          WHERE pr.github_id = $1
+            AND EXISTS (
+              SELECT 1
+              FROM project p
+              WHERE p.id = $2
+                AND p.private = false
+                AND (
+                  EXISTS (
+                    SELECT 1
+                    FROM org_project opj
+                    JOIN org_profile op ON op.org_id = opj.org_id
+                    WHERE opj.project_id = p.id
+                      AND op.profile_id = pr.id
+                      AND (op.role = 'admin' OR op.role = 'editor')
+                  )
+                  OR EXISTS (
+                    SELECT 1
+                    FROM collaborator c
+                    WHERE c.project_id = p.id
+                      AND c.profile_id = pr.id
+                      AND c.role = 'editor'
+                  )
+                )
+            )
+        `,
+        [githubId, projectId]
+      )
+    )[0];
+  },
   create: async (
     projectData: CreateProject,
     rootEncryptionKey: string,

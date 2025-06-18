@@ -144,8 +144,8 @@ const EnvEditor = () => {
       setSecretId(null);
       setSecret(null);
     },
-    onError: () => {
-      toast.error("Error deleting .env file. Please try again");
+    onError: (err) => {
+      toast.error(err.message || "Something went wrong. Please try again");
     },
   });
 
@@ -213,7 +213,7 @@ const EnvEditor = () => {
                   title="Delete .env file"
                   description={`Are you sure you want to delete this .env file. This action can't be undone.`}
                   action="Delete"
-                  actionFn={() => deleteSecret({ secretId })}>
+                  actionFn={() => deleteSecret({ secretId, projectId })}>
                   <Button type="button" variant="secondary">
                     Delete
                   </Button>
