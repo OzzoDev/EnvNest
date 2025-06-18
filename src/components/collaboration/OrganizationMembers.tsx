@@ -16,6 +16,7 @@ import { ROLES } from "@/config";
 import { FiPlus } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import { trpc } from "@/trpc/client";
+import isEqual from "lodash/isEqual";
 
 const formSchema = z.object({
   members: z.array(
@@ -56,17 +57,18 @@ const OrganizationMembers = () => {
   useEffect(() => {
     if (members.length > 0) {
       reset(getDefualtValues(members));
+      setControlledMembers(members);
     } else if (members.length === 0 && getValues("members").length > 0) {
       reset(getDefualtValues([]));
+      setControlledMembers([]);
     }
   }, [members]);
 
   useEffect(() => {
-    reset(getDefualtValues(controlledMembers));
-    if (org) {
+    if (org && !isEqual(org.members, controlledMembers)) {
       setOrg({ ...org, members: controlledMembers } as Org);
     }
-  }, [controlledMembers]);
+  }, [controlledMembers, setOrg]);
 
   const {
     fields: orgMembers,
@@ -83,8 +85,7 @@ const OrganizationMembers = () => {
         toast.error(err.message || "Something went wrong. Please try again");
       },
       onSuccess: (data) => {
-        toast.success("Collaborator removed successfully");
-
+        toast.success("Member removed successfully");
         setControlledMembers((prev) => prev.filter((member) => member.name !== data.username));
       },
     });
@@ -115,7 +116,6 @@ const OrganizationMembers = () => {
     },
     onSuccess: (data) => {
       toast.success("Member added successfully");
-
       setControlledMembers((prev) => [
         ...prev,
         { name: data.username, role: data.role, profileId: data.profileId },
@@ -130,7 +130,6 @@ const OrganizationMembers = () => {
       },
       onSuccess: (data) => {
         toast.success("Role updated successfully");
-
         setControlledMembers((prev) =>
           prev.map((member) =>
             member.name === data.username
@@ -179,9 +178,9 @@ const OrganizationMembers = () => {
 
       reset(
         getDefualtValues(
-          members.map((member, index) => ({
+          members.map((member, idx) => ({
             ...member,
-            name: index === usernames.lastIndexOf(member.name) ? "" : member.name,
+            name: idx === usernames.lastIndexOf(member.name) ? "" : member.name,
           }))
         )
       );
@@ -205,8 +204,8 @@ const OrganizationMembers = () => {
   }
 
   return (
-    <div className="flex flex-col gap-y-8 sm:p-6">
-      <div className="flex items-center gap-8">
+    <div className="flex flex-col gap-y-8 sm:p-6 w-full">
+      <div className="flex items-center gap-8 w-full">
         <Button onClick={appendField} variant="secondary" className="self-start">
           <FiPlus />
         </Button>
@@ -214,14 +213,14 @@ const OrganizationMembers = () => {
           <p className="text-muted-foreground text-base">No members in this organization</p>
         )}
       </div>
-      <ul className="flex flex-col items-center md:items-start gap-y-8 md:gap-y-4 lg:gap-y-8 border-t pt-8 w-full md:w-fit">
+      <ul className="flex flex-col items-center md:items-start gap-y-8 md:gap-y-4 lg:gap-y-8 border-t pt-8 w-full ">
         {orgMembers.map((member, index) => (
           <SkeletonWrapper
             key={member.id}
             skeletons={4}
             isLoading={isLoadingUi}
-            width="w-[200px]"
-            className="flex flex-col items-center md:items-start gap-y-8 md:gap-y-4 lg:gap-y-8 border-t pt-8 w-full">
+            width="w-[200px] md:w-full"
+            className="flex flex-col items-center md:items-start gap-y-8 md:gap-y-4 lg:gap-y-8 w-full">
             <form
               key={member.id}
               onSubmit={handleSubmit((data) => onSubmit(data, index))}

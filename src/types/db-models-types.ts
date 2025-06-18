@@ -20,7 +20,6 @@ import {
   CollaboratorTable,
   ProjectWithCollaborators,
   OrgTable,
-  OrgWithRole,
   Org,
   OrgProfileTable,
   OrgRole,
@@ -46,8 +45,9 @@ export type TProfileModel = {
 
 export type TProjectModel = {
   getByProfile: (githubId: number) => Promise<ProjectTable[]>;
-  getById: (projectId: number, githubId: number) => Promise<ProjectTable>;
+  getById: (projectId: number, githubId: number) => Promise<ProjectTable | null>;
   getKey: (projectId: number, githubId: number) => Promise<ProjectKeyTable | null>;
+  getProjectOwner: (githubId: string, projectId: number) => Promise<Profile | null>;
   isProjectOwner: (githubId: string, projectId: number) => Promise<boolean>;
   create: (
     projectData: CreateProject,

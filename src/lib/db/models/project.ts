@@ -4,6 +4,7 @@ import {
   ProjectKeyTable,
   UpdateProjectName,
   OrgProjectTable,
+  Profile,
 } from "@/types/types";
 import { executeQuery } from "../db";
 import { aesEncrypt, generateAESKey } from "@/lib/aes-helpers";
@@ -19,6 +20,7 @@ const project = {
         project.name,
         project.full_name,
         project.url,
+        project.owner,
         project.private,
         project.created_at
       FROM project
@@ -33,27 +35,67 @@ const project = {
       [githubId]
     );
   },
-  getById: async (projectId: number, githubId: number): Promise<ProjectTable> => {
+  getById: async (projectId: number, githubId: number): Promise<ProjectTable | null> => {
     return (
-      await executeQuery<ProjectTable>(
-        `
-          SELECT 
-            p.id, 
-            p.profile_id,
-            p.repo_id,
-            p.name, 
-            p.full_name, 
-            p.owner,
-            p.url,
-            p.created_at
-          FROM project p
-          INNER JOIN profile pr
-            ON pr.id = p.profile_id
-          WHERE p.id = $1 AND pr.github_id = $2
+      (
+        await executeQuery<ProjectTable>(
+          `
+          SELECT DISTINCT
+            project.id,
+            project.profile_id,
+            project.repo_id,
+            project.name,
+            project.full_name,
+            project.url,
+            project.owner,
+            project.private,
+            project.created_at
+          FROM project
+          LEFT JOIN org_project 
+            ON org_project.project_id = project.id
+          LEFT JOIN org_profile 
+            ON org_profile.org_id = org_project.org_id
+          LEFT JOIN profile AS org_profile_user 
+            ON org_profile.profile_id = org_profile_user.id
+          JOIN profile AS owner_profile ON project.profile_id = owner_profile.id
+          WHERE
+            project.id = $1
+            AND (
+              org_profile_user.github_id = $2
+              OR owner_profile.github_id = $2
+            )
         `,
-        [projectId, githubId]
-      )
-    )[0];
+          [projectId, githubId]
+        )
+      )[0] ?? null
+    );
+  },
+  getProjectOwner: async (githubId: string, projectId: number): Promise<Profile | null> => {
+    const results = await executeQuery<Profile>(
+      `
+        SELECT 
+          p.id, 
+          p.github_id, 
+          p.username, 
+          p.email, 
+          p.name,
+          p.image, 
+          p.created_at
+        FROM profile p
+        JOIN org_profile op ON op.profile_id = p.id AND op.role = 'admin'
+        JOIN org o ON o.id = op.org_id
+        JOIN org_project opj ON opj.org_id = o.id AND opj.project_id = $2
+        WHERE EXISTS (
+          SELECT 1 FROM org_profile op2
+          JOIN profile p2 ON p2.id = op2.profile_id
+          WHERE op2.org_id = o.id AND p2.github_id = $1
+        )
+        LIMIT 1;
+      `,
+      [githubId, projectId]
+    );
+
+    return results[0] ?? null;
   },
   getKey: async (projectId: number, githubId: number): Promise<ProjectKeyTable | null> => {
     const result = await executeQuery<ProjectKeyTable>(
@@ -66,19 +108,27 @@ const project = {
         FROM project_key pk
         INNER JOIN project p 
           ON p.id = pk.project_id
-        INNER JOIN profile pr
+        INNER JOIN profile pr 
           ON pr.id = p.profile_id
-        WHERE pk.project_id = $1 AND pr.github_id = $2
+        LEFT JOIN org_project opj 
+          ON opj.project_id = p.id
+        LEFT JOIN org_profile op 
+          ON op.org_id = opj.org_id
+        LEFT JOIN profile org_pr 
+          ON org_pr.id = op.profile_id
+        WHERE pk.project_id = $1
+          AND (
+            pr.github_id = $2 -- project owner
+            OR org_pr.github_id = $2 -- org member
+          )
+        LIMIT 1;
       `,
       [projectId, githubId]
     );
 
-    if (result.length === 0) {
-      return null;
-    }
-
-    return result[0];
+    return result[0] ?? null;
   },
+
   isProjectOwner: async (githubId: string, projectId: number): Promise<boolean> => {
     return !!(
       await executeQuery(

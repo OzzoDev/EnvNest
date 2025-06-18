@@ -25,7 +25,7 @@ const EnvCreator = () => {
   const setError = useProjectStore((state) => state.setError);
 
   const { data: environments, error: environmentsError } = trpc.environment.getAvailable.useQuery(
-    { owner: project?.owner!, repo: project?.name!, projectId: Number(projectId) },
+    { repo: project?.name!, projectId: Number(projectId) },
     { enabled: !!project && !!projectId, retry: false }
   );
 
@@ -35,7 +35,6 @@ const EnvCreator = () => {
     refetch: refetchPaths,
   } = trpc.github.getPaths.useQuery(
     {
-      owner: project?.owner!,
       repo: project?.name!,
       projectId: Number(projectId),
       environment: ENVIRONMENTS.find((env) => env.label === formData.environment)?.value!,
@@ -146,7 +145,7 @@ const EnvCreator = () => {
             />
           )}
           {isValid && (
-            <Button type="submit" variant="secondary" className="w-fit mt-1">
+            <Button type="submit" variant="secondary" className="w-fit">
               Create
             </Button>
           )}

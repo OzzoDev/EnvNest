@@ -14,11 +14,14 @@ const DashboardHeader = () => {
   const projectId = useProjectStore((state) => state.projectId);
   const isLoading = useProjectStore((state) => state.isLoading);
   const isDeletingProject = useProjectStore((state) => state.isDeletingProject);
-
   const deleteProject = useProjectStore((state) => state.deleteProject);
+  const deleteProjectSecretRef = useProjectStore((state) => state.deleteProjectSecretRef);
 
   const { mutate } = trpc.project.delete.useMutation({
     onSuccess: () => {
+      if (typeof projectId === "number") {
+        deleteProjectSecretRef(projectId);
+      }
       deleteProject();
     },
   });

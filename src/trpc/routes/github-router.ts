@@ -32,20 +32,30 @@ export const githubRouter = router({
   getPaths: privateProcedure
     .input(
       z.object({
-        owner: z.string(),
         repo: z.string(),
         projectId: z.number(),
         environment: z.string(),
       })
     )
     .query(async ({ input, ctx }) => {
-      const { owner, repo, projectId, environment } = input;
+      const { user } = ctx;
+      const { id: githubId } = user;
       const { accessToken } = ctx.session;
+
+      const { repo, projectId, environment } = input;
+
+      const db = await getDbClient();
+
+      const owner = await db.project.getProjectOwner(String(githubId), projectId);
+
+      if (!owner) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Project owner not found" });
+      }
 
       const helpers = await getHelpersClient();
 
       return await helpers.github.getPaths(
-        owner,
+        owner.username,
         repo,
         accessToken!,
         projectId,

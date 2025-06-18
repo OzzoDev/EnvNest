@@ -157,7 +157,6 @@ const SecretSelector = () => {
           <ModeSelect
             selectPlaceholder="Select environment"
             selectLabel="Environments"
-            isRequired={false}
             disabled={!isSaved}
             options={environments}
             value={formData.environment}
@@ -167,7 +166,6 @@ const SecretSelector = () => {
             <ModeSelect
               selectPlaceholder="Select path"
               selectLabel="Paths"
-              isRequired={false}
               disabled={!isSaved}
               options={paths}
               value={formData.path}
