@@ -38,15 +38,13 @@ export const githubRouter = router({
       })
     )
     .query(async ({ input, ctx }) => {
-      const { user } = ctx;
-      const { id: githubId } = user;
       const { accessToken } = ctx.session;
 
       const { repo, projectId, environment } = input;
 
       const db = await getDbClient();
 
-      const owner = await db.project.getProjectOwner(String(githubId), projectId);
+      const owner = await db.project.getProjectOwner(projectId);
 
       if (!owner) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Project owner not found" });

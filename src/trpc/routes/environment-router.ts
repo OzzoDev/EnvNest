@@ -9,14 +9,12 @@ export const environmentRouter = router({
   getAvailable: privateProcedure
     .input(z.object({ repo: z.string(), projectId: z.number() }))
     .query(async ({ input, ctx }) => {
-      const { user } = ctx;
-      const { id: githubId } = user;
       const { accessToken } = ctx.session;
       const { repo, projectId } = input;
 
       const db = await getDbClient();
 
-      const owner = await db.project.getProjectOwner(String(githubId), projectId);
+      const owner = await db.project.getProjectOwner(projectId);
 
       if (!owner) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Project owner not found" });
