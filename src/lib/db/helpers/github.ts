@@ -102,6 +102,8 @@ const github = {
 
     await github.updateProjectNames(uniqueRepos, githubId);
 
+    await github.syncProjectVisibility(uniqueRepos, githubId);
+
     return uniqueRepos;
   },
   updateProjectNames: async (
@@ -147,6 +149,28 @@ const github = {
         newName: repos.find((r) => r.id === repo.repo_id)?.name,
         newFullName: repos.find((r) => r.id === repo.repo_id)?.full_name,
       }));
+  },
+  syncProjectVisibility: async (repos: GithubRepo[], githubId: number) => {
+    const db = await getDbClient();
+
+    const projects = await db.project.getByProfile(githubId);
+
+    const unsyncedProjects = projects
+      .filter((pro) => {
+        const repoVisibility = repos.find((rep) => rep.id === pro.repo_id)?.private;
+        const projectVisibility = pro.private;
+
+        console.log(repoVisibility, projectVisibility);
+
+        return repoVisibility !== projectVisibility;
+      })
+      .map((pro) => ({ id: pro.id, private: !!pro.private }));
+
+    console.log(unsyncedProjects);
+
+    await Promise.all([
+      unsyncedProjects.map((pro) => db.project.syncProjectVisibility(pro.id, !pro.private)),
+    ]);
   },
 };
 

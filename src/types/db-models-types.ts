@@ -58,6 +58,7 @@ export type TProjectModel = {
   addKey: (projectId: number, encryptedKey: string) => Promise<ProjectKeyTable>;
   addOrg: (projectId: number, orgId: number) => Promise<OrgProjectTable>;
   updateName: (project: UpdateProjectName) => Promise<ProjectTable | null>;
+  syncProjectVisibility: (projectId: number, isPrivate: boolean) => Promise<ProjectTable | null>;
   delete: (projectId: number) => Promise<ProjectTable>;
 };
 

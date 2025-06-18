@@ -12,19 +12,23 @@ const project = {
   getByProfile: async (githubId: number): Promise<ProjectTable[]> => {
     return await executeQuery<ProjectTable>(
       `
-        SELECT
-          project.id AS id,
-          project.profile_id AS profile_id,
-          project.repo_id AS repo_id,
-          project.name AS name,
-          project.full_name AS full_name,
-          project.url AS url,
-          project.created_at AS created_at
-        FROM project
-        INNER JOIN org_project ON org_project.project_id = project.id
-        INNER JOIN org_profile ON org_profile.org_id = org_project.org_id
-        INNER JOIN profile ON profile.id = org_profile.profile_id
-        WHERE profile.github_id = $1
+       SELECT DISTINCT
+        project.id,
+        project.profile_id,
+        project.repo_id,
+        project.name,
+        project.full_name,
+        project.url,
+        project.private,
+        project.created_at
+      FROM project
+      LEFT JOIN org_project ON org_project.project_id = project.id
+      LEFT JOIN org_profile ON org_profile.org_id = org_project.org_id
+      LEFT JOIN profile AS org_profile_user ON org_profile.profile_id = org_profile_user.id
+      JOIN profile AS owner_profile ON project.profile_id = owner_profile.id
+      WHERE
+        org_profile_user.github_id = $1
+        OR owner_profile.github_id = $1;
     `,
       [githubId]
     );
@@ -176,6 +180,24 @@ const project = {
     );
 
     return result[0];
+  },
+  syncProjectVisibility: async (
+    projectId: number,
+    isPrivate: boolean
+  ): Promise<ProjectTable | null> => {
+    return (
+      (
+        await executeQuery<ProjectTable>(
+          `
+            UPDATE project
+            SET private = $1
+            WHERE id = $2
+            RETURNING *;
+          `,
+          [isPrivate, projectId]
+        )
+      )[0] ?? null
+    );
   },
   delete: async (projectId: number): Promise<ProjectTable> => {
     const result = await executeQuery<ProjectTable>(

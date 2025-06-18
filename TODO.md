@@ -69,8 +69,8 @@
 
 - [x] Organization form
 - [x] Invite collaborator to project
-- [] Handle the owner's accesstoken in the db to allow all projects member can fetch from github with this access
-- [] Private repos wont be accessible to others, hence we need to ensure organization's cant be created on a private repo
+- [x] Handle the owner's accesstoken in the db to allow all projects member can fetch from github with this access
+- [x] Private repos wont be accessible to others, hence we need to ensure organization's cant be created on a private repo
 
 ---
 
