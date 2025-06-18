@@ -142,7 +142,10 @@ export type TSecretHistory = {
 };
 
 export type TCollaborator = {
-  getCollaboratorsInProject: (projectId: number) => Promise<ProjectWithCollaborators[]>;
+  getCollaboratorsInProject: (
+    projectId: number,
+    githubId: string
+  ) => Promise<ProjectWithCollaborators | null>;
   getByProfileId: (profileId: number, projectId: number) => Promise<CollaboratorTable | null>;
   create: (profileId: number, projectId: number, role: string) => Promise<CollaboratorTable | null>;
   update: (profileId: number, projectId: number, role: string) => Promise<CollaboratorTable | null>;

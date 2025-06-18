@@ -14,9 +14,11 @@ export const collaboratorRouter = router({
 
     return (
       await Promise.all(
-        projectsIds.map((projectId) => db.collaborator.getCollaboratorsInProject(projectId))
+        projectsIds.map((projectId) =>
+          db.collaborator.getCollaboratorsInProject(projectId, String(githubId))
+        )
       )
-    ).flat();
+    ).filter(Boolean);
   }),
   create: privateProcedure
     .input(

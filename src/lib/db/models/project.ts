@@ -77,6 +77,29 @@ const project = {
       )[0] ?? null
     );
   },
+  getWithAccess: async (githubId: string): Promise<ProjectTable[]> => {
+    return await executeQuery<ProjectTable>(
+      `
+        SELECT 
+          p.id,
+          p.profile_id,
+          p.repo_id,
+          p.full_name,
+          p.name,
+          p.owner,
+          p.url,
+          p.private,
+          p.created_at
+        FROM project p
+        INNER JOIN profile pr ON pr.id = p.profile_id
+        WHERE pr.github_id = $1
+          AND p.id NOT IN (
+            SELECT project_id FROM org_project
+          )
+      `,
+      [githubId]
+    );
+  },
   getProjectOwner: async (projectId: number): Promise<Profile | null> => {
     return (
       (

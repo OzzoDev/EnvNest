@@ -19,7 +19,7 @@ const ProjectAccessHandler = () => {
   if (projects?.length === 0) {
     return (
       <p className="text-muted-foreground">
-        No projects available. Only public Github repositories will be visible
+        You don’t have admin access to any projects. Only public GitHub repositories will be shown.
       </p>
     );
   }
@@ -29,8 +29,8 @@ const ProjectAccessHandler = () => {
       <ul className="flex flex-col gap-y-8">
         {projects?.map((project) => (
           <ProjectAccess
-            key={project.full_name}
-            project={project}
+            key={project?.full_name}
+            project={project!}
             refetchProjects={refetchProjects}
           />
         ))}

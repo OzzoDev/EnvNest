@@ -247,7 +247,7 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
                   skeletons={4}
                   isLoading={isLoadingUi}
                   width="w-[200px]"
-                  className="flex flex-col items-center md:items-start gap-y-8 md:gap-y-4 lg:gap-y-8 pt-8 w-full">
+                  className="flex flex-col md:flex-row gap-4 lg:gap-8 gap-y-4 w-fit md:w-full">
                   <form
                     key={collaborator.id}
                     onSubmit={handleSubmit((data) => onSubmit(data, index))}

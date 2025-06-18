@@ -2,22 +2,36 @@ import { CollaboratorTable, ProjectWithCollaborators } from "@/types/types";
 import { executeQuery } from "../db";
 
 const collaborator = {
-  getCollaboratorsInProject: async (projectId: number): Promise<ProjectWithCollaborators[]> => {
-    return await executeQuery<ProjectWithCollaborators>(
-      `
-        SELECT
-            p.full_name,
-            p.id AS project_id,
-            (
+  getCollaboratorsInProject: async (
+    projectId: number,
+    githubId: string
+  ): Promise<ProjectWithCollaborators | null> => {
+    return (
+      (
+        await executeQuery<ProjectWithCollaborators>(
+          `
+            SELECT
+              p.full_name,
+              p.id AS project_id,
+              (
                 SELECT json_agg(json_build_object('username', pr.username, 'role', c.role))
                 FROM collaborator c
                 JOIN profile pr ON c.profile_id = pr.id
                 WHERE c.project_id = p.id
-            ) AS collaborators
+              ) AS collaborators
             FROM project p
-            WHERE p.id = $1 AND p.private IS FALSE;  
-      `,
-      [projectId]
+            JOIN profile owner ON owner.id = p.profile_id
+            WHERE 
+              p.id = $1
+              AND owner.github_id = $2
+              AND p.private IS FALSE
+              AND p.id NOT IN (
+                SELECT project_id FROM org_project
+              );
+          `,
+          [projectId, githubId]
+        )
+      )[0] ?? null
     );
   },
   getByProfileId: async (
