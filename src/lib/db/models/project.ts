@@ -199,7 +199,8 @@ const project = {
               WHERE p.id = $2
                 AND p.private = false
                 AND (
-                  EXISTS (
+                  p.profile_id = pr.id -- ✅ Project owner
+                  OR EXISTS (
                     SELECT 1
                     FROM org_project opj
                     JOIN org_profile op ON op.org_id = opj.org_id
