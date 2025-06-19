@@ -24,6 +24,9 @@ const NewProjectForm = () => {
   const setSecret = useProjectStore((state) => state.setSecret);
   const setIsSaved = useProjectStore((state) => state.setIsSaved);
   const isSaved = useProjectStore((state) => state.isSaved);
+  const sidebarOpen = useSidebarStore((state) => state.sidebarOpen);
+  const setSidebarOpen = useSidebarStore((state) => state.setSidebarOpen);
+
   const setLoadingStates = useSidebarStore((state) => state.setLoadingStates);
   const isLoadingSidebar = useSidebarStore((state) => state.isLoading);
   const { state, isMobile, toggleSidebar } = useSidebar();
@@ -131,6 +134,8 @@ const NewProjectForm = () => {
           emptyPlaceHolder="No repository found"
           selectPlaceholder="Select a repository"
           enableSearch={true}
+          openTrigger={sidebarOpen}
+          setOpenTrigger={setSidebarOpen}
           value={repo}
           options={repos.map((rep) => rep.full_name)}
           onSelect={(rep) => setRepo(rep)}

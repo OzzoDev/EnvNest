@@ -14,11 +14,7 @@ import { useSidebarStore } from "@/store/sidebarStore";
 import { useVirtualQuery } from "@/hooks/use-virtual-query";
 import { ProjectTable } from "@/types/types";
 
-type ProjectListProps = {
-  setHasProjects: (hasProjects: boolean) => void;
-};
-
-const ProjectList = ({ setHasProjects }: ProjectListProps) => {
+const ProjectList = () => {
   const { state, isMobile, toggleSidebar } = useSidebar();
   const projectId = useProjectStore((state) => state.projectId);
   const project = useProjectStore((state) => state.project);
@@ -29,6 +25,8 @@ const ProjectList = ({ setHasProjects }: ProjectListProps) => {
   const setIsDeletingProject = useProjectStore((state) => state.setIsDeletingProject);
   const clear = useProjectStore((state) => state.clear);
   const setLoadingStates = useSidebarStore((state) => state.setLoadingStates);
+  const setHasProjects = useProjectStore((state) => state.setHasProjects);
+
   const isLoadingSidebar = useSidebarStore((state) => state.isLoading);
   const isLoadingDashboard = useProjectStore((state) => state.isLoading);
 

@@ -28,6 +28,8 @@ type ModeSelectProps = {
   selectLabel?: string;
   enableSearch?: boolean;
   disabled?: boolean;
+  openTrigger?: boolean;
+  setOpenTrigger?: (openTrigger: boolean) => void;
   value?: string | null;
   options?: string[];
   onSelect: (value: string) => void;
@@ -40,6 +42,8 @@ const ModeSelect = ({
   selectLabel = "Options",
   enableSearch = false,
   disabled = false,
+  openTrigger,
+  setOpenTrigger,
   value = null,
   options = [],
   onSelect,
@@ -56,6 +60,13 @@ const ModeSelect = ({
   useEffect(() => {
     setFilteredData(uniqueOptions);
   }, [uniqueOptions]);
+
+  useEffect(() => {
+    if (openTrigger && setOpenTrigger) {
+      setOpen(true);
+      setOpenTrigger(false);
+    }
+  }, [openTrigger]);
 
   const handleSearch = (query: string) => {
     const lower = query.trim().toLowerCase();

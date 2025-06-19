@@ -31,6 +31,8 @@ type ProjectStore = {
   setError: (error: string | null) => void;
   showAll: boolean;
   setShowAll: (showAll: boolean) => void;
+  hasProjects: boolean;
+  setHasProjects: (hasProjects: boolean) => void;
   deleteProject: () => void;
   clear: () => void;
 };
@@ -49,6 +51,7 @@ export const useProjectStore = create<ProjectStore>()(
       isDeletingProject: false,
       error: null,
       showAll: false,
+      hasProjects: false,
       clear: () =>
         set({
           projectId: null,
@@ -88,6 +91,7 @@ export const useProjectStore = create<ProjectStore>()(
       setIsDeletingProject: (isDeletingProject: boolean) => set({ isDeletingProject }),
       setError: (error: string | null) => set({ error }),
       setShowAll: (showAll) => set({ showAll }),
+      setHasProjects: (hasProjects) => set({ hasProjects }),
     }),
     {
       name: "project-store",

@@ -19,13 +19,24 @@ import { GrProjects } from "react-icons/gr";
 import { LuHistory } from "react-icons/lu";
 import { useSidebarStore } from "@/store/sidebarStore";
 import { MdErrorOutline } from "react-icons/md";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Sidebar = () => {
-  const { state, isMobile, toggleSidebar } = useSidebar();
+  const { state, isMobile, toggleSidebar, setOpen, setOpenMobile } = useSidebar();
   const error = useSidebarStore((state) => state.error);
+  const sidebarOpen = useSidebarStore((state) => state.sidebarOpen);
+  const hasProjects = useSidebarStore((state) => state.error);
   const [hasHistoryLogs, setHasHistoryLogs] = useState<boolean>(true);
-  const [hasProjects, setHasProjects] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (sidebarOpen && state === "collapsed") {
+      if (isMobile) {
+        setOpenMobile(true);
+      } else {
+        setOpen(true);
+      }
+    }
+  }, [sidebarOpen]);
 
   const isCollapsed = state === "collapsed";
 
@@ -75,7 +86,7 @@ const Sidebar = () => {
                   ) : (
                     <div className="flex flex-col gap-y-8 w-full">
                       <NewProjectForm />
-                      <ProjectList setHasProjects={setHasProjects} />
+                      <ProjectList />
                       <SecretHistoryLog setHasHistoryLogs={setHasHistoryLogs} />
                     </div>
                   )}

@@ -6,6 +6,8 @@ type SidebarStore = {
   isLoading: boolean;
   error: string | null;
   setError: (error: string | null) => void;
+  sidebarOpen: boolean;
+  setSidebarOpen: (sidebarOpen: boolean) => void;
 };
 
 export const useSidebarStore = create<SidebarStore>((set) => ({
@@ -13,5 +15,7 @@ export const useSidebarStore = create<SidebarStore>((set) => ({
   setLoadingStates: (states) => set({ loadingStates: states, isLoading: states.some((s) => s) }),
   isLoading: true,
   error: null,
+  sidebarOpen: false,
   setError: (error: string | null) => set({ error }),
+  setSidebarOpen: (sidebarOpen: boolean) => set({ sidebarOpen }),
 }));
