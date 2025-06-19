@@ -24,7 +24,7 @@ const MoblieNav = ({ user }: MobliNavProps) => {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild className="md:hidden">
-        <Button variant="ghost">
+        <Button variant="ghost" className="px-2">
           <FiMenu size={32} />
         </Button>
       </SheetTrigger>

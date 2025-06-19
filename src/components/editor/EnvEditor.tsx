@@ -43,9 +43,7 @@ const EnvEditor = () => {
   const secretId = useProjectStore((state) => state.secretId);
   const secret = useProjectStore((state) => state.secret);
   const showAll = useProjectStore((state) => state.showAll);
-
   const setShowAll = useProjectStore((state) => state.setShowAll);
-
   const setIsSaved = useProjectStore((state) => state.setIsSaved);
   const setSecretId = useProjectStore((state) => state.setSecretId);
   const setSecret = useProjectStore((state) => state.setSecret);
@@ -146,6 +144,8 @@ const EnvEditor = () => {
       setUpdateSuccess(true);
       setIsActicityLogOpen(false);
 
+      setVisibleInputs((prev) => prev.map(() => false));
+
       toast.success("Successfully saved .env file");
     },
     onError: () => {
@@ -163,6 +163,7 @@ const EnvEditor = () => {
       deleteProjectSecretRef(projectId!);
       setSecretId(null);
       setSecret(null);
+      setVisibleInputs((prev) => prev.map(() => false));
     },
     onError: (err) => {
       toast.error(err.message || "Something went wrong. Please try again");

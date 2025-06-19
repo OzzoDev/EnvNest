@@ -14,38 +14,43 @@ const project = {
   getByProfile: async (githubId: number): Promise<ProjectWithRole[]> => {
     return await executeQuery<ProjectWithRole>(
       `
-        SELECT DISTINCT ON (project.id)
-          project.id,
-          project.profile_id,
-          project.repo_id,
-          project.name,
-          project.full_name,
-          project.url,
-          project.owner,
-          project.private,
-          project.created_at,
-          COALESCE(org_profile.role, 'admin') AS role
-        FROM project
-        LEFT JOIN org_project 
-          ON org_project.project_id = project.id
-        LEFT JOIN org_profile 
-          ON org_profile.org_id = org_project.org_id
-            AND org_profile.profile_id = (SELECT id FROM profile WHERE github_id = $1)
-        JOIN profile AS owner_profile 
-          ON project.profile_id = owner_profile.id
-        LEFT JOIN collaborator 
-          ON collaborator.project_id = project.id
-        LEFT JOIN profile AS collaborator_profile 
-          ON collaborator.profile_id = collaborator_profile.id
-        WHERE
-          (
-            org_profile.profile_id IS NOT NULL
-            OR owner_profile.github_id = $1
-            OR collaborator_profile.github_id = $1
-          )
-          AND project.private = false
-        ORDER BY project.id, org_profile.role DESC
-      `,
+      SELECT DISTINCT ON (project.id)
+        project.id,
+        project.profile_id,
+        project.repo_id,
+        project.name,
+        project.full_name,
+        project.url,
+        project.owner,
+        project.private,
+        project.created_at,
+        CASE
+          WHEN owner_profile.github_id = $1 THEN 'admin'
+          WHEN org_profile.role 
+            IS NOT NULL THEN org_profile.role
+          WHEN collaborator.role 
+            IS NOT NULL THEN collaborator.role
+          ELSE NULL
+        END AS role
+      FROM project
+      LEFT JOIN org_project 
+        ON org_project.project_id = project.id
+      LEFT JOIN org_profile 
+        ON org_profile.org_id = org_project.org_id
+          AND org_profile.profile_id = (SELECT id FROM profile WHERE github_id = $1)
+      JOIN profile AS owner_profile 
+        ON project.profile_id = owner_profile.id
+      LEFT JOIN collaborator 
+        ON collaborator.project_id = project.id
+        AND collaborator.profile_id = (SELECT id FROM profile WHERE github_id = $1)
+      WHERE (
+          org_profile.profile_id IS NOT NULL
+          OR owner_profile.github_id = $1
+          OR collaborator.profile_id IS NOT NULL
+        )
+        AND project.private = false
+      ORDER BY project.id, org_profile.role DESC;
+    `,
       [githubId]
     );
   },
@@ -54,39 +59,43 @@ const project = {
       (
         await executeQuery<ProjectWithRole>(
           `
-          SELECT DISTINCT
-            project.id,
-            project.profile_id,
-            project.repo_id,
-            project.name,
-            project.full_name,
-            project.url,
-            project.owner,
-            project.private,
-            project.created_at,
-            COALESCE(org_profile.role, 'admin') AS role 
-          FROM project
-          LEFT JOIN org_project 
-            ON org_project.project_id = project.id
-          LEFT JOIN org_profile 
-            ON org_profile.org_id = org_project.org_id
-          LEFT JOIN profile AS org_profile_user 
-            ON org_profile.profile_id = org_profile_user.id
-          JOIN profile AS owner_profile 
-            ON project.profile_id = owner_profile.id
-          LEFT JOIN collaborator 
-            ON collaborator.project_id = project.id
-          LEFT JOIN profile AS collaborator_profile 
-            ON collaborator.profile_id = collaborator_profile.id
-          WHERE
-            project.id = $1
-            AND (
-              org_profile_user.github_id = $2
-              OR owner_profile.github_id = $2
-              OR collaborator_profile.github_id = $2
-            )
-            AND project.private = false
-        `,
+            SELECT DISTINCT
+              project.id,
+              project.profile_id,
+              project.repo_id,
+              project.name,
+              project.full_name,
+              project.url,
+              project.owner,
+              project.private,
+              project.created_at,
+              CASE
+                WHEN owner_profile.github_id = $2 THEN 'admin'
+                WHEN org_profile.role IS NOT NULL THEN org_profile.role
+                WHEN collaborator.role IS NOT NULL THEN collaborator.role
+                ELSE NULL
+              END AS role
+            FROM project
+            LEFT JOIN org_project 
+              ON org_project.project_id = project.id
+            LEFT JOIN org_profile 
+              ON org_profile.org_id = org_project.org_id
+            LEFT JOIN profile AS org_profile_user 
+              ON org_profile.profile_id = org_profile_user.id
+            JOIN profile AS owner_profile 
+              ON project.profile_id = owner_profile.id
+            LEFT JOIN collaborator 
+              ON collaborator.project_id = project.id
+            LEFT JOIN profile AS collaborator_profile 
+              ON collaborator.profile_id = collaborator_profile.id
+            WHERE project.id = $1
+              AND (
+                org_profile_user.github_id = $2
+                OR owner_profile.github_id = $2
+                OR collaborator_profile.github_id = $2
+              )
+              AND project.private = false;
+          `,
           [projectId, githubId]
         )
       )[0] ?? null
@@ -140,37 +149,43 @@ const project = {
     );
   },
   getKey: async (projectId: number, githubId: number): Promise<ProjectKeyTable | null> => {
-    const result = await executeQuery<ProjectKeyTable>(
-      `
-        SELECT 
-          pk.id,
-          pk.project_id,
-          pk.encrypted_key,
-          pk.created_at
-        FROM project_key pk
-        INNER JOIN project p 
-          ON p.id = pk.project_id
-        INNER JOIN profile pr 
-          ON pr.id = p.profile_id
-        LEFT JOIN org_project opj 
-          ON opj.project_id = p.id
-        LEFT JOIN org_profile op 
-          ON op.org_id = opj.org_id
-        LEFT JOIN profile org_pr 
-          ON org_pr.id = op.profile_id
-        WHERE pk.project_id = $1
-          AND (
-            pr.github_id = $2 -- project owner
-            OR org_pr.github_id = $2 -- org member
-          )
-        LIMIT 1;
-      `,
-      [projectId, githubId]
+    return (
+      (
+        await executeQuery<ProjectKeyTable>(
+          `
+            SELECT 
+              pk.id,
+              pk.project_id,
+              pk.encrypted_key,
+              pk.created_at
+            FROM project_key pk
+            INNER JOIN project p 
+              ON p.id = pk.project_id
+            LEFT JOIN profile owner 
+              ON owner.id = p.profile_id
+            LEFT JOIN org_project opj 
+              ON opj.project_id = p.id
+            LEFT JOIN org_profile op 
+              ON op.org_id = opj.org_id
+            LEFT JOIN profile org_member 
+              ON org_member.id = op.profile_id
+            LEFT JOIN collaborator c 
+              ON c.project_id = p.id
+            LEFT JOIN profile collab 
+              ON collab.id = c.profile_id
+            WHERE pk.project_id = $1
+              AND (
+                owner.github_id = $2
+                OR org_member.github_id = $2
+                OR collab.github_id = $2
+              )
+            LIMIT 1;
+          `,
+          [projectId, githubId]
+        )
+      )[0] ?? null
     );
-
-    return result[0] ?? null;
   },
-
   isProjectOwner: async (githubId: string, projectId: number): Promise<boolean> => {
     return !!(
       await executeQuery(

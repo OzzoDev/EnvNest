@@ -11,6 +11,9 @@ const DashboardPage = () => {
   const error = useProjectStore((state) => state.error);
   const project = useProjectStore((state) => state.project);
   const hasProjects = useProjectStore((state) => state.hasProjects);
+  const isLoadingDashboard = useProjectStore((state) => state.isLoading);
+  const isLoadingSidebar = useSidebarStore((state) => state.isLoading);
+
   const setSideBarOpen = useSidebarStore((state) => state.setSidebarOpen);
 
   if (error) {
@@ -23,11 +26,11 @@ const DashboardPage = () => {
     );
   }
 
-  if (!hasProjects) {
+  if (!hasProjects && !isLoadingDashboard && !isLoadingSidebar) {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-32 md:16">
         <h2 className="text-2xl text-text-color text-center font-medium w-[90%]">
-          No project in sight. Create a new project to start managing your env-files
+          Looks like you don’t have any projects yet. Create one to start managing your env files.
         </h2>
         <Button onClick={() => setSideBarOpen(true)}>New Project</Button>
       </div>
