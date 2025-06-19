@@ -18,9 +18,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import Select from "@/components/utils/Select";
 
 const NewProjectForm = () => {
-  const { state, isMobile, toggleSidebar } = useSidebar();
-  const [repo, setRepo] = useState<string | null>(null);
-  const [org, setOrg] = useState<string | null>(null);
   const projectId = useProjectStore((state) => state.projectId);
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setSecretId = useProjectStore((state) => state.setSecretId);
@@ -29,6 +26,10 @@ const NewProjectForm = () => {
   const isSaved = useProjectStore((state) => state.isSaved);
   const setLoadingStates = useSidebarStore((state) => state.setLoadingStates);
   const isLoadingSidebar = useSidebarStore((state) => state.isLoading);
+  const { state, isMobile, toggleSidebar } = useSidebar();
+  const [repo, setRepo] = useState<string | null>(null);
+  const [org, setOrg] = useState<string | null>(null);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   const {
     data: repos = [],
@@ -138,9 +139,9 @@ const NewProjectForm = () => {
           (isSaved ? (
             <>
               {canCreateInOrg() ? (
-                <Popover>
+                <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
                   <PopoverTrigger asChild>
-                    <Button type="button" variant="secondary">
+                    <Button disabled={isPopoverOpen} type="button">
                       Create
                     </Button>
                   </PopoverTrigger>
@@ -175,17 +176,15 @@ const NewProjectForm = () => {
                   </PopoverContent>
                 </Popover>
               ) : (
-                <Button type="submit" variant="secondary">
-                  Create
-                </Button>
+                <Button type="submit">Create</Button>
               )}
             </>
           ) : (
             <>
               {canCreateInOrg() ? (
-                <Popover>
+                <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
                   <PopoverTrigger asChild>
-                    <Button type="button" variant="secondary">
+                    <Button disabled={isPopoverOpen} type="button">
                       Create
                     </Button>
                   </PopoverTrigger>
@@ -224,7 +223,7 @@ const NewProjectForm = () => {
                   description="You current project is unsaved. Any unsaved changes will be lost. This action cannot be undone. Are you sure you want to continue?"
                   action="Create"
                   actionFn={() => onSubmit()}>
-                  <Button variant="secondary">Create</Button>
+                  <Button>Create</Button>
                 </AlertDialog>
               )}
             </>
