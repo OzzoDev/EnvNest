@@ -82,7 +82,7 @@
 
 ## Login page
 
-- [] Create Login form
+- [x] Create Login form
 
 ---
 
