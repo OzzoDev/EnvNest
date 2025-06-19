@@ -229,95 +229,102 @@ const EnvEditor = () => {
           width="w-28"
           className="flex justify-between mt-4">
           {renderEditor && (
-            <div className="flex flex-col gap-4">
-              <div className="flex justify-between mt-4">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={addEnvVariable}
-                  className="self-end w-fit">
-                  <FiPlus />
-                </Button>
+            <div className="flex justify-between mt-4">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={addEnvVariable}
+                className="self-end w-fit">
+                <FiPlus />
+              </Button>
 
-                <div className="flex items-center gap-x-4">
-                  {isDirty && (
-                    <AlertDialog
-                      title="Revert changes"
-                      description={`Are you sure you want to revert your changes`}
-                      action="Revert"
-                      actionFn={onRevert}>
-                      <Button type="button" variant="outline">
-                        <GrRevert size={16} />
-                      </Button>
-                    </AlertDialog>
-                  )}
-                  {isValid ? (
-                    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                      <DialogTrigger asChild>
-                        {renderEditor && (
-                          <Button type="button" disabled={!isDirty} variant="default">
-                            {isDirty ? "Save Changes" : "Saved"}
-                          </Button>
-                        )}
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                          <DialogTitle>Save Your Changes</DialogTitle>
-                          <DialogDescription>
-                            We track the version history of your projects. Please provide a brief
-                            message about the updates you made for future reference.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <Label>Update Message</Label>
-                        <Input
-                          value={updateMessage}
-                          onChange={(e) => setUpdateMessage(e.target.value)}
-                          placeholder="Describe your changes..."
-                        />
-                        <DialogFooter>
-                          <DialogClose asChild>
-                            <Button type="button" variant="outline">
-                              Cancel
-                            </Button>
-                          </DialogClose>
-                          <Button
-                            type="button"
-                            disabled={!updateMessage}
-                            onClick={handleSubmit((data) => {
-                              onSubmit(data);
-                              setIsOpen(false);
-                            })}>
-                            Save
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-                  ) : (
-                    <Button
-                      type="button"
-                      disabled={!isDirty}
-                      variant="default"
-                      onClick={() => toast.error("Please leave no fields empty")}
-                      className="self-end">
-                      {isDirty ? "Save Changes" : "Saved"}
+              <div className="flex items-center gap-x-4">
+                {isDirty && (
+                  <AlertDialog
+                    title="Revert changes"
+                    description={`Are you sure you want to revert your changes`}
+                    action="Revert"
+                    actionFn={onRevert}>
+                    <Button type="button" variant="outline">
+                      <GrRevert size={16} />
                     </Button>
-                  )}
-                </div>
-              </div>
-              {envVariables && envVariables.length > 0 && (
-                <div className="flex gap-4 self-end">
+                  </AlertDialog>
+                )}
+                {isValid ? (
+                  <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                    <DialogTrigger asChild>
+                      {renderEditor && (
+                        <Button type="button" disabled={!isDirty} variant="default">
+                          {isDirty ? "Save Changes" : "Saved"}
+                        </Button>
+                      )}
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>Save Your Changes</DialogTitle>
+                        <DialogDescription>
+                          We track the version history of your projects. Please provide a brief
+                          message about the updates you made for future reference.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <Label>Update Message</Label>
+                      <Input
+                        value={updateMessage}
+                        onChange={(e) => setUpdateMessage(e.target.value)}
+                        placeholder="Describe your changes..."
+                      />
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button type="button" variant="outline">
+                            Cancel
+                          </Button>
+                        </DialogClose>
+                        <Button
+                          type="button"
+                          disabled={!updateMessage}
+                          onClick={handleSubmit((data) => {
+                            onSubmit(data);
+                            setIsOpen(false);
+                          })}>
+                          Save
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                ) : (
                   <Button
-                    variant="outline"
-                    onClick={() => copyToClipBoard(secret.content.split("&&").join("\n"))}>
-                    Copy
+                    type="button"
+                    disabled={!isDirty}
+                    variant="default"
+                    onClick={() => toast.error("Please leave no fields empty")}
+                    className="self-end">
+                    {isDirty ? "Save Changes" : "Saved"}
                   </Button>
-                  <Button variant="outline" onClick={() => setShowAll(!showAll)}>
-                    {showAll ? "Hide all" : "Show all"}
-                  </Button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           )}
+        </SkeletonWrapper>
+
+        <SkeletonWrapper
+          skeletons={2}
+          isLoading={isLoadingUi}
+          width="w-28"
+          className="flex gap-4 self-end mt-[-16px]">
+          <div className="self-end mt-[-16px]">
+            {envVariables && secret && envVariables.length > 0 && (
+              <div className="flex gap-4 self-end">
+                <Button
+                  variant="outline"
+                  onClick={() => copyToClipBoard(secret.content.split("&&").join("\n"))}>
+                  Copy
+                </Button>
+                <Button variant="outline" onClick={() => setShowAll(!showAll)}>
+                  {showAll ? "Hide all" : "Show all"}
+                </Button>
+              </div>
+            )}
+          </div>
         </SkeletonWrapper>
 
         <SkeletonWrapper

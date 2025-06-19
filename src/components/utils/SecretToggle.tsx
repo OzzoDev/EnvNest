@@ -28,7 +28,7 @@ const SecretToggle = ({ name, visibilityToggle }: SecretToggleProps) => {
   //   }
   // }, [value]);
 
-  console.log(isVisible);
+  // console.log(isVisible);
 
   return (
     <div className="relative w-full">
@@ -37,7 +37,7 @@ const SecretToggle = ({ name, visibilityToggle }: SecretToggleProps) => {
         control={control}
         render={({ field }) => (
           <>
-            {isVisible ? (
+            {false ? (
               <Input
                 {...field}
                 type="text"
