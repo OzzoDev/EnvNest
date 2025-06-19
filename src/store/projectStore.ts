@@ -1,4 +1,4 @@
-import { EnvironmentSecret, ProjectTable } from "@/types/types";
+import { EnvironmentSecret, ProjectTable, ProjectWithRole } from "@/types/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -9,8 +9,8 @@ type ProjectSecretRefs = {
 type ProjectStore = {
   projectId: number | null;
   setProjectId: (id: number | null) => void;
-  project: ProjectTable | null;
-  setProject: (project: ProjectTable | null) => void;
+  project: ProjectWithRole | null;
+  setProject: (project: ProjectWithRole | null) => void;
   secret: EnvironmentSecret | null;
   setSecret: (projectSecret: EnvironmentSecret | null) => void;
   hasHydrated: boolean;
@@ -50,7 +50,7 @@ export const useProjectStore = create<ProjectStore>()(
       showAll: false,
       setProjectId: (projectId: number | null) => set({ projectId }),
       setSecret: (secret: EnvironmentSecret | null) => set({ secret }),
-      setProject: (project: ProjectTable | null) => set({ project }),
+      setProject: (project: ProjectWithRole | null) => set({ project }),
       setHasHydrated: (hasHydrated: boolean) => set({ hasHydrated }),
       setIsSaved: (isSaved: boolean) => set({ isSaved }),
       setSecretId: (secretId: number | null) => set({ secretId }),

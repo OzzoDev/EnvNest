@@ -15,6 +15,8 @@ type EnvInputProps = {
 };
 
 const EnvInput = ({ index, isVisible, setIsVisible, onDelete }: EnvInputProps) => {
+  const project = useProjectStore((state) => state.project);
+
   const isSaved = useProjectStore((state) => state.isSaved);
   const showAll = useProjectStore((state) => state.showAll);
 
@@ -30,32 +32,38 @@ const EnvInput = ({ index, isVisible, setIsVisible, onDelete }: EnvInputProps) =
 
   const isEmpty = !name && !value;
 
+  const hasWriteAccess = project?.role === "admin" || project?.role === "editor";
+
   return (
     <div className="flex flex-col lg:flex-row justify-between gap-4 lg:gap-8">
       <div className="flex gap-x-2 w-full">
-        {isSaved ? (
-          !isEmpty ? (
-            <AlertDialog
-              title="Delete env variable"
-              description={`Are you sure you want to delete ${name}?`}
-              action="Delete"
-              actionFn={() => onDelete(index)}>
-              <Button variant="ghost">
+        {hasWriteAccess && (
+          <>
+            {isSaved ? (
+              !isEmpty ? (
+                <AlertDialog
+                  title="Delete env variable"
+                  description={`Are you sure you want to delete ${name}?`}
+                  action="Delete"
+                  actionFn={() => onDelete(index)}>
+                  <Button variant="ghost">
+                    <IoMdClose size={16} />
+                  </Button>
+                </AlertDialog>
+              ) : (
+                <Button type="button" variant="ghost" onClick={() => onDelete(index)}>
+                  <IoMdClose size={16} />
+                </Button>
+              )
+            ) : (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => toast.error("Please save your changes")}>
                 <IoMdClose size={16} />
               </Button>
-            </AlertDialog>
-          ) : (
-            <Button type="button" variant="ghost" onClick={() => onDelete(index)}>
-              <IoMdClose size={16} />
-            </Button>
-          )
-        ) : (
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => toast.error("Please save your changes")}>
-            <IoMdClose size={16} />
-          </Button>
+            )}
+          </>
         )}
 
         <Controller
@@ -65,6 +73,7 @@ const EnvInput = ({ index, isVisible, setIsVisible, onDelete }: EnvInputProps) =
             <Input
               {...field}
               type="text"
+              disabled={!hasWriteAccess}
               autoComplete="off"
               spellCheck="false"
               className="w-full"
@@ -75,9 +84,9 @@ const EnvInput = ({ index, isVisible, setIsVisible, onDelete }: EnvInputProps) =
       <div className="pl-14 lg:p-0 w-full">
         <SecretToggle
           name={`envVariables.${index}.value`}
-          visibilityToggle={showAll}
           isVisible={isVisible}
           setIsVisible={setIsVisible}
+          disabled={!hasWriteAccess}
         />
       </div>
     </div>

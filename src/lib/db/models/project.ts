@@ -5,15 +5,16 @@ import {
   UpdateProjectName,
   OrgProjectTable,
   Profile,
+  ProjectWithRole,
 } from "@/types/types";
 import { executeQuery } from "../db";
 import { aesEncrypt, generateAESKey } from "@/lib/aes-helpers";
 
 const project = {
-  getByProfile: async (githubId: number): Promise<ProjectTable[]> => {
-    return await executeQuery<ProjectTable>(
+  getByProfile: async (githubId: number): Promise<ProjectWithRole[]> => {
+    return await executeQuery<ProjectWithRole>(
       `
-        SELECT DISTINCT
+        SELECT DISTINCT ON (project.id)
           project.id,
           project.profile_id,
           project.repo_id,
@@ -22,29 +23,36 @@ const project = {
           project.url,
           project.owner,
           project.private,
-          project.created_at
+          project.created_at,
+          COALESCE(org_profile.role, 'admin') AS role
         FROM project
-        LEFT JOIN org_project ON org_project.project_id = project.id
-        LEFT JOIN org_profile ON org_profile.org_id = org_project.org_id
-        LEFT JOIN profile AS org_profile_user ON org_profile.profile_id = org_profile_user.id
-        JOIN profile AS owner_profile ON project.profile_id = owner_profile.id
-        LEFT JOIN collaborator ON collaborator.project_id = project.id
-        LEFT JOIN profile AS collaborator_profile ON collaborator.profile_id = collaborator_profile.id
+        LEFT JOIN org_project 
+          ON org_project.project_id = project.id
+        LEFT JOIN org_profile 
+          ON org_profile.org_id = org_project.org_id
+            AND org_profile.profile_id = (SELECT id FROM profile WHERE github_id = $1)
+        JOIN profile AS owner_profile 
+          ON project.profile_id = owner_profile.id
+        LEFT JOIN collaborator 
+          ON collaborator.project_id = project.id
+        LEFT JOIN profile AS collaborator_profile 
+          ON collaborator.profile_id = collaborator_profile.id
         WHERE
           (
-            org_profile_user.github_id = $1
+            org_profile.profile_id IS NOT NULL
             OR owner_profile.github_id = $1
             OR collaborator_profile.github_id = $1
           )
           AND project.private = false
+        ORDER BY project.id, org_profile.role DESC
       `,
       [githubId]
     );
   },
-  getById: async (projectId: number, githubId: number): Promise<ProjectTable | null> => {
+  getById: async (projectId: number, githubId: number): Promise<ProjectWithRole | null> => {
     return (
       (
-        await executeQuery<ProjectTable>(
+        await executeQuery<ProjectWithRole>(
           `
           SELECT DISTINCT
             project.id,
@@ -55,14 +63,21 @@ const project = {
             project.url,
             project.owner,
             project.private,
-            project.created_at
+            project.created_at,
+            COALESCE(org_profile.role, 'admin') AS role 
           FROM project
-          LEFT JOIN org_project ON org_project.project_id = project.id
-          LEFT JOIN org_profile ON org_profile.org_id = org_project.org_id
-          LEFT JOIN profile AS org_profile_user ON org_profile.profile_id = org_profile_user.id
-          JOIN profile AS owner_profile ON project.profile_id = owner_profile.id
-          LEFT JOIN collaborator ON collaborator.project_id = project.id
-          LEFT JOIN profile AS collaborator_profile ON collaborator.profile_id = collaborator_profile.id
+          LEFT JOIN org_project 
+            ON org_project.project_id = project.id
+          LEFT JOIN org_profile 
+            ON org_profile.org_id = org_project.org_id
+          LEFT JOIN profile AS org_profile_user 
+            ON org_profile.profile_id = org_profile_user.id
+          JOIN profile AS owner_profile 
+            ON project.profile_id = owner_profile.id
+          LEFT JOIN collaborator 
+            ON collaborator.project_id = project.id
+          LEFT JOIN profile AS collaborator_profile 
+            ON collaborator.profile_id = collaborator_profile.id
           WHERE
             project.id = $1
             AND (

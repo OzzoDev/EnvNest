@@ -8,6 +8,7 @@ import { MdErrorOutline } from "react-icons/md";
 
 const DashboardPage = () => {
   const error = useProjectStore((state) => state.error);
+  const project = useProjectStore((state) => state.project);
 
   if (error) {
     return (
@@ -19,9 +20,11 @@ const DashboardPage = () => {
     );
   }
 
+  const hasWriteAccess = project?.role === "admin" || project?.role === "editor";
+
   return (
     <>
-      <EnvCreator />
+      {hasWriteAccess && <EnvCreator />}
       <EnvEditor />
     </>
   );

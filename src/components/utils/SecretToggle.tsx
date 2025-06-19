@@ -8,11 +8,11 @@ import { Input } from "../ui/input";
 type SecretToggleProps = {
   name: string;
   isVisible: boolean;
+  disabled: boolean;
   setIsVisible: (isVisible: boolean) => void;
-  visibilityToggle?: boolean;
 };
 
-const SecretToggle = ({ name, isVisible, setIsVisible, visibilityToggle }: SecretToggleProps) => {
+const SecretToggle = ({ name, isVisible, disabled, setIsVisible }: SecretToggleProps) => {
   const { control } = useFormContext();
 
   return (
@@ -23,10 +23,17 @@ const SecretToggle = ({ name, isVisible, setIsVisible, visibilityToggle }: Secre
         render={({ field }) => (
           <>
             {isVisible ? (
-              <Input {...field} type="text" autoComplete="off" className="pr-[55px]" />
+              <Input
+                {...field}
+                disabled={disabled}
+                type="text"
+                autoComplete="off"
+                className="pr-[55px]"
+              />
             ) : (
               <Input
                 type="text"
+                disabled={disabled}
                 value={"*".repeat(field.value?.length || 0)}
                 readOnly
                 className="cursor-default pr-[55px]"

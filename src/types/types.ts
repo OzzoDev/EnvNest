@@ -63,6 +63,8 @@ export type ProjectTable = {
   created_at: string;
 };
 
+export type ProjectWithRole = ProjectTable & { role: Role };
+
 export type CreateProject = Omit<ProjectTable, "id" | "created_at">;
 
 export type UpdateProjectName = Omit<
@@ -172,12 +174,16 @@ export type SecretHistory = SecretHistoryTable & {
   path: string;
 };
 
+export type Role = "viewer" | "editor" | "admin";
+
+export type PublicRole = "viewer" | "editor";
+
 // Project collaborators (manual sharing)
 export type CollaboratorTable = {
   id: number;
   profile_id: number;
   project_id: number;
-  role: "viewer" | "editor" | "admin" | string;
+  role: Role;
   created_at: string;
 };
 
@@ -187,7 +193,7 @@ export type ProjectWithCollaborators = {
   collaborators:
     | {
         username: string;
-        role: "viewer" | "editor";
+        role: PublicRole;
       }[]
     | null;
 };

@@ -24,6 +24,7 @@ import {
   OrgProfileTable,
   OrgRole,
   OrgProjectTable,
+  ProjectWithRole,
 } from "./types";
 
 export type TProfileModel = {
@@ -44,8 +45,8 @@ export type TProfileModel = {
 };
 
 export type TProjectModel = {
-  getByProfile: (githubId: number) => Promise<ProjectTable[]>;
-  getById: (projectId: number, githubId: number) => Promise<ProjectTable | null>;
+  getByProfile: (githubId: number) => Promise<ProjectWithRole[]>;
+  getById: (projectId: number, githubId: number) => Promise<ProjectWithRole | null>;
   getKey: (projectId: number, githubId: number) => Promise<ProjectKeyTable | null>;
   getProjectOwner: (projectId: number) => Promise<Profile | null>;
   isProjectOwner: (githubId: string, projectId: number) => Promise<boolean>;

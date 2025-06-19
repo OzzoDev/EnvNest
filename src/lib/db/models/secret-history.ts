@@ -12,6 +12,12 @@ const secretHistory = {
 
     return await executeQuery<SecretHistory>(
       `
+        WITH deleted AS (
+          DELETE FROM secret_history
+          WHERE profile_id = $1
+            AND secret_id NOT IN (SELECT id FROM secret)
+        )
+        
         SELECT
             sh.id, 
             sh.profile_id, 
@@ -36,10 +42,7 @@ const secretHistory = {
   },
   create: async (githubId: string, secretId: number): Promise<SecretHistoryTable | null> => {
     const profileId = (await profileModel.getByField({ github_id: githubId }))?.id;
-
-    if (!profileId) {
-      return null;
-    }
+    if (!profileId) return null;
 
     const existingRows = await executeQuery<{ count: number }>(
       `SELECT COUNT(*)::INT AS count FROM secret_history WHERE profile_id = $1`,
@@ -63,22 +66,31 @@ const secretHistory = {
       );
     }
 
-    return (
-      await executeQuery<SecretHistoryTable>(
-        `
-            INSERT INTO secret_history (profile_id, secret_id)
-            VALUES ($1, $2)
-            ON CONFLICT (profile_id, secret_id)
-            DO UPDATE SET created_at = NOW()
-            RETURNING 
-              id, 
-              profile_id,
-              secret_id, 
-              created_at AT TIME ZONE 'UTC' AS created_at; 
-        `,
-        [profileId, secretId]
-      )
-    )[0];
+    try {
+      return (
+        (
+          await executeQuery<SecretHistoryTable>(
+            `
+              INSERT INTO secret_history (profile_id, secret_id)
+              SELECT $1, $2
+              WHERE EXISTS (
+                SELECT 1 FROM secret WHERE id = $2
+              )
+              ON CONFLICT (profile_id, secret_id)
+              DO UPDATE SET created_at = NOW()
+              RETURNING 
+                id, 
+                profile_id,
+                secret_id, 
+                created_at AT TIME ZONE 'UTC' AS created_at;
+            `,
+            [profileId, secretId]
+          )
+        )[0] ?? null
+      );
+    } catch {
+      return null;
+    }
   },
 };
 

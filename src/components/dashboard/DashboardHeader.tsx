@@ -34,6 +34,8 @@ const DashboardHeader = () => {
 
   const isLoadingUi = isLoading || isDeletingProject;
 
+  const hasWriteAccess = project?.role === "admin" || project?.role === "editor";
+
   return (
     <>
       <div className="flex lg:hidden flex-col items-start gap-y-4">
@@ -66,23 +68,17 @@ const DashboardHeader = () => {
                 className={cn("w-full", buttonVariants({ variant: "outline", textSize: "lg" }))}>
                 <Github aria-hidden="true" />
               </Link>
-              <AlertDialog
-                title="Delete project"
-                description={`Are you sure you want to delete ${project?.full_name}. This action can't be undone`}
-                action="Delete"
-                actionFn={() => mutate({ projectId: Number(projectId) })}>
-                <Button variant="secondary">Delete</Button>
-              </AlertDialog>
+              {hasWriteAccess && (
+                <AlertDialog
+                  title="Delete project"
+                  description={`Are you sure you want to delete ${project?.full_name}. This action can't be undone`}
+                  action="Delete"
+                  actionFn={() => mutate({ projectId: Number(projectId) })}>
+                  <Button variant="secondary">Delete</Button>
+                </AlertDialog>
+              )}
             </div>
           </SkeletonWrapper>
-          {/* <SkeletonWrapper skeletons={1} isLoading={isLoadingUi} width="w-[240px]">
-            <div className="hidden lg:flex flex-col items-end text-text-color text-sm">
-              <p className="text-base font-medium">Project created</p>
-              <p>
-                {date} / {time}
-              </p>
-            </div>
-          </SkeletonWrapper> */}
         </div>
       </div>
 
@@ -117,14 +113,18 @@ const DashboardHeader = () => {
                 )}>
                 <Github aria-hidden="true" />
               </Link>
-              <span aria-hidden="true" className="hidden lg:inline w-[2px] h-8 bg-secondary" />
-              <AlertDialog
-                title="Delete project"
-                description={`Are you sure you want to delete ${project?.full_name}. This action can't be undone`}
-                action="Delete"
-                actionFn={() => mutate({ projectId: Number(projectId) })}>
-                <Button variant="secondary">Delete</Button>
-              </AlertDialog>
+              {hasWriteAccess && (
+                <>
+                  <span aria-hidden="true" className="hidden lg:inline w-[2px] h-8 bg-secondary" />
+                  <AlertDialog
+                    title="Delete project"
+                    description={`Are you sure you want to delete ${project?.full_name}. This action can't be undone`}
+                    action="Delete"
+                    actionFn={() => mutate({ projectId: Number(projectId) })}>
+                    <Button variant="secondary">Delete</Button>
+                  </AlertDialog>
+                </>
+              )}
             </div>
           </SkeletonWrapper>
           <SkeletonWrapper skeletons={1} isLoading={isLoadingUi} width="w-[240px]">
