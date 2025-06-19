@@ -32,6 +32,8 @@ export const formSchema = z.object({
   envVariables: z.array(z.object({ name: z.string().nonempty(), value: z.string().nonempty() })),
 });
 
+export type FormData = z.infer<typeof formSchema>;
+
 const EnvEditor = () => {
   const pathname = usePathname();
   const projectId = useProjectStore((state) => state.projectId);
@@ -54,6 +56,7 @@ const EnvEditor = () => {
   const [isActivityLogOpen, setIsActicityLogOpen] = useState<boolean>(false);
   const [updateMessage, setUpdateMessage] = useState<string>("");
   const [isValid, setIsValid] = useState<boolean>(false);
+  const [visibleInputs, setVisibleInputs] = useState<boolean[]>([]);
 
   const getEnvVariables = () => {
     if (!secret?.content) {
@@ -90,6 +93,23 @@ const EnvEditor = () => {
     const validated = formSchema.safeParse(watchedValues);
     setIsValid(validated.success);
   }, [watchedValues]);
+
+  useEffect(() => {
+    const allHidden = visibleInputs.every((input) => !input);
+    const allVisible = visibleInputs.every((input) => input);
+
+    if (showAll && allHidden) {
+      setShowAll(false);
+    }
+
+    if (!showAll && allVisible) {
+      setShowAll(true);
+    }
+  }, [visibleInputs]);
+
+  useEffect(() => {
+    setVisibleInputs(getEnvVariables().map((env) => !env.value));
+  }, [getEnvVariables().length]);
 
   useEffect(() => {
     reset({ envVariables: [] });
@@ -181,10 +201,21 @@ const EnvEditor = () => {
 
   const onRevert = () => {
     reset({ envVariables: getEnvVariables() });
+    setVisibleInputs(getEnvVariables().map(() => false));
   };
 
   const addEnvVariable = () => {
     setValue("envVariables", [...getValues("envVariables"), { name: "", value: "" }]);
+  };
+
+  const handleToggleAllInputs = () => {
+    if (showAll) {
+      setShowAll(false);
+      setVisibleInputs(getEnvVariables().map(() => false));
+    } else {
+      setVisibleInputs(getEnvVariables().map(() => true));
+      setShowAll(true);
+    }
   };
 
   const renderEditor = !!secret;
@@ -319,7 +350,7 @@ const EnvEditor = () => {
                   onClick={() => copyToClipBoard(secret.content.split("&&").join("\n"))}>
                   Copy
                 </Button>
-                <Button variant="outline" onClick={() => setShowAll(!showAll)}>
+                <Button variant="outline" onClick={handleToggleAllInputs}>
                   {showAll ? "Hide all" : "Show all"}
                 </Button>
               </div>
@@ -335,7 +366,17 @@ const EnvEditor = () => {
           {renderEditor && (
             <ul className="flex flex-col gap-y-4 lg:gap-y-8">
               {envVariables?.map((env, index) => (
-                <EnvInput key={env.id} index={index} onDelete={onDeleteVariable} />
+                <EnvInput
+                  key={env.id}
+                  index={index}
+                  isVisible={visibleInputs[index]}
+                  setIsVisible={() =>
+                    setVisibleInputs((prev) =>
+                      prev.map((input, idx) => (idx === index ? !prev[index] : input))
+                    )
+                  }
+                  onDelete={onDeleteVariable}
+                />
               ))}
             </ul>
           )}

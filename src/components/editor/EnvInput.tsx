@@ -9,12 +9,15 @@ import { toast } from "sonner";
 
 type EnvInputProps = {
   index: number;
+  isVisible: boolean;
+  setIsVisible: (isVisible: boolean) => void;
   onDelete: (index: number) => void;
 };
 
-const EnvInput = ({ index, onDelete }: EnvInputProps) => {
+const EnvInput = ({ index, isVisible, setIsVisible, onDelete }: EnvInputProps) => {
   const isSaved = useProjectStore((state) => state.isSaved);
   const showAll = useProjectStore((state) => state.showAll);
+
   const { control } = useFormContext();
 
   const watchedField = useWatch({
@@ -70,7 +73,12 @@ const EnvInput = ({ index, onDelete }: EnvInputProps) => {
         />
       </div>
       <div className="pl-14 lg:p-0 w-full">
-        <SecretToggle name={`envVariables.${index}.value`} visibilityToggle={showAll} />
+        <SecretToggle
+          name={`envVariables.${index}.value`}
+          visibilityToggle={showAll}
+          isVisible={isVisible}
+          setIsVisible={setIsVisible}
+        />
       </div>
     </div>
   );
