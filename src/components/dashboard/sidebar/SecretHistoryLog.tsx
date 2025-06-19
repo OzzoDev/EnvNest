@@ -16,7 +16,11 @@ import { LuHistory } from "react-icons/lu";
 import { useSidebarStore } from "@/store/sidebarStore";
 import { useVirtualQuery } from "@/hooks/use-virtual-query";
 
-const SecretHistoryLog = () => {
+type SecretHistoryLogProps = {
+  setHasHistoryLogs: (hasHistoryLogs: boolean) => void;
+};
+
+const SecretHistoryLog = ({ setHasHistoryLogs }: SecretHistoryLogProps) => {
   const { state, isMobile, toggleSidebar } = useSidebar();
   const secretId = useProjectStore((state) => state.secretId);
   const secret = useProjectStore((state) => state.secret);
@@ -67,6 +71,10 @@ const SecretHistoryLog = () => {
     }
   }, [secret]);
 
+  useEffect(() => {
+    setHasHistoryLogs(!!(logs && logs.length > 0));
+  }, [logs]);
+
   const loadSecret = (log: SecretHistory) => {
     setProjectId(log.project_id);
     setSecretId(log.secret_id);
@@ -84,12 +92,18 @@ const SecretHistoryLog = () => {
 
   const isCollapsed = state === "collapsed" && !isMobile;
 
-  if (isCollapsed) {
+  const hasLogs = logs && logs.length > 0;
+
+  if (isCollapsed && hasLogs) {
     return (
       <Button onClick={toggleSidebar} variant="ghost">
         <LuHistory size={24} />
       </Button>
     );
+  }
+
+  if (!hasLogs) {
+    return null;
   }
 
   return (

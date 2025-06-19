@@ -32,6 +32,7 @@ type ProjectStore = {
   showAll: boolean;
   setShowAll: (showAll: boolean) => void;
   deleteProject: () => void;
+  clear: () => void;
 };
 
 export const useProjectStore = create<ProjectStore>()(
@@ -48,6 +49,13 @@ export const useProjectStore = create<ProjectStore>()(
       isDeletingProject: false,
       error: null,
       showAll: false,
+      clear: () =>
+        set({
+          projectId: null,
+          project: null,
+          secret: null,
+          secretId: null,
+        }),
       setProjectId: (projectId: number | null) => set({ projectId }),
       setSecret: (secret: EnvironmentSecret | null) => set({ secret }),
       setProject: (project: ProjectWithRole | null) => set({ project }),

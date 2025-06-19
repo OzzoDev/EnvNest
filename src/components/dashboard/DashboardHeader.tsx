@@ -36,6 +36,10 @@ const DashboardHeader = () => {
 
   const hasWriteAccess = project?.role === "admin" || project?.role === "editor";
 
+  if (!projectId) {
+    return null;
+  }
+
   return (
     <>
       <div className="flex lg:hidden flex-col items-start gap-y-4">

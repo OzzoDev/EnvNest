@@ -14,19 +14,20 @@ import { useSidebarStore } from "@/store/sidebarStore";
 import { useVirtualQuery } from "@/hooks/use-virtual-query";
 import { ProjectTable } from "@/types/types";
 
-const ProjectList = () => {
+type ProjectListProps = {
+  setHasProjects: (hasProjects: boolean) => void;
+};
+
+const ProjectList = ({ setHasProjects }: ProjectListProps) => {
   const { state, isMobile, toggleSidebar } = useSidebar();
   const projectId = useProjectStore((state) => state.projectId);
   const project = useProjectStore((state) => state.project);
-
   const setProjectId = useProjectStore((state) => state.setProjectId);
-  const setProject = useProjectStore((state) => state.setProject);
   const setSecretId = useProjectStore((state) => state.setSecretId);
-  const setSecret = useProjectStore((state) => state.setSecret);
   const isSaved = useProjectStore((state) => state.isSaved);
   const isDeletingProject = useProjectStore((state) => state.isDeletingProject);
   const setIsDeletingProject = useProjectStore((state) => state.setIsDeletingProject);
-
+  const clear = useProjectStore((state) => state.clear);
   const setLoadingStates = useSidebarStore((state) => state.setLoadingStates);
   const isLoadingSidebar = useSidebarStore((state) => state.isLoading);
   const isLoadingDashboard = useProjectStore((state) => state.isLoading);
@@ -52,10 +53,7 @@ const ProjectList = () => {
       const isNotValidProjectId = !projects.some((pro) => pro.id === projectId);
 
       if (isNotValidProjectId) {
-        setProjectId(null);
-        setProject(null);
-        setSecretId(null);
-        setSecret(null);
+        clear();
       }
     }
   }, [projects]);
@@ -64,19 +62,29 @@ const ProjectList = () => {
     refetchProjects();
   }, [projectId]);
 
+  useEffect(() => {
+    if (!projects || projects.length === 0) {
+      clear();
+    }
+
+    setHasProjects(!!(projects && projects?.length > 0));
+  }, [projects]);
+
   const selectProject = (projectId: number) => {
     setSecretId(null);
     setProjectId(projectId);
     isMobile && toggleSidebar();
   };
 
-  if (projects?.length === 0) {
-    return <p className="text-lg text-text-color mb-8">No projects created</p>;
+  const hasProjects = !projects || projects.length;
+
+  if (!hasProjects) {
+    return null;
   }
 
   const isCollapsed = state === "collapsed" && !isMobile;
 
-  if (isCollapsed) {
+  if (isCollapsed && hasProjects) {
     return (
       <Button onClick={toggleSidebar} variant="ghost">
         <GrProjects size={24} />

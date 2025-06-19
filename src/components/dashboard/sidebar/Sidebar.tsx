@@ -19,10 +19,13 @@ import { GrProjects } from "react-icons/gr";
 import { LuHistory } from "react-icons/lu";
 import { useSidebarStore } from "@/store/sidebarStore";
 import { MdErrorOutline } from "react-icons/md";
+import { useState } from "react";
 
 const Sidebar = () => {
   const { state, isMobile, toggleSidebar } = useSidebar();
   const error = useSidebarStore((state) => state.error);
+  const [hasHistoryLogs, setHasHistoryLogs] = useState<boolean>(true);
+  const [hasProjects, setHasProjects] = useState<boolean>(true);
 
   const isCollapsed = state === "collapsed";
 
@@ -33,16 +36,20 @@ const Sidebar = () => {
           <Button onClick={toggleSidebar} variant="ghost" className="px-2">
             <GoPlus size={28} />
           </Button>
-          <Button onClick={toggleSidebar} variant="ghost" className="px-2">
-            <GrProjects size={24} />
-          </Button>
-          <Button onClick={toggleSidebar} variant="ghost" className="px-2">
-            <LuHistory size={24} />
-          </Button>
+          {hasProjects && (
+            <Button onClick={toggleSidebar} variant="ghost" className="px-2">
+              <GrProjects size={24} />
+            </Button>
+          )}
+          {hasHistoryLogs && (
+            <Button onClick={toggleSidebar} variant="ghost" className="px-2">
+              <LuHistory size={24} />
+            </Button>
+          )}
         </div>
       )}
       <SidebarRoot collapsible="icon" className="border-r border-muted">
-        <SidebarContent className={cn("bg-background overflow-y-hidden")}>
+        <SidebarContent className={cn("bg-background overflow-hidden")}>
           <SidebarGroup className="p-0">
             <SidebarGroupContent>
               <SidebarMenu
@@ -68,8 +75,8 @@ const Sidebar = () => {
                   ) : (
                     <div className="flex flex-col gap-y-8 w-full">
                       <NewProjectForm />
-                      <ProjectList />
-                      <SecretHistoryLog />
+                      <ProjectList setHasProjects={setHasProjects} />
+                      <SecretHistoryLog setHasHistoryLogs={setHasHistoryLogs} />
                     </div>
                   )}
                 </div>

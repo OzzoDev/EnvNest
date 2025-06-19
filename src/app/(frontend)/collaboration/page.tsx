@@ -15,7 +15,7 @@ const CollaborationPage = () => {
       <h2 className="text-xl text-text-color  mb-24">
         {selectedTab === "Accesss"
           ? "Add collaborator to your projects and control thier role to allow for others to access your projects to boost team productivity"
-          : "Have a team? Create an organization to use when creating proejcts to always allow acccess to your team members, control who has read or write access"}
+          : "Have a team? Create an organization to use when creating projects to always allow acccess to your team members, control who has read or write access"}
       </h2>
       <Tabs
         value={selectedTab}
