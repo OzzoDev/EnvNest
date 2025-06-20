@@ -1,9 +1,8 @@
-import { useProjectStore } from "@/store/projectStore";
 import EnvInput from "./EnvInput";
 import { FormProvider, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   Dialog,
   DialogClose,
@@ -17,16 +16,15 @@ import {
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { trpc } from "@/trpc/client";
 import { toast } from "sonner";
 import SecretSelector from "./SecretSelector";
 import { FiPlus } from "react-icons/fi";
 import AlertDialog from "../utils/AleartDialog";
 import { GrRevert } from "react-icons/gr";
 import ActivityLog from "../dashboard/ActivityLog";
-import SkeletonWrapper from "../utils/loaders/SkeletonWrapper";
 import { usePathname } from "next/navigation";
 import { copyToClipBoard } from "@/lib/utils";
+import { useProjectControllerContext } from "@/context/ProjectControllerContext";
 
 export const formSchema = z.object({
   envVariables: z.array(z.object({ name: z.string().nonempty(), value: z.string().nonempty() })),
@@ -36,25 +34,31 @@ export type FormData = z.infer<typeof formSchema>;
 
 const EnvEditor = () => {
   const pathname = usePathname();
-  const projectId = useProjectStore((state) => state.projectId);
-  const project = useProjectStore((state) => state.project);
-  const isLoading = useProjectStore((state) => state.isLoading);
-  const isDeletingProject = useProjectStore((state) => state.isDeletingProject);
-  const secretId = useProjectStore((state) => state.secretId);
-  const secret = useProjectStore((state) => state.secret);
-  const showAll = useProjectStore((state) => state.showAll);
-  const setShowAll = useProjectStore((state) => state.setShowAll);
-  const setIsSaved = useProjectStore((state) => state.setIsSaved);
-  const setSecretId = useProjectStore((state) => state.setSecretId);
-  const setSecret = useProjectStore((state) => state.setSecret);
-  const deleteProjectSecretRef = useProjectStore((state) => state.deleteProjectSecretRef);
 
-  const [updateSuccess, setUpdateSuccess] = useState<boolean>(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const [isActivityLogOpen, setIsActicityLogOpen] = useState<boolean>(false);
-  const [updateMessage, setUpdateMessage] = useState<string>("");
-  const [isValid, setIsValid] = useState<boolean>(false);
-  const [visibleInputs, setVisibleInputs] = useState<boolean[]>([]);
+  const {
+    projectId,
+    project,
+    secretId,
+    secret,
+    showAll,
+    setShowAll,
+    setIsSaved,
+    setIsValid,
+    visibleInputs,
+    setVisibleInputs,
+    updateMessage,
+    updateSecret,
+    deleteSecret,
+    updateSuccess,
+    isActivityLogOpen,
+    setIsActicityLogOpen,
+    hasWriteAccess,
+    isValid,
+    isOpen,
+    setIsOpen,
+    setUpdateMessage,
+    envVariables: envs,
+  } = useProjectControllerContext();
 
   const getEnvVariables = () => {
     if (!secret?.content) {
@@ -125,49 +129,15 @@ const EnvEditor = () => {
     reset({ envVariables: newValues });
   }, [secret, pathname]);
 
+  useEffect(() => {
+    if (updateSuccess) {
+      reset({ envVariables: envs });
+    }
+  }, [updateSuccess]);
+
   const { fields: envVariables, replace } = useFieldArray({
     control,
     name: "envVariables",
-  });
-  const { mutate: updateSecret } = trpc.secret.update.useMutation({
-    onMutate: () => {
-      setUpdateSuccess(false);
-    },
-    onSuccess: (data) => {
-      const envVariables = data.content.split("&&").map((val) => {
-        const [name, value] = val.split("=");
-        return { name, value };
-      });
-
-      reset({ envVariables });
-
-      setUpdateSuccess(true);
-      setIsActicityLogOpen(false);
-
-      setVisibleInputs((prev) => prev.map(() => false));
-
-      toast.success("Successfully saved .env file");
-    },
-    onError: () => {
-      toast.success("Error saving .env file");
-    },
-    onSettled: () => {
-      setUpdateMessage("");
-    },
-  });
-
-  const { mutate: deleteSecret } = trpc.secret.delete.useMutation({
-    onSuccess: () => {
-      toast.success("Successfully deleted .env file");
-
-      deleteProjectSecretRef(projectId!);
-      setSecretId(null);
-      setSecret(null);
-      setVisibleInputs((prev) => prev.map(() => false));
-    },
-    onError: (err) => {
-      toast.error(err.message || "Something went wrong. Please try again");
-    },
   });
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
@@ -221,50 +191,36 @@ const EnvEditor = () => {
 
   const renderEditor = !!secret;
 
-  const isLoadingUi = isLoading || isDeletingProject;
-
-  const hasWriteAccess = project?.role === "admin" || project?.role === "editor";
-
   return (
     <FormProvider {...formMethods}>
       <div className="flex flex-col gap-y-8">
         <div className="flex flex-col xl:flex-row justify-between xl:items-end gap-8">
           <SecretSelector />
-          <SkeletonWrapper
-            skeletons={hasWriteAccess ? 2 : 1}
-            isLoading={isLoadingUi}
-            width="w-28"
-            className="flex gap-x-4">
-            {secretId && (
-              <div className="flex gap-x-4">
-                <ActivityLog
-                  isOpen={isActivityLogOpen}
-                  setIsOpen={setIsActicityLogOpen}
-                  refetchTrigger={updateSuccess}
-                  updateSecret={updateSecret}
-                />
-                {hasWriteAccess && (
-                  <AlertDialog
-                    title="Delete .env file"
-                    description={`Are you sure you want to delete this .env file. This action can't be undone.`}
-                    action="Delete"
-                    actionFn={() => deleteSecret({ secretId, projectId })}>
-                    <Button type="button" variant="secondary">
-                      Delete
-                    </Button>
-                  </AlertDialog>
-                )}
-              </div>
-            )}
-          </SkeletonWrapper>
+
+          {secretId && (
+            <div className="flex gap-x-4">
+              <ActivityLog
+                isOpen={isActivityLogOpen}
+                setIsOpen={setIsActicityLogOpen}
+                updateSecret={updateSecret}
+              />
+              {hasWriteAccess && (
+                <AlertDialog
+                  title="Delete .env file"
+                  description={`Are you sure you want to delete this .env file. This action can't be undone.`}
+                  action="Delete"
+                  actionFn={() => deleteSecret({ secretId, projectId })}>
+                  <Button type="button" variant="secondary">
+                    Delete
+                  </Button>
+                </AlertDialog>
+              )}
+            </div>
+          )}
         </div>
 
         {hasWriteAccess && (
-          <SkeletonWrapper
-            skeletons={2}
-            isLoading={isLoadingUi}
-            width="w-28"
-            className="flex justify-between mt-4">
+          <>
             {renderEditor && (
               <div className="flex justify-between mt-4">
                 <Button
@@ -341,53 +297,41 @@ const EnvEditor = () => {
                 </div>
               </div>
             )}
-          </SkeletonWrapper>
+          </>
         )}
 
-        <SkeletonWrapper
-          skeletons={2}
-          isLoading={isLoadingUi}
-          width="w-28"
-          className="flex gap-4 self-end mt-[-16px]">
-          <div className="self-end mt-[-16px]">
-            {envVariables && secret && envVariables.length > 0 && (
-              <div className="flex gap-4 self-end">
-                <Button
-                  variant="outline"
-                  onClick={() => copyToClipBoard(secret.content.split("&&").join("\n"))}>
-                  Copy
-                </Button>
-                <Button variant="outline" onClick={handleToggleAllInputs}>
-                  {showAll ? "Hide all" : "Show all"}
-                </Button>
-              </div>
-            )}
-          </div>
-        </SkeletonWrapper>
-
-        <SkeletonWrapper
-          skeletons={4}
-          isLoading={isLoadingUi}
-          height="h-20 lg:h-10"
-          className="flex flex-col gap-y-8">
-          {renderEditor && (
-            <ul className="flex flex-col gap-y-4 lg:gap-y-8">
-              {envVariables?.map((env, index) => (
-                <EnvInput
-                  key={env.id}
-                  index={index}
-                  isVisible={visibleInputs[index]}
-                  setIsVisible={() =>
-                    setVisibleInputs((prev) =>
-                      prev.map((input, idx) => (idx === index ? !prev[index] : input))
-                    )
-                  }
-                  onDelete={onDeleteVariable}
-                />
-              ))}
-            </ul>
+        <div className="self-end mt-[-16px]">
+          {envVariables && secret && envVariables.length > 0 && (
+            <div className="flex gap-4 self-end">
+              <Button
+                variant="outline"
+                onClick={() => copyToClipBoard(secret.content.split("&&").join("\n"))}>
+                Copy
+              </Button>
+              <Button variant="outline" onClick={handleToggleAllInputs}>
+                {showAll ? "Hide all" : "Show all"}
+              </Button>
+            </div>
           )}
-        </SkeletonWrapper>
+        </div>
+
+        {renderEditor && (
+          <ul className="flex flex-col gap-y-4 lg:gap-y-8">
+            {envVariables?.map((env, index) => (
+              <EnvInput
+                key={env.id}
+                index={index}
+                isVisible={visibleInputs[index]}
+                setIsVisible={() =>
+                  setVisibleInputs((prev) =>
+                    prev.map((input, idx) => (idx === index ? !prev[index] : input))
+                  )
+                }
+                onDelete={onDeleteVariable}
+              />
+            ))}
+          </ul>
+        )}
       </div>
     </FormProvider>
   );

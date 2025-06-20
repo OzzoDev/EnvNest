@@ -17,7 +17,7 @@ type AlertDialogProps = {
   action: string;
   actionFn: () => void;
   unsafe?: boolean;
-  children: ReactElement<ButtonHTMLAttributes<HTMLButtonElement>>;
+  children: ReactElement<ButtonHTMLAttributes<HTMLButtonElement>> | false;
 };
 
 const AlertDialog = ({
@@ -28,7 +28,7 @@ const AlertDialog = ({
   unsafe = false,
   children,
 }: AlertDialogProps) => {
-  if (unsafe) {
+  if (unsafe && children) {
     return <>{cloneElement(children, { onClick: actionFn })}</>;
   }
 

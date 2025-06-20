@@ -4,8 +4,8 @@ import SecretToggle from "../utils/SecretToggle";
 import { IoMdClose } from "react-icons/io";
 import AlertDialog from "../utils/AleartDialog";
 import { Button } from "../ui/button";
-import { useProjectStore } from "@/store/projectStore";
 import { toast } from "sonner";
+import { useProjectControllerContext } from "@/context/ProjectControllerContext";
 
 type EnvInputProps = {
   index: number;
@@ -15,10 +15,7 @@ type EnvInputProps = {
 };
 
 const EnvInput = ({ index, isVisible, setIsVisible, onDelete }: EnvInputProps) => {
-  const project = useProjectStore((state) => state.project);
-
-  const isSaved = useProjectStore((state) => state.isSaved);
-  const showAll = useProjectStore((state) => state.showAll);
+  const { isSaved, hasWriteAccess } = useProjectControllerContext();
 
   const { control } = useFormContext();
 
@@ -31,8 +28,6 @@ const EnvInput = ({ index, isVisible, setIsVisible, onDelete }: EnvInputProps) =
   const value = watchedField?.value || "";
 
   const isEmpty = !name && !value;
-
-  const hasWriteAccess = project?.role === "admin" || project?.role === "editor";
 
   return (
     <div className="flex flex-col lg:flex-row justify-between gap-4 lg:gap-8">

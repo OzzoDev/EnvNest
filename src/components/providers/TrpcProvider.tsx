@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink } from "@trpc/client";
 import { PropsWithChildren, useState } from "react";
 
-const Providers = ({ children }: PropsWithChildren) => {
+const TrpcProvider = ({ children }: PropsWithChildren) => {
   const [queryClient] = useState(() => new QueryClient());
 
   const [trpcClient] = useState(() =>
@@ -28,4 +28,4 @@ const Providers = ({ children }: PropsWithChildren) => {
   );
 };
 
-export default Providers;
+export default TrpcProvider;

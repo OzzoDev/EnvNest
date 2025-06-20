@@ -1,23 +1,13 @@
 "use client";
 
-import { useProjectStore } from "@/store/projectStore";
-import { trpc } from "@/trpc/client";
 import { useEffect, useMemo, useState } from "react";
 import ModeSelect from "../utils/ModeSelect";
 import { ENVIRONMENTS } from "@/config";
-import SkeletonWrapper from "../utils/loaders/SkeletonWrapper";
+import { useProjectControllerContext } from "@/context/ProjectControllerContext";
 
 const SecretSelector = () => {
-  const projectId = useProjectStore((state) => state.projectId);
-  const secretId = useProjectStore((state) => state.secretId);
-  const secret = useProjectStore((state) => state.secret);
-  const hasHydrated = useProjectStore((state) => state.hasHydrated);
-  const isSaved = useProjectStore((state) => state.isSaved);
-  const isLoading = useProjectStore((state) => state.isLoading);
-  const isDeletingProject = useProjectStore((state) => state.isDeletingProject);
-  const setSecretId = useProjectStore((state) => state.setSecretId);
-  const setSecret = useProjectStore((state) => state.setSecret);
-  const setError = useProjectStore((state) => state.setError);
+  const { secretId, isSaved, setSecretId, setSecret, environmentPaths, isLoading } =
+    useProjectControllerContext();
 
   const [formData, setFormData] = useState<{
     prevEnvironment?: string;
@@ -25,19 +15,6 @@ const SecretSelector = () => {
     path?: string;
     secretId?: number;
   }>({ secretId: secretId ?? undefined });
-
-  const {
-    data: environmentPaths,
-    error: environmentPathsError,
-    refetch: refetchEnvironmentPaths,
-  } = trpc.secret.getAllAsPathAndId.useQuery(
-    { projectId: Number(projectId) },
-    { enabled: !!projectId && hasHydrated, retry: false }
-  );
-
-  useEffect(() => {
-    setError(environmentPathsError?.message ?? null);
-  }, [environmentPathsError]);
 
   useEffect(() => {
     if (secretId) {
@@ -112,10 +89,6 @@ const SecretSelector = () => {
     }
   }, [formData.secretId]);
 
-  useEffect(() => {
-    refetchEnvironmentPaths();
-  }, [secretId, secret, projectId]);
-
   const environments = Object.keys(environmentPaths ?? {}).map(
     (key) => ENVIRONMENTS.find((env) => env.value === key)?.label || key
   );
@@ -136,44 +109,34 @@ const SecretSelector = () => {
 
   const hide = Object.keys(environmentPaths ?? {}).length === 0;
 
-  const isLoadingUi = isLoading || isDeletingProject;
-
-  if (hide && !isLoadingUi) {
+  if (hide || isLoading) {
     return null;
   }
 
   return (
     <div>
-      <SkeletonWrapper skeletons={1} isLoading={isLoadingUi} width="w-64" className="mb-4">
-        <p className="font-medium text-text-color mb-4">View and edit .env file</p>
-      </SkeletonWrapper>
+      <p className="font-medium text-text-color mb-4">View and edit .env file</p>
 
-      <SkeletonWrapper
-        skeletons={2}
-        isLoading={isLoadingUi}
-        width="w-64"
-        className="flex flex-col lg:flex-row gap-4">
-        <div className="flex flex-col lg:flex-row gap-4">
+      <div className="flex flex-col lg:flex-row gap-4">
+        <ModeSelect
+          selectPlaceholder="Select environment"
+          selectLabel="Environments"
+          disabled={!isSaved}
+          options={environments}
+          value={formData.environment}
+          onSelect={(value) => setFormData((prev) => ({ ...prev, environment: value }))}
+        />
+        {formData.environment && (
           <ModeSelect
-            selectPlaceholder="Select environment"
-            selectLabel="Environments"
+            selectPlaceholder="Select path"
+            selectLabel="Paths"
             disabled={!isSaved}
-            options={environments}
-            value={formData.environment}
-            onSelect={(value) => setFormData((prev) => ({ ...prev, environment: value }))}
+            options={paths}
+            value={formData.path}
+            onSelect={(value) => setFormData((prev) => ({ ...prev, path: value }))}
           />
-          {formData.environment && (
-            <ModeSelect
-              selectPlaceholder="Select path"
-              selectLabel="Paths"
-              disabled={!isSaved}
-              options={paths}
-              value={formData.path}
-              onSelect={(value) => setFormData((prev) => ({ ...prev, path: value }))}
-            />
-          )}
-        </div>
-      </SkeletonWrapper>
+        )}
+      </div>
     </div>
   );
 };

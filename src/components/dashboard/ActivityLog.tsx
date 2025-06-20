@@ -14,6 +14,7 @@ import { convertToLocalTime } from "@/lib/utils";
 import AuditLogItem from "./AuditlogItem";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import { useProjectControllerContext } from "@/context/ProjectControllerContext";
 
 type UpdateSecretArgs = {
   projectId: number;
@@ -26,33 +27,11 @@ type UpdateSecretArgs = {
 type ActivityLogProps = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  refetchTrigger: boolean;
   updateSecret: (args: UpdateSecretArgs) => void;
 };
 
-const ActivityLog = ({ isOpen, setIsOpen, refetchTrigger, updateSecret }: ActivityLogProps) => {
-  const project = useProjectStore((state) => state.project);
-  const projectId = useProjectStore((state) => state.projectId);
-  const secret = useProjectStore((state) => state.secret);
-  const secretId = useProjectStore((state) => state.secretId);
-  const setError = useProjectStore((state) => state.setError);
-
-  const {
-    data: auditLogs,
-    error: auditLogsError,
-    refetch,
-  } = trpc.auditLog.get.useQuery(
-    { projectId: projectId!, secretId: secretId! },
-    { enabled: !!secretId && !!projectId, retry: false }
-  );
-
-  useEffect(() => {
-    refetch();
-  }, [refetchTrigger]);
-
-  useEffect(() => {
-    setError(auditLogsError?.message ?? null);
-  }, [auditLogsError]);
+const ActivityLog = ({ isOpen, setIsOpen, updateSecret }: ActivityLogProps) => {
+  const { auditLogs, projectId, secretId, project, secret } = useProjectControllerContext();
 
   const onRollback = (auditLogId: number) => {
     const auditLog = auditLogs?.find((audit) => audit.id === auditLogId);

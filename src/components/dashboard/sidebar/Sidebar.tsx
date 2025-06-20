@@ -88,7 +88,7 @@ const Sidebar = () => {
                   )}
                   {isLoadingSidebar && !isCollapsed ? (
                     <div className="flex flex-col items-center justify-center h-screen pb-64">
-                      <Loader2 className="animate-spin h-12 w-12" />
+                      <Loader2 className="animate-spin h-12 w-12 text-primary" />
                     </div>
                   ) : (
                     <>

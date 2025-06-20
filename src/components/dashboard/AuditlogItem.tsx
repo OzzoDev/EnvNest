@@ -9,6 +9,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
 import { ScrollArea } from "../ui/scroll-area";
 import { useProjectStore } from "@/store/projectStore";
+import { useProjectControllerContext } from "@/context/ProjectControllerContext";
 
 type AuditLogItemProps = {
   audit: AuditLogWithUser;
@@ -16,7 +17,7 @@ type AuditLogItemProps = {
 };
 
 const AuditLogItem = ({ audit, onRollback }: AuditLogItemProps) => {
-  const secret = useProjectStore((state) => state.secret);
+  const { secret } = useProjectControllerContext();
   const [showContent, setShowContent] = useState<boolean>(false);
 
   const [date, time] = convertToLocalTime(audit.created_at).split(" ");

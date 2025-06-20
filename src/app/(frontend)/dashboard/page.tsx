@@ -1,18 +1,17 @@
 "use client";
 
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import EnvCreator from "@/components/editor/EnvCreator";
 import EnvEditor from "@/components/editor/EnvEditor";
 import { Button } from "@/components/ui/button";
+import { useProjectControllerContext } from "@/context/ProjectControllerContext";
 import { useProjectStore } from "@/store/projectStore";
 import { useSidebarStore } from "@/store/sidebarStore";
+import { Loader2 } from "lucide-react";
 import { MdErrorOutline } from "react-icons/md";
 
 const DashboardPage = () => {
-  const error = useProjectStore((state) => state.error);
-  const project = useProjectStore((state) => state.project);
-  const hasProjects = useProjectStore((state) => state.hasProjects);
-  const isLoadingDashboard = useProjectStore((state) => state.isLoading);
-  const isLoadingSidebar = useSidebarStore((state) => state.isLoading);
+  const { project, error, hasProjects, isLoading, hasWriteAccess } = useProjectControllerContext();
 
   const setSideBarOpen = useSidebarStore((state) => state.setSidebarOpen);
 
@@ -26,7 +25,7 @@ const DashboardPage = () => {
     );
   }
 
-  if (!hasProjects && !isLoadingDashboard && !isLoadingSidebar) {
+  if (!hasProjects && !isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-32 md:16">
         <h2 className="text-2xl text-text-color text-center font-medium w-[90%]">
@@ -37,10 +36,17 @@ const DashboardPage = () => {
     );
   }
 
-  const hasWriteAccess = project?.role === "admin" || project?.role === "editor";
+  if (isLoading) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen pb-36">
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <>
+      <DashboardHeader />
       {hasWriteAccess && <EnvCreator />}
       <EnvEditor />
     </>

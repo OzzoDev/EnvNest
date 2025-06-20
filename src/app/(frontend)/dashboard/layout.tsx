@@ -1,6 +1,5 @@
 import { authOptions } from "@/app/(backend)/api/auth/[...nextauth]/route";
 import Sidebar from "@/components/dashboard/sidebar/Sidebar";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import ProjectWatcher from "@/components/dashboard/ProjectWatcher";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { getServerSession } from "next-auth";
@@ -28,7 +27,6 @@ const DashboardLayout = async ({ children }: Readonly<{ children: ReactNode }>) 
       }>
       <Sidebar />
       <div className="flex flex-col gap-y-12 p-6 min-h-screen w-full max-w-screen overflow-x-hidden">
-        <DashboardHeader />
         {children}
       </div>
       <ProjectWatcher />
