@@ -1,72 +1,26 @@
 "use client";
 
-import { trpc } from "@/trpc/client";
-import { useEffect } from "react";
 import { useProjectStore } from "@/store/projectStore";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import AlertDialog from "@/components/utils/AleartDialog";
 import { cn } from "@/lib/utils";
-import SkeletonWrapper from "@/components/utils/loaders/SkeletonWrapper";
 import { useSidebar } from "@/components/ui/sidebar";
 import { GrProjects } from "react-icons/gr";
-import { useSidebarStore } from "@/store/sidebarStore";
-import { useVirtualQuery } from "@/hooks/use-virtual-query";
-import { ProjectTable } from "@/types/types";
+import { SidebarControllerType } from "@/hooks/use-sidebar-controller";
 
-const ProjectList = () => {
+type ProjectListProps = {
+  controller: SidebarControllerType;
+};
+
+const ProjectList = ({ controller }: ProjectListProps) => {
   const { state, isMobile, toggleSidebar } = useSidebar();
   const projectId = useProjectStore((state) => state.projectId);
-  const project = useProjectStore((state) => state.project);
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setSecretId = useProjectStore((state) => state.setSecretId);
   const isSaved = useProjectStore((state) => state.isSaved);
-  const isDeletingProject = useProjectStore((state) => state.isDeletingProject);
-  const setIsDeletingProject = useProjectStore((state) => state.setIsDeletingProject);
-  const clear = useProjectStore((state) => state.clear);
-  const setLoadingStates = useSidebarStore((state) => state.setLoadingStates);
-  const setHasProjects = useProjectStore((state) => state.setHasProjects);
 
-  const isLoadingSidebar = useSidebarStore((state) => state.isLoading);
-  const isLoadingDashboard = useProjectStore((state) => state.isLoading);
-
-  const {
-    data: projects,
-    isLoading: isLoadingProjetcs,
-    refetch: refetchProjects,
-  } = useVirtualQuery<ProjectTable[]>(
-    () => trpc.project.get.useQuery(undefined, { retry: false }),
-    [projectId, project],
-    "projects"
-  );
-
-  useEffect(() => {
-    setLoadingStates([isLoadingProjetcs]);
-  }, [isLoadingProjetcs]);
-
-  useEffect(() => {
-    if (projects) {
-      setIsDeletingProject(false);
-
-      const isNotValidProjectId = !projects.some((pro) => pro.id === projectId);
-
-      if (isNotValidProjectId) {
-        clear();
-      }
-    }
-  }, [projects]);
-
-  useEffect(() => {
-    refetchProjects();
-  }, [projectId]);
-
-  useEffect(() => {
-    if (!projects || projects.length === 0) {
-      clear();
-    }
-
-    setHasProjects(!!(projects && projects?.length > 0));
-  }, [projects]);
+  const { projects } = controller;
 
   const selectProject = (projectId: number) => {
     setSecretId(null);
@@ -90,22 +44,43 @@ const ProjectList = () => {
     );
   }
 
-  const isLoadingUi =
-    isLoadingProjetcs || isLoadingSidebar || isLoadingDashboard || isDeletingProject;
+  if (!projects) {
+    return null;
+  }
 
   return (
-    <SkeletonWrapper skeletons={8} isLoading={isLoadingUi} className="flex flex-col gap-y-4">
-      <div>
-        <p className="text-lg text-text-color mb-8">Your projects</p>
-        <ScrollArea
-          className={cn(
-            "flex flex-col gap-y-4 max-h-[300px]",
-            isCollapsed ? "overflow-y-hidden" : "overflow-y-auto"
-          )}>
-          {projects?.map((project) => {
-            return isSaved ? (
-              <div key={project.id} className="my-2 px-1">
+    <div>
+      <p className="text-lg text-text-color mb-8">Your projects</p>
+      <ScrollArea
+        className={cn(
+          "flex flex-col gap-y-4 max-h-[300px]",
+          isCollapsed ? "overflow-y-hidden" : "overflow-y-auto"
+        )}>
+        {projects?.map((project) => {
+          return isSaved ? (
+            <div key={project.id} className="my-2 px-1">
+              <Button
+                onClick={() => selectProject(project.id)}
+                variant="ghost"
+                className={cn(
+                  "justify-start w-full text-left break-all whitespace-normal h-auto border-l-2 border-transparent",
+                  {
+                    "hover:bg-transparent hover:text-primary underline text-primary":
+                      projectId === project.id,
+                  }
+                )}>
+                {project.full_name}
+              </Button>
+            </div>
+          ) : (
+            <div key={project.id} className="my-2">
+              <AlertDialog
+                title="Are you sure you want to change project?"
+                description="Any unsaved changes will be lost. This action cannot be undone."
+                action="Continue"
+                actionFn={() => selectProject(project.id)}>
                 <Button
+                  key={project.id}
                   onClick={() => selectProject(project.id)}
                   variant="ghost"
                   className={cn(
@@ -117,34 +92,12 @@ const ProjectList = () => {
                   )}>
                   {project.full_name}
                 </Button>
-              </div>
-            ) : (
-              <div key={project.id} className="my-2">
-                <AlertDialog
-                  title="Are you sure you want to change project?"
-                  description="Any unsaved changes will be lost. This action cannot be undone."
-                  action="Continue"
-                  actionFn={() => selectProject(project.id)}>
-                  <Button
-                    key={project.id}
-                    onClick={() => selectProject(project.id)}
-                    variant="ghost"
-                    className={cn(
-                      "justify-start w-full text-left break-all whitespace-normal h-auto border-l-2 border-transparent",
-                      {
-                        "hover:bg-transparent hover:text-primary underline text-primary":
-                          projectId === project.id,
-                      }
-                    )}>
-                    {project.full_name}
-                  </Button>
-                </AlertDialog>
-              </div>
-            );
-          })}
-        </ScrollArea>
-      </div>
-    </SkeletonWrapper>
+              </AlertDialog>
+            </div>
+          );
+        })}
+      </ScrollArea>
+    </div>
   );
 };
 

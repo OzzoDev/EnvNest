@@ -19,14 +19,23 @@ import { GrProjects } from "react-icons/gr";
 import { LuHistory } from "react-icons/lu";
 import { useSidebarStore } from "@/store/sidebarStore";
 import { MdErrorOutline } from "react-icons/md";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useProjectStore } from "@/store/projectStore";
+import { Loader2 } from "lucide-react";
+import { useSidebarController } from "@/hooks/use-sidebar-controller";
 
 const Sidebar = () => {
   const { state, isMobile, toggleSidebar, setOpen, setOpenMobile } = useSidebar();
   const error = useSidebarStore((state) => state.error);
   const sidebarOpen = useSidebarStore((state) => state.sidebarOpen);
-  const hasProjects = useSidebarStore((state) => state.error);
-  const [hasHistoryLogs, setHasHistoryLogs] = useState<boolean>(true);
+  const hasProjects = useProjectStore((state) => state.hasProjects);
+  const hasHistoryLogs = useProjectStore((state) => state.hasHistoryLogs);
+
+  const controller = useSidebarController();
+
+  const {
+    isLoading: { any: isLoadingSidebar },
+  } = controller;
 
   useEffect(() => {
     if (sidebarOpen && state === "collapsed") {
@@ -77,18 +86,28 @@ const Sidebar = () => {
                       <IoMdClose size={20} />
                     </Button>
                   )}
-                  {error && !isCollapsed ? (
-                    <div className="pt-44 flex flex-col gap-y-12 items-center">
-                      <MdErrorOutline size={32} className="text-destructive" />
-                      <p className="text-center text-lg text-destructive font-medium">{error}</p>
-                      <Button onClick={() => window.location.reload()}>Try again</Button>
+                  {isLoadingSidebar && !isCollapsed ? (
+                    <div className="flex flex-col items-center justify-center h-screen pb-64">
+                      <Loader2 className="animate-spin h-12 w-12" />
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-y-8 w-full">
-                      <NewProjectForm />
-                      <ProjectList />
-                      <SecretHistoryLog setHasHistoryLogs={setHasHistoryLogs} />
-                    </div>
+                    <>
+                      {error && !isCollapsed ? (
+                        <div className="pt-44 flex flex-col gap-y-12 items-center">
+                          <MdErrorOutline size={32} className="text-destructive" />
+                          <p className="text-center text-lg text-destructive font-medium">
+                            {error}
+                          </p>
+                          <Button onClick={() => window.location.reload()}>Try again</Button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-y-8 w-full">
+                          <NewProjectForm controller={controller} />
+                          <ProjectList controller={controller} />
+                          <SecretHistoryLog controller={controller} />
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </SidebarMenu>

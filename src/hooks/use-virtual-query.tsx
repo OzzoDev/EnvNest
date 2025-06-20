@@ -6,6 +6,7 @@ import { useSidebarStore } from "@/store/sidebarStore";
 type QueryHook<T> = () => {
   data: T | undefined;
   isLoading: boolean;
+  isFetching: boolean;
   error?: unknown;
   refetch: () => Promise<{ data: T | undefined }>;
 };
@@ -20,7 +21,13 @@ export function useVirtualQuery<T>(
   const setError = useSidebarStore((state) => state.setError);
   const cachedData = cache[key] as T | undefined;
 
-  const { data, error: initialError, isLoading, refetch: originalRefetch } = queryHook();
+  const {
+    data,
+    error: initialError,
+    isLoading,
+    isFetching,
+    refetch: originalRefetch,
+  } = queryHook();
 
   const [internalLoading, setInternalLoading] = useState(false);
 
@@ -75,7 +82,7 @@ export function useVirtualQuery<T>(
   }, deps);
 
   useEffect(() => {
-    if (data !== undefined && !cachedData) {
+    if (data !== undefined && cachedData === undefined) {
       setCache(key, data);
     }
 
@@ -91,6 +98,7 @@ export function useVirtualQuery<T>(
   return {
     data: (cache[key] as T | undefined) ?? data,
     isLoading: internalLoading || isLoading,
+    isFetching: isFetching,
     refetch,
   };
 }
