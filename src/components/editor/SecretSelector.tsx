@@ -5,16 +5,31 @@ import ModeSelect from "../utils/ModeSelect";
 import { ENVIRONMENTS } from "@/config";
 import { useProjectControllerContext } from "@/context/ProjectControllerContext";
 
-const SecretSelector = () => {
-  const { secretId, isSaved, setSecretId, setSecret, environmentPaths, isLoading } =
-    useProjectControllerContext();
+export type FormData = {
+  prevEnvironment?: string;
+  environment?: string;
+  path?: string;
+  secretId?: number;
+};
 
-  const [formData, setFormData] = useState<{
-    prevEnvironment?: string;
-    environment?: string;
-    path?: string;
-    secretId?: number;
-  }>({ secretId: secretId ?? undefined });
+const SecretSelector = () => {
+  const {
+    secretId,
+    isSaved,
+    setSecretId,
+    setSecret,
+    environmentPaths,
+    isLoading,
+    secretSelectorFormData,
+    setSecretSelectorFormData,
+  } = useProjectControllerContext();
+
+  // const [formData, setFormData] = useState<{
+  //   prevEnvironment?: string;
+  //   environment?: string;
+  //   path?: string;
+  //   secretId?: number;
+  // }>({ secretId: secretId ?? undefined });
 
   useEffect(() => {
     if (secretId) {
@@ -22,29 +37,29 @@ const SecretSelector = () => {
         paths.some((path) => path.id === secretId)
       )?.[0];
 
-      if (envKey && formData.environment !== envKey && environmentPaths) {
+      if (envKey && secretSelectorFormData.environment !== envKey && environmentPaths) {
         const label = ENVIRONMENTS.find((env) => env.value === envKey)?.label;
 
         const currentEnvironmentPaths = environmentPaths[envKey];
         const currentPath = currentEnvironmentPaths.find((path) => path.id === secretId);
 
-        setFormData({
+        setSecretSelectorFormData({
           prevEnvironment: label,
           environment: label,
           path: currentPath?.path,
           secretId: currentPath?.id,
         });
       } else {
-        setFormData({});
+        setSecretSelectorFormData({});
       }
     } else {
-      setFormData({});
+      setSecretSelectorFormData({});
     }
   }, [environmentPaths, secretId]);
 
   useEffect(() => {
-    const prevEnvironment = formData.prevEnvironment;
-    const currentEnvironment = formData.environment;
+    const prevEnvironment = secretSelectorFormData.prevEnvironment;
+    const currentEnvironment = secretSelectorFormData.environment;
 
     const environmentKey = ENVIRONMENTS.find((env) => env.label === currentEnvironment)?.value;
 
@@ -54,58 +69,64 @@ const SecretSelector = () => {
         : environmentPaths?.[environmentKey || ""]?.[0].path ?? undefined;
 
     if (prevEnvironment !== currentEnvironment && prevEnvironment) {
-      setFormData((prev) => ({
+      setSecretSelectorFormData((prev) => ({
         ...prev,
         path,
         secretId: undefined,
       }));
       setSecret(null);
     } else {
-      setFormData((prev) => ({
+      setSecretSelectorFormData((prev) => ({
         ...prev,
         path,
         prevEnvironment: currentEnvironment,
       }));
     }
-  }, [formData.environment]);
+  }, [secretSelectorFormData.environment]);
 
   useEffect(() => {
-    if (formData.path && environmentPaths) {
-      const envKey = ENVIRONMENTS.find((env) => env.label === formData.environment)?.value;
+    if (secretSelectorFormData.path && environmentPaths) {
+      const envKey = ENVIRONMENTS.find(
+        (env) => env.label === secretSelectorFormData.environment
+      )?.value;
 
       if (envKey) {
         const currentEnvironmentPaths = environmentPaths[envKey];
 
-        const currentPath = currentEnvironmentPaths.find((path) => path.path === formData.path);
+        const currentPath = currentEnvironmentPaths.find(
+          (path) => path.path === secretSelectorFormData.path
+        );
 
-        setFormData((prev) => ({ ...prev, secretId: currentPath?.id }));
+        setSecretSelectorFormData((prev) => ({ ...prev, secretId: currentPath?.id }));
       }
     }
-  }, [formData.path]);
+  }, [secretSelectorFormData.path]);
 
   useEffect(() => {
-    if (formData.secretId) {
-      setSecretId(formData.secretId);
+    if (secretSelectorFormData.secretId) {
+      setSecretId(secretSelectorFormData.secretId);
     }
-  }, [formData.secretId]);
+  }, [secretSelectorFormData.secretId]);
 
   const environments = Object.keys(environmentPaths ?? {}).map(
     (key) => ENVIRONMENTS.find((env) => env.value === key)?.label || key
   );
 
-  const selectedKey = ENVIRONMENTS.find((env) => env.label === formData.environment)?.value;
+  const selectedKey = ENVIRONMENTS.find(
+    (env) => env.label === secretSelectorFormData.environment
+  )?.value;
 
   const paths = useMemo(() => {
-    const availablePaths = environmentPaths?.[selectedKey!]?.map((sec) => sec.path) ?? [];
+    return environmentPaths?.[selectedKey!]?.map((sec) => sec.path) ?? [];
+  }, [selectedKey, environmentPaths]);
 
-    const isValidPath = availablePaths.includes(formData.path!);
+  useEffect(() => {
+    const isValidPath = paths.includes(secretSelectorFormData.path!);
 
-    if (!isValidPath) {
-      setFormData((prev) => ({ ...prev, path: undefined }));
+    if (!isValidPath && secretSelectorFormData.path !== undefined) {
+      setSecretSelectorFormData((prev) => ({ ...prev, path: undefined }));
     }
-
-    return availablePaths;
-  }, [formData.environment, environmentPaths]);
+  }, [paths, secretSelectorFormData.path]);
 
   const hide = Object.keys(environmentPaths ?? {}).length === 0;
 
@@ -123,17 +144,19 @@ const SecretSelector = () => {
           selectLabel="Environments"
           disabled={!isSaved}
           options={environments}
-          value={formData.environment}
-          onSelect={(value) => setFormData((prev) => ({ ...prev, environment: value }))}
+          value={secretSelectorFormData.environment}
+          onSelect={(value) =>
+            setSecretSelectorFormData((prev) => ({ ...prev, environment: value }))
+          }
         />
-        {formData.environment && (
+        {secretSelectorFormData.environment && (
           <ModeSelect
             selectPlaceholder="Select path"
             selectLabel="Paths"
             disabled={!isSaved}
             options={paths}
-            value={formData.path}
-            onSelect={(value) => setFormData((prev) => ({ ...prev, path: value }))}
+            value={secretSelectorFormData.path}
+            onSelect={(value) => setSecretSelectorFormData((prev) => ({ ...prev, path: value }))}
           />
         )}
       </div>

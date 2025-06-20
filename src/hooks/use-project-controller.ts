@@ -1,6 +1,6 @@
 import { FormData as EditEnvFormData } from "@/components/editor/EnvEditor";
 import { FormData as CreateEnvFormData } from "@/components/editor/EnvCreator";
-
+import { FormData as SecretSelectorFormData } from "@/components/editor/SecretSelector";
 import { ENVIRONMENTS } from "@/config";
 import { useProjectStore } from "@/store/projectStore";
 import { trpc } from "@/trpc/client";
@@ -35,6 +35,7 @@ export const useProjectController = () => {
   const [visibleInputs, setVisibleInputs] = useState<boolean[]>([]);
   const [envVariables, setEnvVariables] = useState<EditEnvFormData["envVariables"]>([]);
   const [createEnvFormData, setCreateEnvFormData] = useState<CreateEnvFormData>({});
+  const [secretSelectorFormData, setSecretSelectorFormData] = useState<SecretSelectorFormData>({});
 
   const hasWriteAccess = project?.role === "admin" || project?.role === "editor";
 
@@ -62,12 +63,12 @@ export const useProjectController = () => {
 
       setEnvVariables(envVariables);
 
-      //   reset({ envVariables });
-
       setUpdateSuccess(true);
       setIsActicityLogOpen(false);
 
       setVisibleInputs((prev) => prev.map(() => false));
+
+      refetchAuditLogs();
 
       toast.success("Successfully saved .env file");
     },
@@ -105,7 +106,6 @@ export const useProjectController = () => {
   const {
     data: paths,
     error: pathsError,
-    isLoading: isLoadingPaths,
     refetch: refetchPaths,
   } = trpc.github.getPaths.useQuery(
     {
@@ -164,7 +164,6 @@ export const useProjectController = () => {
       !isUpdatingSecret &&
       !isDeletingSecret &&
       !isLoadingEnvironments &&
-      !isLoadingPaths &&
       !isLoadingTemplates &&
       !isCreatingSecret &&
       !isLoadingEnvironmentPaths &&
@@ -177,7 +176,6 @@ export const useProjectController = () => {
     isUpdatingSecret,
     isDeletingProject,
     isLoadingEnvironments,
-    isLoadingPaths,
     isLoadingTemplates,
     isCreatingSecret,
     isLoadingEnvironmentPaths,
@@ -232,6 +230,8 @@ export const useProjectController = () => {
     createSecret,
     environmentPaths,
     auditLogs,
+    secretSelectorFormData,
+    setSecretSelectorFormData,
   };
 };
 
