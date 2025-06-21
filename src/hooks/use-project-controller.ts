@@ -24,8 +24,6 @@ export const useProjectController = () => {
     deleteProject: unStoreProject,
   } = projectStore;
 
-  const isLoadingSidebar = useSidebarStore((state) => state.isLoading);
-
   const [isReadyToRender, setIsReadyToRender] = useState<boolean>(false);
   const [updateSuccess, setUpdateSuccess] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -167,9 +165,7 @@ export const useProjectController = () => {
       !isLoadingTemplates &&
       !isCreatingSecret &&
       !isLoadingEnvironmentPaths &&
-      !isLoadingAuditLogs &&
-      !isLoadingSidebar;
-
+      !isLoadingAuditLogs
     setIsReadyToRender(isSetteled);
   }, [
     isDeletingProject,
@@ -180,7 +176,6 @@ export const useProjectController = () => {
     isCreatingSecret,
     isLoadingEnvironmentPaths,
     isLoadingAuditLogs,
-    isLoadingSidebar,
   ]);
 
   useEffect(() => {

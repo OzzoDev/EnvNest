@@ -2,7 +2,12 @@ import { useEffect, useState } from "react";
 import { trpc } from "@/trpc/client";
 import { useProjectStore } from "@/store/projectStore";
 import { useVirtualQuery } from "@/hooks/use-virtual-query";
-import { GithubRepo, OrgTable, ProjectTable, SecretHistory } from "@/types/types";
+import {
+  GithubRepo,
+  OrgTable,
+  ProjectTable,
+  SecretHistory,
+} from "@/types/types";
 import { useSidebar } from "@/components/ui/sidebar";
 import { toast } from "sonner";
 import usePrev from "./use-prev";
@@ -21,7 +26,6 @@ export const useSidebarController = () => {
     secretId,
     secret,
     isDeletingProject,
-    isLoading: isLoadingDashBoard,
     setProjectId,
     setSecretId,
     setSecret,
@@ -85,21 +89,22 @@ export const useSidebarController = () => {
       },
     });
 
-  const { mutate: createProject, isPending: isCreatingProject } = trpc.project.create.useMutation({
-    onError: () => {
-      toast.error("Error creating new project");
-    },
-    onSuccess: (data) => {
-      setRepo(null);
-      setProjectId(data.id);
-      setSecretId(null);
-      setSecret(null);
-      setIsSaved(true);
-      refetchRepos();
-      isMobile && toggleSidebar();
-      toast.success(`Project ${data.full_name} created successfully`);
-    },
-  });
+  const { mutate: createProject, isPending: isCreatingProject } =
+    trpc.project.create.useMutation({
+      onError: () => {
+        toast.error("Error creating new project");
+      },
+      onSuccess: (data) => {
+        setRepo(null);
+        setProjectId(data.id);
+        setSecretId(null);
+        setSecret(null);
+        setIsSaved(true);
+        refetchRepos();
+        isMobile && toggleSidebar();
+        toast.success(`Project ${data.full_name} created successfully`);
+      },
+    });
 
   const prevProjectId = usePrev(projectId);
   const prevSecretId = usePrev(secretId);
@@ -114,9 +119,7 @@ export const useSidebarController = () => {
       !isFetchingLogs &&
       !isCreatingProject &&
       !isSavingToHistory &&
-      !isDeletingProject &&
-      !isLoadingDashBoard;
-
+      !isDeletingProject;
     setIsReadyToRender(isSetteled);
   }, [
     isFetchingProjects,
@@ -126,7 +129,6 @@ export const useSidebarController = () => {
     isCreatingProject,
     isSavingToHistory,
     isDeletingProject,
-    isLoadingDashBoard,
   ]);
 
   useEffect(() => {
@@ -160,7 +162,12 @@ export const useSidebarController = () => {
   }, [secretId, prevSecretId]);
 
   useEffect(() => {
-    if (!isEqual(secret, prevSecret) && prevSecret !== undefined && !secret && !secretId) {
+    if (
+      !isEqual(secret, prevSecret) &&
+      prevSecret !== undefined &&
+      !secret &&
+      !secretId
+    ) {
       refetchLogs();
     }
   }, [secret, prevSecret]);
