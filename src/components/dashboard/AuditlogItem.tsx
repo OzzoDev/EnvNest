@@ -6,7 +6,12 @@ import { Button, buttonVariants } from "../ui/button";
 import { GrRevert } from "react-icons/gr";
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "../ui/accordion";
 import { ScrollArea } from "../ui/scroll-area";
 import { useProjectStore } from "@/store/projectStore";
 import { useProjectControllerContext } from "@/context/ProjectControllerContext";
@@ -26,10 +31,17 @@ const AuditLogItem = ({ audit, onRollback }: AuditLogItemProps) => {
 
   const isCurrentVersion = secret?.content === audit.content;
 
+  console.log(secret?.content, audit.content);
+
   return (
-    <div key={audit.created_at} className="flex flex-col gap-y-3 border-b border-secondary">
+    <div
+      key={audit.created_at}
+      className="flex flex-col gap-y-3 border-b border-secondary"
+    >
       <div className="flex justify-between">
-        <Badge className="p-1 h-fit w-fit">{audit.metadata.type as string}</Badge>
+        <Badge className="p-1 h-fit w-fit">
+          {audit.metadata.type as string}
+        </Badge>
         <p>
           {date} / {time}
         </p>
@@ -41,7 +53,8 @@ const AuditLogItem = ({ audit, onRollback }: AuditLogItemProps) => {
             title="Rollback version"
             description={`Are you sure you want to rollback the version of this .env file?`}
             action="Rollback"
-            actionFn={() => onRollback(audit.id)}>
+            actionFn={() => onRollback(audit.id)}
+          >
             {!isCurrentVersion && (
               <Button type="button" variant="ghost" title="Rollback">
                 <GrRevert size={16} />
@@ -54,10 +67,15 @@ const AuditLogItem = ({ audit, onRollback }: AuditLogItemProps) => {
           type="single"
           collapsible
           onValueChange={() => setShowContent((prev) => !prev)}
-          className="w-full flex flex-col p-0">
+          className="w-full flex flex-col p-0"
+        >
           <AccordionItem value="item-1" className="flex flex-col border-0">
             <AccordionTrigger
-              className={cn(buttonVariants({ variant: "ghost" }), "ml-auto mr-auto mb-4 mt-2")}>
+              className={cn(
+                buttonVariants({ variant: "ghost" }),
+                "ml-auto mr-auto mb-4 mt-2"
+              )}
+            >
               {showContent ? "Hide Content" : "Show content"}
               {showContent ? <ChevronUp /> : <ChevronDown />}
             </AccordionTrigger>

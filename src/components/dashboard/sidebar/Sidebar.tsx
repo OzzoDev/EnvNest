@@ -25,17 +25,14 @@ import { Loader2 } from "lucide-react";
 import { useSidebarController } from "@/hooks/use-sidebar-controller";
 
 const Sidebar = () => {
-  const { state, isMobile, toggleSidebar, setOpen, setOpenMobile } = useSidebar();
+  const { state, isMobile, toggleSidebar, setOpen, setOpenMobile } =
+    useSidebar();
   const error = useSidebarStore((state) => state.error);
   const sidebarOpen = useSidebarStore((state) => state.sidebarOpen);
   const hasProjects = useProjectStore((state) => state.hasProjects);
   const hasHistoryLogs = useProjectStore((state) => state.hasHistoryLogs);
 
   const controller = useSidebarController();
-
-  const {
-    isLoading: { any: isLoadingSidebar },
-  } = controller;
 
   useEffect(() => {
     if (sidebarOpen && state === "collapsed") {
@@ -79,35 +76,34 @@ const Sidebar = () => {
                   { "pt-28": isCollapsed && !isMobile },
                   { "pt-28": !isCollapsed && !isMobile },
                   { "px-4 pt-4": isMobile }
-                )}>
+                )}
+              >
                 <div className="flex flex-col">
                   {(!isCollapsed || isMobile) && (
-                    <Button onClick={toggleSidebar} variant="ghost" className="self-end mb-4">
+                    <Button
+                      onClick={toggleSidebar}
+                      variant="ghost"
+                      className="self-end mb-4"
+                    >
                       <IoMdClose size={20} />
                     </Button>
                   )}
-                  {isLoadingSidebar && !isCollapsed ? (
-                    <div className="flex flex-col items-center justify-center h-screen pb-64">
-                      <Loader2 className="animate-spin h-12 w-12 text-primary" />
+                  {error && !isCollapsed ? (
+                    <div className="pt-44 flex flex-col gap-y-12 items-center">
+                      <MdErrorOutline size={32} className="text-destructive" />
+                      <p className="text-center text-lg text-destructive font-medium">
+                        {error}
+                      </p>
+                      <Button onClick={() => window.location.reload()}>
+                        Try again
+                      </Button>
                     </div>
                   ) : (
-                    <>
-                      {error && !isCollapsed ? (
-                        <div className="pt-44 flex flex-col gap-y-12 items-center">
-                          <MdErrorOutline size={32} className="text-destructive" />
-                          <p className="text-center text-lg text-destructive font-medium">
-                            {error}
-                          </p>
-                          <Button onClick={() => window.location.reload()}>Try again</Button>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col gap-y-8 w-full">
-                          <NewProjectForm controller={controller} />
-                          <ProjectList controller={controller} />
-                          <SecretHistoryLog controller={controller} />
-                        </div>
-                      )}
-                    </>
+                    <div className="flex flex-col gap-y-8 w-full">
+                      <NewProjectForm controller={controller} />
+                      <ProjectList controller={controller} />
+                      <SecretHistoryLog controller={controller} />
+                    </div>
                   )}
                 </div>
               </SidebarMenu>

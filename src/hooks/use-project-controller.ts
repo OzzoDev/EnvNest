@@ -6,7 +6,6 @@ import { useProjectStore } from "@/store/projectStore";
 import { trpc } from "@/trpc/client";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useSidebarStore } from "@/store/sidebarStore";
 
 export const useProjectController = () => {
   const projectStore = useProjectStore();
@@ -21,6 +20,7 @@ export const useProjectController = () => {
     setSecretId,
     setSecret,
     deleteProjectSecretRef,
+    setLoadingStates,
     deleteProject: unStoreProject,
   } = projectStore;
 
@@ -31,66 +31,75 @@ export const useProjectController = () => {
   const [updateMessage, setUpdateMessage] = useState<string>("");
   const [isValid, setIsValid] = useState<boolean>(false);
   const [visibleInputs, setVisibleInputs] = useState<boolean[]>([]);
-  const [envVariables, setEnvVariables] = useState<EditEnvFormData["envVariables"]>([]);
-  const [createEnvFormData, setCreateEnvFormData] = useState<CreateEnvFormData>({});
-  const [secretSelectorFormData, setSecretSelectorFormData] = useState<SecretSelectorFormData>({});
+  const [envVariables, setEnvVariables] = useState<
+    EditEnvFormData["envVariables"]
+  >([]);
+  const [createEnvFormData, setCreateEnvFormData] = useState<CreateEnvFormData>(
+    {}
+  );
+  const [secretSelectorFormData, setSecretSelectorFormData] =
+    useState<SecretSelectorFormData>({});
 
-  const hasWriteAccess = project?.role === "admin" || project?.role === "editor";
+  const hasWriteAccess =
+    project?.role === "admin" || project?.role === "editor";
 
-  const { mutate: deleteProject, isPending: isDeletingProject } = trpc.project.delete.useMutation({
-    onError: (err) => {
-      toast.error(err.message || "Something went wrong. Please try again");
-    },
-    onSuccess: () => {
-      if (typeof projectId === "number") {
-        deleteProjectSecretRef(projectId);
-      }
-      unStoreProject();
-    },
-  });
+  const { mutate: deleteProject, isPending: isDeletingProject } =
+    trpc.project.delete.useMutation({
+      onError: (err) => {
+        toast.error(err.message || "Something went wrong. Please try again");
+      },
+      onSuccess: () => {
+        if (typeof projectId === "number") {
+          deleteProjectSecretRef(projectId);
+        }
+        unStoreProject();
+      },
+    });
 
-  const { mutate: updateSecret, isPending: isUpdatingSecret } = trpc.secret.update.useMutation({
-    onMutate: () => {
-      setUpdateSuccess(false);
-    },
-    onSuccess: (data) => {
-      const envVariables = data.content.split("&&").map((val) => {
-        const [name, value] = val.split("=");
-        return { name, value };
-      });
+  const { mutate: updateSecret, isPending: isUpdatingSecret } =
+    trpc.secret.update.useMutation({
+      onMutate: () => {
+        setUpdateSuccess(false);
+      },
+      onSuccess: (data) => {
+        const envVariables = data.content.split("&&").map((val) => {
+          const [name, value] = val.split("=");
+          return { name, value };
+        });
 
-      setEnvVariables(envVariables);
+        setEnvVariables(envVariables);
 
-      setUpdateSuccess(true);
-      setIsActicityLogOpen(false);
+        setUpdateSuccess(true);
+        setIsActicityLogOpen(false);
 
-      setVisibleInputs((prev) => prev.map(() => false));
+        setVisibleInputs((prev) => prev.map(() => false));
 
-      refetchAuditLogs();
+        refetchAuditLogs();
 
-      toast.success("Successfully saved .env file");
-    },
-    onError: () => {
-      toast.success("Error saving .env file");
-    },
-    onSettled: () => {
-      setUpdateMessage("");
-    },
-  });
+        toast.success("Successfully saved .env file");
+      },
+      onError: () => {
+        toast.success("Error saving .env file");
+      },
+      onSettled: () => {
+        setUpdateMessage("");
+      },
+    });
 
-  const { mutate: deleteSecret, isPending: isDeletingSecret } = trpc.secret.delete.useMutation({
-    onSuccess: () => {
-      toast.success("Successfully deleted .env file");
+  const { mutate: deleteSecret, isPending: isDeletingSecret } =
+    trpc.secret.delete.useMutation({
+      onSuccess: () => {
+        toast.success("Successfully deleted .env file");
 
-      deleteProjectSecretRef(projectId!);
-      setSecretId(null);
-      setSecret(null);
-      setVisibleInputs((prev) => prev.map(() => false));
-    },
-    onError: (err) => {
-      toast.error(err.message || "Something went wrong. Please try again");
-    },
-  });
+        deleteProjectSecretRef(projectId!);
+        setSecretId(null);
+        setSecret(null);
+        setVisibleInputs((prev) => prev.map(() => false));
+      },
+      onError: (err) => {
+        toast.error(err.message || "Something went wrong. Please try again");
+      },
+    });
 
   const {
     data: environments,
@@ -109,9 +118,14 @@ export const useProjectController = () => {
     {
       repo: project?.name!,
       projectId: Number(projectId),
-      environment: ENVIRONMENTS.find((env) => env.label === createEnvFormData.environment)?.value!,
+      environment: ENVIRONMENTS.find(
+        (env) => env.label === createEnvFormData.environment
+      )?.value!,
     },
-    { enabled: !!project && !!projectId && !!createEnvFormData.environment, retry: false }
+    {
+      enabled: !!project && !!projectId && !!createEnvFormData.environment,
+      retry: false,
+    }
   );
 
   const {
@@ -121,20 +135,23 @@ export const useProjectController = () => {
     refetch: refetchTemplates,
   } = trpc.template.getOwnAndPublic.useQuery(undefined, { retry: false });
 
-  const { mutate: createSecret, isPending: isCreatingSecret } = trpc.secret.create.useMutation({
-    onSuccess: (secretId) => {
-      setSecretId(secretId);
-      setCreateEnvFormData({});
+  const { mutate: createSecret, isPending: isCreatingSecret } =
+    trpc.secret.create.useMutation({
+      onSuccess: (secretId) => {
+        setSecretId(secretId);
+        setCreateEnvFormData({});
 
-      refetchTemplates();
-      refetchPaths();
+        refetchTemplates();
+        refetchPaths();
 
-      toast.success(`${createEnvFormData.environment} .env file created successfully`);
-    },
-    onError: (err) => {
-      toast.error(err.message || "Something went wrong. Please try again");
-    },
-  });
+        toast.success(
+          `${createEnvFormData.environment} .env file created successfully`
+        );
+      },
+      onError: (err) => {
+        toast.error(err.message || "Something went wrong. Please try again");
+      },
+    });
 
   const {
     data: environmentPaths,
@@ -156,27 +173,28 @@ export const useProjectController = () => {
     { enabled: !!secretId && !!projectId, retry: false }
   );
 
-  useEffect(() => {
-    const isSetteled =
-      !isDeletingProject &&
-      !isUpdatingSecret &&
-      !isDeletingSecret &&
-      !isLoadingEnvironments &&
-      !isLoadingTemplates &&
-      !isCreatingSecret &&
-      !isLoadingEnvironmentPaths &&
-      !isLoadingAuditLogs
-    setIsReadyToRender(isSetteled);
-  }, [
-    isDeletingProject,
-    isUpdatingSecret,
-    isDeletingProject,
-    isLoadingEnvironments,
-    isLoadingTemplates,
-    isCreatingSecret,
-    isLoadingEnvironmentPaths,
-    isLoadingAuditLogs,
-  ]);
+  // useEffect(() => {
+  //   const isSetteled =
+  //     !isDeletingProject &&
+  //     !isUpdatingSecret &&
+  //     !isDeletingSecret &&
+  //     !isLoadingEnvironments &&
+  //     !isLoadingTemplates &&
+  //     !isCreatingSecret &&
+  //     !isLoadingEnvironmentPaths &&
+  //     !isLoadingAuditLogs;
+
+  //   setIsReadyToRender(isSetteled);
+  // }, [
+  //   isDeletingProject,
+  //   isUpdatingSecret,
+  //   isDeletingProject,
+  //   isLoadingEnvironments,
+  //   isLoadingTemplates,
+  //   isCreatingSecret,
+  //   isLoadingEnvironmentPaths,
+  //   isLoadingAuditLogs,
+  // ]);
 
   useEffect(() => {
     setError(
@@ -187,7 +205,13 @@ export const useProjectController = () => {
         auditLogsError?.message) ??
         null
     );
-  }, [environmentsError, pathsError, templatesError, environmentPathsError, auditLogsError]);
+  }, [
+    environmentsError,
+    pathsError,
+    templatesError,
+    environmentPathsError,
+    auditLogsError,
+  ]);
 
   useEffect(() => {
     refetchEnvironmentPaths();
@@ -199,7 +223,6 @@ export const useProjectController = () => {
 
   return {
     ...projectStore,
-    isLoading: !isReadyToRender,
     hasWriteAccess,
     updateSuccess,
     setVisibleInputs,
@@ -227,6 +250,17 @@ export const useProjectController = () => {
     auditLogs,
     secretSelectorFormData,
     setSecretSelectorFormData,
+    isLoading: {
+      any:
+        isDeletingProject ||
+        isUpdatingSecret ||
+        isDeletingProject ||
+        isLoadingEnvironments ||
+        isLoadingTemplates ||
+        isCreatingSecret ||
+        isLoadingEnvironmentPaths ||
+        isLoadingAuditLogs,
+    },
   };
 };
 

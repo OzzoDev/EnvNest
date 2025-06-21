@@ -26,6 +26,7 @@ export const useSidebarController = () => {
     secretId,
     secret,
     isDeletingProject,
+    isLoading: isLoadingDashBoard,
     setProjectId,
     setSecretId,
     setSecret,
@@ -120,6 +121,7 @@ export const useSidebarController = () => {
       !isCreatingProject &&
       !isSavingToHistory &&
       !isDeletingProject;
+
     setIsReadyToRender(isSetteled);
   }, [
     isFetchingProjects,
@@ -198,7 +200,13 @@ export const useSidebarController = () => {
       logs: isLoadingLogs,
       creatingProject: isCreatingProject,
       savingHistory: isSavingToHistory,
-      any: !isReadyToRender,
+      any:
+        isLoadingRepos ||
+        isLoadingLogs ||
+        isLoadingOrgs ||
+        isLoadingProjects ||
+        isCreatingProject ||
+        isSavingToHistory,
     },
   };
 };

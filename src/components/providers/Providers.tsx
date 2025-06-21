@@ -3,13 +3,10 @@
 import { ReactNode } from "react";
 import TrpcProvider from "./TrpcProvider";
 import { ProjectControllerProvider } from "./ProjectControllerProvider";
+import { SidebarControllerProvider } from "./SidebarControllerProvider";
 
 const Providers = ({ children }: { children: ReactNode }) => {
-  return (
-    <TrpcProvider>
-      <ProjectControllerProvider>{children}</ProjectControllerProvider>
-    </TrpcProvider>
-  );
+  return <TrpcProvider>{children}</TrpcProvider>;
 };
 
 export default Providers;
