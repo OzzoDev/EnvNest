@@ -11,13 +11,9 @@ import { GoPlus } from "react-icons/go";
 import { useSidebarStore } from "@/store/sidebarStore";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Select from "@/components/utils/Select";
-import { SidebarControllerType } from "@/hooks/use-sidebar-controller";
+import { useDashboardContext } from "@/context/DashboardContext";
 
-type NewProjectFormProps = {
-  controller: SidebarControllerType;
-};
-
-const NewProjectForm = ({ controller }: NewProjectFormProps) => {
+const NewProjectForm = () => {
   const isSaved = useProjectStore((state) => state.isSaved);
   const sidebarOpen = useSidebarStore((state) => state.sidebarOpen);
   const setSidebarOpen = useSidebarStore((state) => state.setSidebarOpen);
@@ -26,7 +22,7 @@ const NewProjectForm = ({ controller }: NewProjectFormProps) => {
   const [org, setOrg] = useState<string | null>(null);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
-  const { repos, orgs, repo, createProject, setRepo } = controller;
+  const { repos, orgs, repo, createProject, setRepo } = useDashboardContext();
 
   const onSubmit = (e?: FormEvent | React.MouseEvent) => {
     e?.preventDefault();

@@ -24,7 +24,8 @@ import { GrRevert } from "react-icons/gr";
 import ActivityLog from "../dashboard/ActivityLog";
 import { usePathname } from "next/navigation";
 import { copyToClipBoard } from "@/lib/utils";
-import { useProjectControllerContext } from "@/context/ProjectControllerContext";
+import { useProjectStore } from "@/store/projectStore";
+import { useDashboardContext } from "@/context/DashboardContext";
 
 export const formSchema = z.object({
   envVariables: z.array(z.object({ name: z.string().nonempty(), value: z.string().nonempty() })),
@@ -35,14 +36,10 @@ export type FormData = z.infer<typeof formSchema>;
 const EnvEditor = () => {
   const pathname = usePathname();
 
+  const { projectId, project, secretId, secret, showAll, setShowAll, setIsSaved } =
+    useProjectStore();
+
   const {
-    projectId,
-    project,
-    secretId,
-    secret,
-    showAll,
-    setShowAll,
-    setIsSaved,
     setIsValid,
     visibleInputs,
     setVisibleInputs,
@@ -58,7 +55,7 @@ const EnvEditor = () => {
     setIsOpen,
     setUpdateMessage,
     envVariables: envs,
-  } = useProjectControllerContext();
+  } = useDashboardContext();
 
   const getEnvVariables = () => {
     if (!secret?.content) {

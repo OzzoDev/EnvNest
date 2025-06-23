@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import ModeSelect from "../utils/ModeSelect";
 import { ENVIRONMENTS } from "@/config";
-import { useProjectControllerContext } from "@/context/ProjectControllerContext";
+import { useProjectStore } from "@/store/projectStore";
+import { useDashboardContext } from "@/context/DashboardContext";
 
 export type FormData = {
   prevEnvironment?: string;
@@ -13,23 +14,10 @@ export type FormData = {
 };
 
 const SecretSelector = () => {
-  const {
-    secretId,
-    isSaved,
-    setSecretId,
-    setSecret,
-    environmentPaths,
-    isLoading,
-    secretSelectorFormData,
-    setSecretSelectorFormData,
-  } = useProjectControllerContext();
+  const { secretId, isSaved, setSecretId, setSecret } = useProjectStore();
 
-  // const [formData, setFormData] = useState<{
-  //   prevEnvironment?: string;
-  //   environment?: string;
-  //   path?: string;
-  //   secretId?: number;
-  // }>({ secretId: secretId ?? undefined });
+  const { environmentPaths, isLoading, secretSelectorFormData, setSecretSelectorFormData } =
+    useDashboardContext();
 
   useEffect(() => {
     if (secretId) {

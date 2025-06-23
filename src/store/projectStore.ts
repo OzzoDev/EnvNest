@@ -37,6 +37,7 @@ type ProjectStore = {
   setHasHistoryLogs: (hasHistoryLogs: boolean) => void;
   deleteProject: () => void;
   clear: () => void;
+  setProjectSecretRefs: (projectSecretRefs: ProjectSecretRefs | undefined) => void;
 };
 
 export const useProjectStore = create<ProjectStore>()(
@@ -96,6 +97,7 @@ export const useProjectStore = create<ProjectStore>()(
       setShowAll: (showAll) => set({ showAll }),
       setHasProjects: (hasProjects) => set({ hasProjects }),
       setHasHistoryLogs: (hasHistoryLogs) => set({ hasHistoryLogs }),
+      setProjectSecretRefs: (projectSecretRefs) => ({ projectSecretRefs }),
     }),
     {
       name: "project-store",
@@ -103,6 +105,11 @@ export const useProjectStore = create<ProjectStore>()(
         state?.setHasHydrated(true);
         state?.setIsSaved(true);
         state?.setLoadingStates([true]);
+        state?.setError(null);
+        state?.setSecretId(null);
+        Object.keys(state?.projectSecretRefs ?? {}).forEach((key) => {
+          state?.deleteProjectSecretRef(Number(key));
+        });
       },
     }
   )

@@ -5,7 +5,8 @@ import { FormEvent } from "react";
 import { Button } from "../ui/button";
 import ModeSelect from "../utils/ModeSelect";
 import { toast } from "sonner";
-import { useProjectControllerContext } from "@/context/ProjectControllerContext";
+import { useProjectStore } from "@/store/projectStore";
+import { useDashboardContext } from "@/context/DashboardContext";
 
 export type FormData = {
   environment?: string | null;
@@ -14,15 +15,9 @@ export type FormData = {
 };
 
 const EnvCreator = () => {
-  const {
-    project,
-    templates,
-    environments,
-    paths,
-    createSecret,
-    createEnvFormData,
-    setCreateEnvFormData,
-  } = useProjectControllerContext();
+  const { project } = useProjectStore();
+  const { templates, environments, paths, createSecret, createEnvFormData, setCreateEnvFormData } =
+    useDashboardContext();
 
   const handleSumbit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

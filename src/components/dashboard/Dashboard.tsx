@@ -1,14 +1,12 @@
 "use client";
 
-import { useProjectControllerContext } from "@/context/ProjectControllerContext";
 import { Loader2 } from "lucide-react";
 import { ReactNode } from "react";
-import ProjectWatcher from "./ProjectWatcher";
 import Sidebar from "./sidebar/Sidebar";
-import useDashboard from "@/hooks/use-dashboard";
+import { useDashboardContext } from "@/context/DashboardContext";
 
 const Dashboard = ({ children }: { children: ReactNode }) => {
-  const { isLoading } = useDashboard();
+  const { isLoading } = useDashboardContext();
 
   if (isLoading) {
     return (
@@ -26,7 +24,6 @@ const Dashboard = ({ children }: { children: ReactNode }) => {
       <div className="flex flex-col gap-y-12 p-6 min-h-screen w-full max-w-screen overflow-x-hidden">
         {children}
       </div>
-      <ProjectWatcher />
     </>
   );
 };

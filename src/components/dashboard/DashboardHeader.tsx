@@ -5,10 +5,12 @@ import AlertDialog from "@/components/utils/AleartDialog";
 import { cn, convertToLocalTime } from "@/lib/utils";
 import { Github, User } from "lucide-react";
 import Link from "next/link";
-import { useProjectControllerContext } from "@/context/ProjectControllerContext";
+import { useProjectStore } from "@/store/projectStore";
+import { useDashboardContext } from "@/context/DashboardContext";
 
 const DashboardHeader = () => {
-  const { projectId, project, hasWriteAccess, deleteProject } = useProjectControllerContext();
+  const { deleteProject, hasWriteAccess } = useDashboardContext();
+  const { projectId, project } = useProjectStore();
 
   const [date, time] = convertToLocalTime(project?.created_at ?? "").split(" ");
 

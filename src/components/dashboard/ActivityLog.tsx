@@ -8,13 +8,11 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ENVIRONMENTS } from "@/config";
-import { useProjectStore } from "@/store/projectStore";
-import { trpc } from "@/trpc/client";
 import { convertToLocalTime } from "@/lib/utils";
 import AuditLogItem from "./AuditlogItem";
 import { toast } from "sonner";
-import { useEffect } from "react";
-import { useProjectControllerContext } from "@/context/ProjectControllerContext";
+import { useDashboardContext } from "@/context/DashboardContext";
+import { useProjectStore } from "@/store/projectStore";
 
 type UpdateSecretArgs = {
   projectId: number;
@@ -31,7 +29,8 @@ type ActivityLogProps = {
 };
 
 const ActivityLog = ({ isOpen, setIsOpen, updateSecret }: ActivityLogProps) => {
-  const { auditLogs, projectId, secretId, project, secret } = useProjectControllerContext();
+  const { projectId, secretId, project, secret } = useProjectStore();
+  const { auditLogs } = useDashboardContext();
 
   const onRollback = (auditLogId: number) => {
     const auditLog = auditLogs?.find((audit) => audit.id === auditLogId);

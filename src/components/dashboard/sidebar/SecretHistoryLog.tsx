@@ -10,13 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { ENVIRONMENTS } from "@/config";
 import { useSidebar } from "@/components/ui/sidebar";
 import { LuHistory } from "react-icons/lu";
-import { SidebarControllerType } from "@/hooks/use-sidebar-controller";
+import { useDashboardContext } from "@/context/DashboardContext";
 
-type SecretHistoryLogProps = {
-  controller: SidebarControllerType;
-};
-
-const SecretHistoryLog = ({ controller }: SecretHistoryLogProps) => {
+const SecretHistoryLog = () => {
   const { state, isMobile, toggleSidebar } = useSidebar();
   const secretId = useProjectStore((state) => state.secretId);
 
@@ -24,7 +20,7 @@ const SecretHistoryLog = ({ controller }: SecretHistoryLogProps) => {
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setSecretId = useProjectStore((state) => state.setSecretId);
 
-  const { logs, saveToHistory } = controller;
+  const { logs, saveToHistory } = useDashboardContext();
 
   const loadSecret = (log: SecretHistory) => {
     setProjectId(log.project_id);

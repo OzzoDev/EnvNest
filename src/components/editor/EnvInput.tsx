@@ -5,7 +5,8 @@ import { IoMdClose } from "react-icons/io";
 import AlertDialog from "../utils/AleartDialog";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import { useProjectControllerContext } from "@/context/ProjectControllerContext";
+import { useProjectStore } from "@/store/projectStore";
+import { useDashboardContext } from "@/context/DashboardContext";
 
 type EnvInputProps = {
   index: number;
@@ -15,7 +16,8 @@ type EnvInputProps = {
 };
 
 const EnvInput = ({ index, isVisible, setIsVisible, onDelete }: EnvInputProps) => {
-  const { isSaved, hasWriteAccess } = useProjectControllerContext();
+  const { isSaved } = useProjectStore();
+  const { hasWriteAccess } = useDashboardContext();
 
   const { control } = useFormContext();
 

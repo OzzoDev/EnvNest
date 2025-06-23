@@ -7,20 +7,16 @@ import AlertDialog from "@/components/utils/AleartDialog";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/ui/sidebar";
 import { GrProjects } from "react-icons/gr";
-import { SidebarControllerType } from "@/hooks/use-sidebar-controller";
+import { useDashboardContext } from "@/context/DashboardContext";
 
-type ProjectListProps = {
-  controller: SidebarControllerType;
-};
-
-const ProjectList = ({ controller }: ProjectListProps) => {
+const ProjectList = () => {
   const { state, isMobile, toggleSidebar } = useSidebar();
   const projectId = useProjectStore((state) => state.projectId);
   const setProjectId = useProjectStore((state) => state.setProjectId);
   const setSecretId = useProjectStore((state) => state.setSecretId);
   const isSaved = useProjectStore((state) => state.isSaved);
 
-  const { projects } = controller;
+  const { projects } = useDashboardContext();
 
   const selectProject = (projectId: number) => {
     setSecretId(null);
