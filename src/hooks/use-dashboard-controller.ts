@@ -46,8 +46,6 @@ export const useDashboardController = () => {
 
   const hasWriteAccess = project?.role === "admin" || project?.role === "editor";
 
-  const [isReadyToRender, setIsReadyToRender] = useState<boolean>(false);
-
   const prevProjectId = usePrev(projectId);
   const prevSecretId = usePrev(secretId);
   const prevSecret = usePrev(secret);
@@ -91,7 +89,7 @@ export const useDashboardController = () => {
   const {
     data: environments,
     error: environmentsError,
-    refetch: refetchEnvironents,
+    refetch: refetchEnvironments,
     isLoading: isLoadingEnvironments,
     isFetching: isFetchingEnvironments,
   } = trpc.environment.getAvailable.useQuery(
@@ -232,7 +230,6 @@ export const useDashboardController = () => {
   const { mutate: saveToHistory, isPending: isSavingToHistory } =
     trpc.secret.saveToHistory.useMutation({
       onSettled: () => {
-        // setIsReadyToRender(false);
         refetchLogs();
       },
     });
@@ -324,7 +321,7 @@ export const useDashboardController = () => {
 
   useEffect(() => {
     if (project && projectId) {
-      refetchEnvironents();
+      refetchEnvironments();
     }
 
     refetchProjects();
@@ -374,66 +371,6 @@ export const useDashboardController = () => {
       setHasHistoryLogs(!!(logs && logs?.length > 0));
     }
   }, [logs, prevLogs]);
-
-  useEffect(() => {
-    const isSettled =
-      !isLoadingProjects &&
-      !isLoadingNewSecret &&
-      !isLoadingNewProject &&
-      !isLoadingEnvironments &&
-      !isLoadingEnvironmentPaths &&
-      !isLoadingAuditLogs &&
-      !isLoadingTemplates &&
-      !isLoadingRepos &&
-      !isLoadingOrgs &&
-      !isLoadingLogs &&
-      !isDeletingProject &&
-      !isUpdatingSecret &&
-      !isDeletingSecret &&
-      !isSavingToHistory &&
-      !isCreatingProject &&
-      !isCreatingSecret &&
-      !isFetchingEnvironmentPaths &&
-      !isFetchingEnvironmentPaths &&
-      !isFetchingProjects &&
-      !isFetchingNewProject &&
-      !isFetchingNewSecret &&
-      !isFetchingEnvironments &&
-      !isFetchingAuditLogs &&
-      !isFetchingRepos &&
-      !isFetchingOrgs &&
-      !isFetchingTemplates &&
-      !isFetchingLogs;
-
-    setIsReadyToRender(isSettled);
-  }, [
-    isLoadingProjects,
-    isLoadingNewSecret,
-    isLoadingNewProject,
-    isLoadingEnvironments,
-    isLoadingEnvironmentPaths,
-    isLoadingAuditLogs,
-    isLoadingTemplates,
-    isLoadingRepos,
-    isLoadingOrgs,
-    isLoadingLogs,
-    isDeletingProject,
-    isUpdatingSecret,
-    isDeletingSecret,
-    isSavingToHistory,
-    isCreatingProject,
-    isCreatingSecret,
-    isFetchingEnvironmentPaths,
-    isFetchingProjects,
-    isFetchingNewProject,
-    isFetchingNewSecret,
-    isFetchingEnvironments,
-    isFetchingAuditLogs,
-    isFetchingRepos,
-    isFetchingOrgs,
-    isFetchingTemplates,
-    isFetchingLogs,
-  ]);
 
   useEffect(() => {
     const error =
@@ -530,9 +467,6 @@ export const useDashboardController = () => {
       isFetchingOrgs ||
       isFetchingTemplates ||
       isFetchingLogs,
-    // get isLoading() {
-    //   return !isReadyToRender;
-    // },
   };
 };
 
