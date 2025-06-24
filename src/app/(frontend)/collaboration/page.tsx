@@ -5,10 +5,22 @@ import OrganizationList from "@/components/collaboration/OrganizationList";
 import OrganizationMembers from "@/components/collaboration/OrganizationMembers";
 import ProjectAccessHandler from "@/components/collaboration/ProjectAccessHandler";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useOrgContext } from "@/context/OrgContext";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
 const CollaborationPage = () => {
-  const [selectedTab, setSelectedTab] = useState<"Accesss" | "Organizations">("Accesss");
+  const { isLoading, selectedTab, setSelectedTab } = useOrgContext();
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen relative w-full">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pb-20">
+          <Loader2 className="animate-spin h-12 w-12 text-primary" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 lg:p-20">

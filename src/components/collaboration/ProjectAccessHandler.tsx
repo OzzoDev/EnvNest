@@ -1,20 +1,10 @@
 "use client";
 
-import { trpc } from "@/trpc/client";
 import ProjectAccess from "./ProjectAccess";
-import SkeletonWrapper from "../utils/loaders/SkeletonWrapper";
+import { useOrgContext } from "@/context/OrgContext";
 
 const ProjectAccessHandler = () => {
-  const {
-    data: projects,
-    isLoading: isLoadingProjects,
-    error: projectsError,
-    refetch: refetchProjects,
-  } = trpc.collaborator.get.useQuery(undefined, { retry: false });
-
-  if (projectsError) {
-    return <p className="text-destructive">Error loading projects</p>;
-  }
+  const { projects, refetchProjects } = useOrgContext();
 
   if (projects?.length === 0) {
     return (
@@ -25,17 +15,15 @@ const ProjectAccessHandler = () => {
   }
 
   return (
-    <SkeletonWrapper skeletons={5} isLoading={isLoadingProjects} className="flex flex-col gap-y-8">
-      <ul className="flex flex-col gap-y-8">
-        {projects?.map((project) => (
-          <ProjectAccess
-            key={project?.full_name}
-            project={project!}
-            refetchProjects={refetchProjects}
-          />
-        ))}
-      </ul>
-    </SkeletonWrapper>
+    <ul className="flex flex-col gap-y-8">
+      {projects?.map((project) => (
+        <ProjectAccess
+          key={project?.full_name}
+          project={project!}
+          refetchProjects={refetchProjects}
+        />
+      ))}
+    </ul>
   );
 };
 

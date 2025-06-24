@@ -12,6 +12,7 @@ import { Loader2 } from "lucide-react";
 import { useOrgStore } from "@/store/orgStore";
 import { useEffect } from "react";
 import { Org } from "@/types/types";
+import { useOrgContext } from "@/context/OrgContext";
 
 const formSchema = z.object({
   name: z
@@ -26,6 +27,7 @@ const getDefaultValues = (org: Org | null | undefined): FormData => {
 };
 
 const OrganizationForm = () => {
+  const { selectedTab } = useOrgContext();
   const setSelectedOrg = useOrgStore((state) => state.setOrg);
   const selectedOrg = useOrgStore((state) => state.org);
   const setIsSaved = useOrgStore((state) => state.setIsSaved);
@@ -39,8 +41,13 @@ const OrganizationForm = () => {
     register,
     reset,
     handleSubmit,
+    getValues,
     formState: { isDirty },
   } = formMethods;
+
+  useEffect(() => {
+    reset({ name: "" });
+  }, [selectedTab]);
 
   useEffect(() => {
     setIsSaved(!isDirty);
@@ -94,6 +101,8 @@ const OrganizationForm = () => {
     toast.error(getFirstErrorMessage(errors));
   };
 
+  const isLoadingUi = isCreatingOrg || isUpdatingOrg;
+
   return (
     <div className="flex flex-col gap-8">
       <p className="text-lg">{selectedOrg ? "Update organization" : "Create new organization"}</p>
@@ -102,9 +111,9 @@ const OrganizationForm = () => {
         className="flex flex-col sm:flex-row gap-4 sm:gap-8">
         <Input {...register("name")} placeholder="Organization name" className="w-[240px]" />
         <div className="flex gap-4">
-          <Button>
+          <Button disabled={selectedOrg ? selectedOrg.name === getValues("name") : false}>
             {selectedOrg ? "Update" : "Create"}
-            {(isCreatingOrg || isUpdatingOrg) && <Loader2 className="animate-spin h-5 w-5" />}
+            {isLoadingUi && <Loader2 className="animate-spin h-5 w-5" />}
           </Button>
           {selectedOrg && (
             <Button onClick={() => setSelectedOrg(undefined)} variant="outline">

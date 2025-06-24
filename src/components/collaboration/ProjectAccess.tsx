@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp, Loader2, User2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { Controller, SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ModeSelect from "../utils/ModeSelect";
 import { Input } from "../ui/input";
@@ -16,8 +16,8 @@ import AlertDialog from "../utils/AleartDialog";
 import { FiPlus } from "react-icons/fi";
 import { toast } from "sonner";
 import { trpc } from "@/trpc/client";
-import SkeletonWrapper from "../utils/loaders/SkeletonWrapper";
 import { ROLES } from "@/config";
+import { useOrgContext } from "@/context/OrgContext";
 
 const formSchema = z.object({
   collaborators: z.array(
@@ -242,58 +242,52 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
             </div>
             <ul className="flex flex-col items-center md:items-start gap-y-8 md:gap-y-4 lg:gap-y-8 border-t pt-8 w-full md:w-fit">
               {projectCollaborator.map((collaborator, index) => (
-                <SkeletonWrapper
+                <form
                   key={collaborator.id}
-                  skeletons={4}
-                  isLoading={isLoadingUi}
-                  width="w-[200px]"
+                  onSubmit={handleSubmit((data) => onSubmit(data, index))}
                   className="flex flex-col md:flex-row gap-4 lg:gap-8 gap-y-4 w-fit md:w-full">
-                  <form
-                    key={collaborator.id}
-                    onSubmit={handleSubmit((data) => onSubmit(data, index))}
-                    className="flex flex-col md:flex-row gap-4 lg:gap-8 gap-y-4 w-fit md:w-full">
-                    <AlertDialog
-                      title="Remove collaborator"
-                      description={`Are you sure you want remove ${collaborator.username} as a collaborator`}
-                      action="Remove"
-                      actionFn={() => handleRemoveCollaborator(index)}
-                      unsafe={isEmptyField(index)}>
-                      <Button type="button" variant="outline" className="w-fit">
-                        <MdClose />
-                      </Button>
-                    </AlertDialog>
-                    <Input
-                      {...register(`collaborators.${index}.username`)}
-                      placeholder="Github username"
-                      disabled={!!controlledProject.collaborators?.[index]}
-                      className="w-[240px]"
-                    />
-                    <Controller
-                      name={`collaborators.${index}.role`}
-                      control={control}
-                      render={({ field }) => (
-                        <ModeSelect
-                          emptyPlaceHolder="No role found"
-                          selectPlaceholder="Select role"
-                          selectLabel="Roles"
-                          value={field.value}
-                          options={ROLES}
-                          onSelect={field.onChange}
-                        />
-                      )}
-                    />
-                    <Button
-                      className="w-full"
-                      disabled={
-                        controlledProject.collaborators?.[index]
-                          ? getValues("collaborators")[index].role ===
-                            controlledProject.collaborators?.[index].role
-                          : false
-                      }>
-                      {controlledProject.collaborators?.[index] ? "Update" : "Add"}
+                  <AlertDialog
+                    title="Remove collaborator"
+                    description={`Are you sure you want remove ${collaborator.username} as a collaborator`}
+                    action="Remove"
+                    actionFn={() => handleRemoveCollaborator(index)}
+                    unsafe={isEmptyField(index)}>
+                    <Button type="button" variant="outline" className="w-fit">
+                      <MdClose />
                     </Button>
-                  </form>
-                </SkeletonWrapper>
+                  </AlertDialog>
+                  <Input
+                    {...register(`collaborators.${index}.username`)}
+                    placeholder="Github username"
+                    disabled={!!controlledProject.collaborators?.[index]}
+                    className="w-[240px]"
+                  />
+                  <Controller
+                    name={`collaborators.${index}.role`}
+                    control={control}
+                    render={({ field }) => (
+                      <ModeSelect
+                        emptyPlaceHolder="No role found"
+                        selectPlaceholder="Select role"
+                        selectLabel="Roles"
+                        value={field.value}
+                        options={ROLES}
+                        onSelect={field.onChange}
+                      />
+                    )}
+                  />
+                  <Button
+                    className="w-full"
+                    disabled={
+                      controlledProject.collaborators?.[index]
+                        ? getValues("collaborators")[index].role ===
+                          controlledProject.collaborators?.[index].role
+                        : false
+                    }>
+                    {controlledProject.collaborators?.[index] ? "Update" : "Add"}
+                    {isLoadingUi && <Loader2 className="animate-spin h-4 w-4" />}
+                  </Button>
+                </form>
               ))}
             </ul>
           </div>

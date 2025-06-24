@@ -21,7 +21,7 @@ const TemplatesPage = () => {
 
   useEffect(() => {
     if (!isLoadingTemplates && !isFetchingTemplates && !isReadyToRender) {
-      setIsReadyToRender(true); // ✅ only set once after first full load
+      setIsReadyToRender(true);
     }
   }, [isLoadingTemplates, isFetchingTemplates]);
 
