@@ -13,6 +13,7 @@ import AuditLogItem from "./AuditlogItem";
 import { toast } from "sonner";
 import { useDashboardContext } from "@/context/DashboardContext";
 import { useProjectStore } from "@/store/projectStore";
+import { useEffect, useState } from "react";
 
 type UpdateSecretArgs = {
   projectId: number;
@@ -30,7 +31,13 @@ type ActivityLogProps = {
 
 const ActivityLog = ({ isOpen, setIsOpen, updateSecret }: ActivityLogProps) => {
   const { projectId, secretId, project, secret } = useProjectStore();
-  const { auditLogs } = useDashboardContext();
+  const { auditLogs, updateSuccess } = useDashboardContext();
+
+  const [controlledAuditLogs, setControlledAuditLogs] = useState<typeof auditLogs>(auditLogs);
+
+  useEffect(() => {
+    setControlledAuditLogs(auditLogs);
+  }, [isOpen]);
 
   const onRollback = (auditLogId: number) => {
     const auditLog = auditLogs?.find((audit) => audit.id === auditLogId);
@@ -50,6 +57,8 @@ const ActivityLog = ({ isOpen, setIsOpen, updateSecret }: ActivityLogProps) => {
       updateMessage: `Rolled back to ${auditLog.metadata.type} at ${date} / ${time}`,
     });
   };
+
+  console.log("Logs: ", auditLogs);
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -72,7 +81,7 @@ const ActivityLog = ({ isOpen, setIsOpen, updateSecret }: ActivityLogProps) => {
           </SheetDescription>
         </SheetHeader>
         <ul className="flex flex-col gap-y-8">
-          {auditLogs?.map((audit) => (
+          {controlledAuditLogs?.map((audit) => (
             <AuditLogItem key={audit.id} audit={audit} onRollback={onRollback} />
           ))}
         </ul>

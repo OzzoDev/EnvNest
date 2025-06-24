@@ -106,10 +106,6 @@ export const useProjectStore = create<ProjectStore>()(
         state?.setIsSaved(true);
         state?.setLoadingStates([true]);
         state?.setError(null);
-        state?.setSecretId(null);
-        Object.keys(state?.projectSecretRefs ?? {}).forEach((key) => {
-          state?.deleteProjectSecretRef(Number(key));
-        });
       },
     }
   )

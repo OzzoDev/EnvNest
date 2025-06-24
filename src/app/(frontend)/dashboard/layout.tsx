@@ -4,7 +4,6 @@ import { getServerSession } from "next-auth";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ReactNode } from "react";
-import Dashboard from "@/components/dashboard/Dashboard";
 import { DashboardProvider } from "@/components/providers/DashboardProvider";
 
 const DashboardLayout = async ({ children }: Readonly<{ children: ReactNode }>) => {
@@ -25,9 +24,7 @@ const DashboardLayout = async ({ children }: Readonly<{ children: ReactNode }>) 
           "--sidebar-width-mobile": "20rem",
         } as React.CSSProperties
       }>
-      <DashboardProvider>
-        <Dashboard>{children}</Dashboard>
-      </DashboardProvider>
+      <DashboardProvider>{children}</DashboardProvider>
     </SidebarProvider>
   );
 };

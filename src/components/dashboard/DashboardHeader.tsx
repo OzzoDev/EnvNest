@@ -34,6 +34,7 @@ const DashboardHeader = () => {
           <div className="flex justify-center items-center gap-x-8">
             <Link
               href={project?.url ?? ""}
+              target="_blank"
               className={cn("w-full", buttonVariants({ variant: "outline", textSize: "lg" }))}>
               <Github aria-hidden="true" />
             </Link>

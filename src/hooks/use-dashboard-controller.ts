@@ -56,13 +56,15 @@ export const useDashboardController = () => {
     data: projects,
     error: projectsError,
     isLoading: isLoadingProjects,
+    isFetching: isFetchingProjects,
     refetch: refetchProjects,
-  } = trpc.project.get.useQuery(undefined, { retry: false, enabled: false });
+  } = trpc.project.get.useQuery(undefined, { retry: false });
 
   const {
     data: newSecret,
     error: newSecretError,
     isLoading: isLoadingNewSecret,
+    isFetching: isFetchingNewSecret,
     refetch: refetchNewSecret,
   } = trpc.secret.get.useQuery(
     { projectId: Number(projectId), secretId: secretId },
@@ -76,6 +78,7 @@ export const useDashboardController = () => {
     data: newProject,
     error: newProjectError,
     isLoading: isLoadingNewProject,
+    isFetching: isFetchingNewProject,
     refetch: refetchNewProject,
   } = trpc.project.getById.useQuery(
     { projectId: Number(projectId) },
@@ -90,6 +93,7 @@ export const useDashboardController = () => {
     error: environmentsError,
     refetch: refetchEnvironents,
     isLoading: isLoadingEnvironments,
+    isFetching: isFetchingEnvironments,
   } = trpc.environment.getAvailable.useQuery(
     { repo: project?.name!, projectId: Number(projectId) },
     { enabled: false, retry: false }
@@ -97,7 +101,6 @@ export const useDashboardController = () => {
 
   const {
     data: paths,
-    isLoading: isLoadingPaths,
     error: pathsError,
     refetch: refetchPaths,
   } = trpc.github.getPaths.useQuery(
@@ -116,6 +119,7 @@ export const useDashboardController = () => {
     data: environmentPaths,
     error: environmentPathsError,
     isLoading: isLoadingEnvironmentPaths,
+    isFetching: isFetchingEnvironmentPaths,
     refetch: refetchEnvironmentPaths,
   } = trpc.secret.getAllAsPathAndId.useQuery(
     { projectId: Number(projectId) },
@@ -126,6 +130,7 @@ export const useDashboardController = () => {
     data: auditLogs,
     error: auditLogsError,
     isLoading: isLoadingAuditLogs,
+    isFetching: isFetchingAuditLogs,
     refetch: refetchAuditLogs,
   } = trpc.auditLog.get.useQuery(
     { projectId: projectId!, secretId: secretId! },
@@ -136,35 +141,41 @@ export const useDashboardController = () => {
     data: templates,
     error: templatesError,
     isLoading: isLoadingTemplates,
+    isFetching: isFetchingTemplates,
     refetch: refetchTemplates,
-  } = trpc.template.getOwnAndPublic.useQuery(undefined, { retry: false, enabled: false });
+  } = trpc.template.getOwnAndPublic.useQuery(undefined, { retry: false });
 
   const {
     data: repos = [],
     error: reposError,
     isLoading: isLoadingRepos,
+    isFetching: isFetchingRepos,
     refetch: refetchRepos,
-  } = trpc.github.getAvailableRepos.useQuery(undefined, { retry: false, enabled: false });
+  } = trpc.github.getAvailableRepos.useQuery(undefined, { retry: false });
 
   const {
     data: orgs = [],
     error: orgsError,
     isLoading: isLoadingOrgs,
+    isFetching: isFetchingOrgs,
     refetch: refetchOrgs,
-  } = trpc.organization.getAsAdmin.useQuery(undefined, { retry: false, enabled: false });
+  } = trpc.organization.getAsAdmin.useQuery(undefined, { retry: false });
 
   const {
     data: logs = [],
     error: logsError,
     isLoading: isLoadingLogs,
+    isFetching: isFetchingLogs,
     refetch: refetchLogs,
-  } = trpc.secret.getHistory.useQuery(undefined, { retry: false, enabled: false });
+  } = trpc.secret.getHistory.useQuery(undefined, { retry: false });
 
   const { mutate: deleteProject, isPending: isDeletingProject } = trpc.project.delete.useMutation({
     onError: (err) => {
       toast.error(err.message || "Something went wrong. Please try again");
     },
     onSuccess: () => {
+      toast.success("Project deleted successfully");
+
       if (typeof projectId === "number") {
         deleteProjectSecretRef(projectId);
       }
@@ -189,6 +200,8 @@ export const useDashboardController = () => {
 
       setVisibleInputs((prev) => prev.map(() => false));
 
+      setSecret(data);
+
       refetchAuditLogs();
 
       toast.success("Successfully saved .env file");
@@ -208,6 +221,7 @@ export const useDashboardController = () => {
       deleteProjectSecretRef(projectId!);
       setSecretId(null);
       setSecret(null);
+      setSecretSelectorFormData({});
       setVisibleInputs((prev) => prev.map(() => false));
     },
     onError: (err) => {
@@ -255,10 +269,6 @@ export const useDashboardController = () => {
   });
 
   useEffect(() => {
-    refetchTemplates();
-  }, []);
-
-  useEffect(() => {
     if (!projectId && projects && projects?.length > 0) {
       setProjectId(projects[0].id);
     }
@@ -269,35 +279,27 @@ export const useDashboardController = () => {
       refetchNewProject();
       refetchEnvironmentPaths();
 
-      const secretIdRef = projectSecretRefs[projectId!];
+      const secretIdRef = projectSecretRefs[projectId];
 
-      if (secretIdRef && !secretId) {
+      if (secretIdRef && secretId !== secretIdRef) {
         setSecretId(secretIdRef);
       }
 
       if (secretId) {
         refetchNewSecret();
         refetchAuditLogs();
-      }
-    }
-
-    if (!secretId) {
-      if (projectId) {
-        const secretIdRef = projectSecretRefs[projectId!];
-        if (secretIdRef) {
-          setSecretId(secretIdRef);
-        }
+      } else {
+        setSecret(null);
       }
 
-      setSecret(null);
-    }
+      if (secretId && projectId) {
+        addProjectSecretRefs(projectId, secretId);
+      }
 
-    if (secretId && projectId) {
-      addProjectSecretRefs(projectId, secretId);
+      setShowAll(false);
+      setIsSaved(true);
+      setSecretSelectorFormData({});
     }
-
-    setShowAll(false);
-    setIsSaved(true);
   }, [projectId, secretId]);
 
   useEffect(() => {
@@ -379,7 +381,6 @@ export const useDashboardController = () => {
       !isLoadingNewSecret &&
       !isLoadingNewProject &&
       !isLoadingEnvironments &&
-      !isLoadingPaths &&
       !isLoadingEnvironmentPaths &&
       !isLoadingAuditLogs &&
       !isLoadingTemplates &&
@@ -391,7 +392,18 @@ export const useDashboardController = () => {
       !isDeletingSecret &&
       !isSavingToHistory &&
       !isCreatingProject &&
-      !isCreatingSecret;
+      !isCreatingSecret &&
+      !isFetchingEnvironmentPaths &&
+      !isFetchingEnvironmentPaths &&
+      !isFetchingProjects &&
+      !isFetchingNewProject &&
+      !isFetchingNewSecret &&
+      !isFetchingEnvironments &&
+      !isFetchingAuditLogs &&
+      !isFetchingRepos &&
+      !isFetchingOrgs &&
+      !isFetchingTemplates &&
+      !isFetchingLogs;
 
     setIsReadyToRender(isSettled);
   }, [
@@ -399,7 +411,6 @@ export const useDashboardController = () => {
     isLoadingNewSecret,
     isLoadingNewProject,
     isLoadingEnvironments,
-    isLoadingPaths,
     isLoadingEnvironmentPaths,
     isLoadingAuditLogs,
     isLoadingTemplates,
@@ -412,6 +423,16 @@ export const useDashboardController = () => {
     isSavingToHistory,
     isCreatingProject,
     isCreatingSecret,
+    isFetchingEnvironmentPaths,
+    isFetchingProjects,
+    isFetchingNewProject,
+    isFetchingNewSecret,
+    isFetchingEnvironments,
+    isFetchingAuditLogs,
+    isFetchingRepos,
+    isFetchingOrgs,
+    isFetchingTemplates,
+    isFetchingLogs,
   ]);
 
   useEffect(() => {
@@ -481,9 +502,37 @@ export const useDashboardController = () => {
     createProject,
     setRepo,
     saveToHistory,
-    get isLoading() {
-      return !isReadyToRender;
-    },
+    isLoading:
+      isLoadingProjects ||
+      isLoadingNewSecret ||
+      isLoadingNewProject ||
+      isLoadingEnvironments ||
+      isLoadingEnvironmentPaths ||
+      isLoadingAuditLogs ||
+      isLoadingTemplates ||
+      isLoadingRepos ||
+      isLoadingOrgs ||
+      isLoadingLogs ||
+      isDeletingProject ||
+      isUpdatingSecret ||
+      isDeletingSecret ||
+      isSavingToHistory ||
+      isCreatingProject ||
+      isCreatingSecret ||
+      isFetchingEnvironmentPaths ||
+      isFetchingEnvironmentPaths ||
+      isFetchingProjects ||
+      isFetchingNewProject ||
+      isFetchingNewSecret ||
+      isFetchingEnvironments ||
+      isFetchingAuditLogs ||
+      isFetchingRepos ||
+      isFetchingOrgs ||
+      isFetchingTemplates ||
+      isFetchingLogs,
+    // get isLoading() {
+    //   return !isReadyToRender;
+    // },
   };
 };
 
