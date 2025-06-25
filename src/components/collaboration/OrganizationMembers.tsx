@@ -73,8 +73,6 @@ const OrganizationMembers = () => {
 
   useEffect(() => {
     if (org && !isEqual(org.members, controlledMembers)) {
-      console.log("Updated: ...");
-
       setOrg({ ...org, members: controlledMembers } as Org);
     }
   }, [controlledMembers, setOrg]);

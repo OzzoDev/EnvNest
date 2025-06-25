@@ -58,8 +58,6 @@ const ActivityLog = ({ isOpen, setIsOpen, updateSecret }: ActivityLogProps) => {
     });
   };
 
-  console.log("Logs: ", auditLogs);
-
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>

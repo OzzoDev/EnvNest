@@ -3,6 +3,7 @@ import secretModel from "../models/secret";
 import axios from "axios";
 import apiHelpers from "./api";
 import { getDbClient } from "../models";
+import { getCache, setCache } from "@/lib/redis";
 
 const github = {
   getPaths: async (
@@ -15,6 +16,14 @@ const github = {
     const branchesToTry = ["main", "master"];
 
     for (const branch of branchesToTry) {
+      const cacheKey = `paths:${owner}:${repo}:${branch}:${projectId}:${environment}`;
+
+      const cached = await getCache<string[]>(cacheKey);
+
+      if (cached) {
+        return cached;
+      }
+
       try {
         const res = await axios.get(
           `https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}?recursive=1`,
@@ -38,7 +47,13 @@ const github = {
           await secretModel.getByEnvironment(projectId, environment as EnvironmentName)
         ).map((secrets) => secrets.path);
 
-        return paths.filter((path) => !occupiedPaths.includes(path.path)).map((path) => path.path);
+        const filteredPaths = paths
+          .filter((path) => !occupiedPaths.includes(path.path))
+          .map((path) => path.path);
+
+        await setCache<string[]>(cacheKey, filteredPaths, 60);
+
+        return filteredPaths;
       } catch {}
     }
 
@@ -50,28 +65,54 @@ const github = {
       Accept: "application/vnd.github+json",
     };
 
-    const userRepos = await apiHelpers.fetchAllPages("https://api.github.com/user/repos", headers);
+    const cacheKeyUserRepos = `user:repos:${accessToken}`;
+    const cacheKeyUserOrgs = `user:orgs:${accessToken}`;
+    const cacheKeyUserInfo = `user:info:${accessToken}`;
 
-    const orgResponse = await axios.get("https://api.github.com/user/orgs", { headers });
-    const orgs = orgResponse.data;
+    let userRepos = await getCache<GithubRepo[]>(cacheKeyUserRepos);
+    if (!userRepos) {
+      userRepos = await apiHelpers.fetchAllPages("https://api.github.com/user/repos", headers);
+      await setCache(cacheKeyUserRepos, userRepos, 60);
+    }
+
+    let orgs = (await getCache<GithubOrg[]>(cacheKeyUserOrgs)) ?? [];
+    if (!orgs) {
+      const orgResponse = await axios.get("https://api.github.com/user/orgs", { headers });
+      orgs = orgResponse.data;
+      await setCache(cacheKeyUserOrgs, orgs, 60);
+    }
 
     const orgReposResults = await Promise.all(
-      orgs.map((org: GithubOrg) =>
-        apiHelpers.fetchAllPages(`https://api.github.com/orgs/${org.login}/repos`, headers)
-      )
+      orgs.map(async (org: GithubOrg) => {
+        const cacheKeyOrgRepos = `org:repos:${org.login}:${accessToken}`;
+        let orgRepos = await getCache<GithubRepo[]>(cacheKeyOrgRepos);
+        if (!orgRepos) {
+          orgRepos = await apiHelpers.fetchAllPages(
+            `https://api.github.com/orgs/${org.login}/repos`,
+            headers
+          );
+          await setCache(cacheKeyOrgRepos, orgRepos, 60);
+        }
+        return orgRepos;
+      })
     );
-
     const orgRepos = orgReposResults.flat();
 
     const allRepos: GithubRepo[] = [...userRepos, ...orgRepos];
 
-    const sessionUser = await axios.get("https://api.github.com/user", { headers });
-    const yourLogin = sessionUser.data.login;
-    const orgLogins = orgs.map((org: GithubOrg) => org.login);
+    let sessionUser = await getCache<{ login: string }>(cacheKeyUserInfo);
+    if (!sessionUser) {
+      const sessionUserResponse = await axios.get("https://api.github.com/user", { headers });
+      sessionUser = sessionUserResponse.data;
+      await setCache(cacheKeyUserInfo, sessionUser, 60);
+    }
+
+    const yourLogin = sessionUser?.login;
+    const orgLogins = orgs.map((org) => org.login);
 
     const filteredRepos: GithubRepo[] = allRepos.filter(
       (repo: GithubRepo) =>
-        (repo.owner?.login === yourLogin || orgLogins.includes(repo.owner?.login)) &&
+        (repo.owner?.login === yourLogin || orgLogins.includes(repo.owner?.login ?? "")) &&
         !repo.archived &&
         !repo.disabled &&
         !repo.fork
@@ -90,8 +131,7 @@ const github = {
       created_at: repo.created_at,
     }));
 
-    const seenIds = new Set();
-
+    const seenIds = new Set<number>();
     const uniqueRepos: GithubRepo[] = cleandRepos.filter((repo) => {
       if (seenIds.has(repo.id)) {
         return false;
@@ -101,7 +141,6 @@ const github = {
     });
 
     await github.updateProjectNames(uniqueRepos, githubId);
-
     await github.syncProjectVisibility(uniqueRepos, githubId);
 
     return uniqueRepos;
