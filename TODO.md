@@ -76,7 +76,7 @@
 
 ## Caching
 
-- [] Use redis to handle chaching on the server when fetching from the github api
+- [x] Use redis to handle chaching on the server when fetching from the github api
 
 ---
 
@@ -105,3 +105,5 @@
 - [] Test flow
 - [] Make prod ready
 - [] Deploy
+- [] Ensure right secret is loaded on create
+- [] Allow for pasting envs
