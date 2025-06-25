@@ -1,5 +1,10 @@
 import EnvInput from "./EnvInput";
-import { FormProvider, useFieldArray, useForm, useWatch } from "react-hook-form";
+import {
+  FormProvider,
+  useFieldArray,
+  useForm,
+  useWatch,
+} from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
@@ -28,7 +33,9 @@ import { useProjectStore } from "@/store/projectStore";
 import { useDashboardContext } from "@/context/DashboardContext";
 
 export const formSchema = z.object({
-  envVariables: z.array(z.object({ name: z.string().nonempty(), value: z.string().nonempty() })),
+  envVariables: z.array(
+    z.object({ name: z.string().nonempty(), value: z.string().nonempty() })
+  ),
 });
 
 export type FormData = z.infer<typeof formSchema>;
@@ -36,8 +43,15 @@ export type FormData = z.infer<typeof formSchema>;
 const EnvEditor = () => {
   const pathname = usePathname();
 
-  const { projectId, project, secretId, secret, showAll, setShowAll, setIsSaved } =
-    useProjectStore();
+  const {
+    projectId,
+    project,
+    secretId,
+    secret,
+    showAll,
+    setShowAll,
+    setIsSaved,
+  } = useProjectStore();
 
   const {
     setIsValid,
@@ -107,8 +121,10 @@ const EnvEditor = () => {
   }, [visibleInputs]);
 
   useEffect(() => {
-    setVisibleInputs(getEnvVariables().map((env) => !env.value));
-  }, [getEnvVariables().length]);
+    setVisibleInputs(
+      (watchedValues?.envVariables ?? []).map((env) => !env.value)
+    );
+  }, [watchedValues?.envVariables?.length]);
 
   useEffect(() => {
     reset({ envVariables: [] });
@@ -138,7 +154,9 @@ const EnvEditor = () => {
   });
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
-    const content = data.envVariables.map(({ name, value }) => `${name}=${value}`).join("&&");
+    const content = data.envVariables
+      .map(({ name, value }) => `${name}=${value}`)
+      .join("&&");
 
     updateSecret({
       projectId: Number(projectId),
@@ -173,15 +191,18 @@ const EnvEditor = () => {
   };
 
   const addEnvVariable = () => {
-    setValue("envVariables", [...getValues("envVariables"), { name: "", value: "" }]);
+    setValue("envVariables", [
+      ...getValues("envVariables"),
+      { name: "", value: "" },
+    ]);
   };
 
   const handleToggleAllInputs = () => {
     if (showAll) {
       setShowAll(false);
-      setVisibleInputs(getEnvVariables().map(() => false));
+      setVisibleInputs((watchedValues?.envVariables ?? []).map((env) => false));
     } else {
-      setVisibleInputs(getEnvVariables().map(() => true));
+      setVisibleInputs((watchedValues?.envVariables ?? []).map((env) => true));
       setShowAll(true);
     }
   };
@@ -206,7 +227,8 @@ const EnvEditor = () => {
                   title="Delete .env file"
                   description={`Are you sure you want to delete this .env file. This action can't be undone.`}
                   action="Delete"
-                  actionFn={() => deleteSecret({ secretId, projectId })}>
+                  actionFn={() => deleteSecret({ secretId, projectId })}
+                >
                   <Button type="button" variant="secondary">
                     Delete
                   </Button>
@@ -224,7 +246,8 @@ const EnvEditor = () => {
                   type="button"
                   variant="secondary"
                   onClick={addEnvVariable}
-                  className="self-end w-fit">
+                  className="self-end w-fit"
+                >
                   <FiPlus />
                 </Button>
 
@@ -234,7 +257,8 @@ const EnvEditor = () => {
                       title="Revert changes"
                       description={`Are you sure you want to revert your changes`}
                       action="Revert"
-                      actionFn={onRevert}>
+                      actionFn={onRevert}
+                    >
                       <Button type="button" variant="outline">
                         <GrRevert size={16} />
                       </Button>
@@ -244,7 +268,11 @@ const EnvEditor = () => {
                     <Dialog open={isOpen} onOpenChange={setIsOpen}>
                       <DialogTrigger asChild>
                         {renderEditor && (
-                          <Button type="button" disabled={!isDirty} variant="default">
+                          <Button
+                            type="button"
+                            disabled={!isDirty}
+                            variant="default"
+                          >
                             {isDirty ? "Save Changes" : "Saved"}
                           </Button>
                         )}
@@ -253,8 +281,9 @@ const EnvEditor = () => {
                         <DialogHeader>
                           <DialogTitle>Save Your Changes</DialogTitle>
                           <DialogDescription>
-                            We track the version history of your projects. Please provide a brief
-                            message about the updates you made for future reference.
+                            We track the version history of your projects.
+                            Please provide a brief message about the updates you
+                            made for future reference.
                           </DialogDescription>
                         </DialogHeader>
                         <Label>Update Message</Label>
@@ -275,7 +304,8 @@ const EnvEditor = () => {
                             onClick={handleSubmit((data) => {
                               onSubmit(data);
                               setIsOpen(false);
-                            })}>
+                            })}
+                          >
                             Save
                           </Button>
                         </DialogFooter>
@@ -286,8 +316,11 @@ const EnvEditor = () => {
                       type="button"
                       disabled={!isDirty}
                       variant="default"
-                      onClick={() => toast.error("Please leave no fields empty")}
-                      className="self-end">
+                      onClick={() =>
+                        toast.error("Please leave no fields empty")
+                      }
+                      className="self-end"
+                    >
                       {isDirty ? "Save Changes" : "Saved"}
                     </Button>
                   )}
@@ -302,7 +335,10 @@ const EnvEditor = () => {
             <div className="flex gap-4 self-end">
               <Button
                 variant="outline"
-                onClick={() => copyToClipBoard(secret.content.split("&&").join("\n"))}>
+                onClick={() =>
+                  copyToClipBoard(secret.content.split("&&").join("\n"))
+                }
+              >
                 Copy
               </Button>
               <Button variant="outline" onClick={handleToggleAllInputs}>
@@ -318,10 +354,12 @@ const EnvEditor = () => {
               <EnvInput
                 key={env.id}
                 index={index}
-                isVisible={visibleInputs[index]}
+                isVisible={visibleInputs[index] ?? true}
                 setIsVisible={() =>
                   setVisibleInputs((prev) =>
-                    prev.map((input, idx) => (idx === index ? !prev[index] : input))
+                    prev.map((input, idx) =>
+                      idx === index ? !prev[index] : input
+                    )
                   )
                 }
                 onDelete={onDeleteVariable}

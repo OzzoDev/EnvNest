@@ -12,7 +12,12 @@ type SecretToggleProps = {
   setIsVisible: (isVisible: boolean) => void;
 };
 
-const SecretToggle = ({ name, isVisible, disabled, setIsVisible }: SecretToggleProps) => {
+const SecretToggle = ({
+  name,
+  isVisible,
+  disabled,
+  setIsVisible,
+}: SecretToggleProps) => {
   const { control } = useFormContext();
 
   return (
@@ -22,9 +27,10 @@ const SecretToggle = ({ name, isVisible, disabled, setIsVisible }: SecretToggleP
         control={control}
         render={({ field }) => (
           <>
-            {isVisible ? (
+            {isVisible !== false ? (
               <Input
                 {...field}
+                value={field.value ?? ""}
                 disabled={disabled}
                 type="text"
                 autoComplete="off"
@@ -46,7 +52,8 @@ const SecretToggle = ({ name, isVisible, disabled, setIsVisible }: SecretToggleP
         type="button"
         variant="ghost"
         className="absolute right-0 top-1/2 transform -translate-y-1/2"
-        onClick={() => setIsVisible(!isVisible)}>
+        onClick={() => setIsVisible(!isVisible)}
+      >
         {isVisible ? <EyeOff size={16} /> : <Eye size={16} />}
       </Button>
     </div>

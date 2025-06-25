@@ -15,7 +15,12 @@ type EnvInputProps = {
   onDelete: (index: number) => void;
 };
 
-const EnvInput = ({ index, isVisible, setIsVisible, onDelete }: EnvInputProps) => {
+const EnvInput = ({
+  index,
+  isVisible,
+  setIsVisible,
+  onDelete,
+}: EnvInputProps) => {
   const { isSaved } = useProjectStore();
   const { hasWriteAccess } = useDashboardContext();
 
@@ -42,13 +47,18 @@ const EnvInput = ({ index, isVisible, setIsVisible, onDelete }: EnvInputProps) =
                   title="Delete env variable"
                   description={`Are you sure you want to delete ${name}?`}
                   action="Delete"
-                  actionFn={() => onDelete(index)}>
+                  actionFn={() => onDelete(index)}
+                >
                   <Button variant="ghost">
                     <IoMdClose size={16} />
                   </Button>
                 </AlertDialog>
               ) : (
-                <Button type="button" variant="ghost" onClick={() => onDelete(index)}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => onDelete(index)}
+                >
                   <IoMdClose size={16} />
                 </Button>
               )
@@ -56,7 +66,8 @@ const EnvInput = ({ index, isVisible, setIsVisible, onDelete }: EnvInputProps) =
               <Button
                 type="button"
                 variant="ghost"
-                onClick={() => toast.error("Please save your changes")}>
+                onClick={() => toast.error("Please save your changes")}
+              >
                 <IoMdClose size={16} />
               </Button>
             )}
@@ -69,6 +80,7 @@ const EnvInput = ({ index, isVisible, setIsVisible, onDelete }: EnvInputProps) =
           render={({ field }) => (
             <Input
               {...field}
+              value={field.value ?? ""}
               type="text"
               disabled={!hasWriteAccess}
               autoComplete="off"
