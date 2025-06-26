@@ -7,7 +7,7 @@ import {
 } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -31,6 +31,7 @@ import { usePathname } from "next/navigation";
 import { copyToClipBoard } from "@/lib/utils";
 import { useProjectStore } from "@/store/projectStore";
 import { useDashboardContext } from "@/context/DashboardContext";
+import { Textarea } from "../ui/textarea";
 
 export const formSchema = z.object({
   envVariables: z.array(
@@ -42,6 +43,8 @@ export type FormData = z.infer<typeof formSchema>;
 
 const EnvEditor = () => {
   const pathname = usePathname();
+  const [pasteValue, setPasteValue] = useState<string | null>(null);
+  const [pasteDialogIsOpen, setPasteDialogIsOpen] = useState<boolean>(false);
 
   const {
     projectId,
@@ -147,6 +150,10 @@ const EnvEditor = () => {
       reset({ envVariables: envs });
     }
   }, [updateSuccess]);
+
+  useEffect(() => {
+    setPasteValue("");
+  }, [pasteDialogIsOpen]);
 
   const { fields: envVariables, replace } = useFieldArray({
     control,
@@ -333,6 +340,69 @@ const EnvEditor = () => {
         <div className="self-end mt-[-16px]">
           {envVariables && secret && envVariables.length > 0 && (
             <div className="flex gap-4 self-end">
+              <Dialog
+                open={pasteDialogIsOpen}
+                onOpenChange={setPasteDialogIsOpen}
+              >
+                <form>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost">Load</Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Load</DialogTitle>
+                      <DialogDescription>
+                        Load env variables from your .env file
+                      </DialogDescription>
+                    </DialogHeader>
+                    <Textarea
+                      value={pasteValue ?? ""}
+                      onChange={(e) => setPasteValue(e.target.value)}
+                      className="h-[200px] resize-none"
+                    />
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button variant="outline" className="mt-4 sm:m-0">
+                          Cancel
+                        </Button>
+                      </DialogClose>
+                      <Button
+                        onClick={() => {
+                          const content = pasteValue
+                            ?.split("\n")
+                            .filter(Boolean)
+                            .map((pair) => pair.split(/\s+/).join(""))
+                            .join("&&");
+
+                          if (!content) {
+                            toast.error(
+                              "Please make sure the text area is not empty. Kindly paste your content and try again."
+                            );
+                            return;
+                          }
+
+                          updateSecret({
+                            projectId: Number(projectId),
+                            secretId: Number(secretId),
+                            content,
+                            updateMessage: "Loaded from .env file",
+                          });
+                          console.log(
+                            pasteValue
+                              ?.split("\n")
+                              .filter(Boolean)
+                              .map((pair) => pair.split(/\s+/).join(""))
+                              .join("&&")
+                          );
+                        }}
+                        type="button"
+                      >
+                        Save changes
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </form>
+              </Dialog>
               <Button
                 variant="outline"
                 onClick={() =>
