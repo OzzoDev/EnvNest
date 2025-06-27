@@ -1,7 +1,11 @@
 "use client";
 
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn, getCurrentLinkName, getLinks } from "@/lib/utils";
 import { NextAuthUser } from "@/types/types";
 import { ChevronDown } from "lucide-react";
@@ -10,6 +14,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import MoblieNav from "./MoblieNav";
 import { useEffect, useState } from "react";
+import NavLink from "./NavLink";
 
 type NavbarControlsProps = {
   user: NextAuthUser | undefined;
@@ -36,18 +41,25 @@ const NavControls = ({ user }: NavbarControlsProps) => {
           <PopoverContent className="w-48">
             <ul className="flex flex-col gap-y-4">
               {getLinks(pathname, !!user).map((link, index) => (
-                <Link
+                <NavLink
                   key={index + link.name}
                   href={link.link}
-                  className={cn(buttonVariants({ variant: "link" }), "justify-start")}>
+                  className={cn(
+                    buttonVariants({ variant: "link" }),
+                    "justify-start"
+                  )}
+                >
                   {link.name}
-                </Link>
+                </NavLink>
               ))}
             </ul>
           </PopoverContent>
         </Popover>
         {user ? (
-          <Button onClick={() => signOut({ callbackUrl: "/auth" })} variant="default">
+          <Button
+            onClick={() => signOut({ callbackUrl: "/auth" })}
+            variant="default"
+          >
             Sign out
           </Button>
         ) : (

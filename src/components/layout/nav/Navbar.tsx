@@ -1,6 +1,5 @@
 import { authOptions } from "@/app/(backend)/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
-import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import NavControls from "./NavControls";
 

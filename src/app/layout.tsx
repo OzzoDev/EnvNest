@@ -4,6 +4,7 @@ import "./globals.css";
 import NavBar from "@/components/layout/nav/Navbar";
 import { Toaster } from "sonner";
 import Providers from "@/components/providers/Providers";
+import NavigationLoader from "@/components/layout/NavigationLoader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,26 +23,30 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} dark bg-background`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} dark bg-background`}
+      >
         <Providers>
-          <NavBar />
-          {children}
-          <Toaster
-            position="bottom-center"
-            toastOptions={{
-              style: {
-                background: "#333",
-                color: "#fff",
-              },
-              duration: 5000,
-            }}
-            richColors
-          />
+          <NavigationLoader>
+            <NavBar />
+            <>{children}</>
+            <Toaster
+              position="bottom-center"
+              toastOptions={{
+                style: {
+                  background: "#333",
+                  color: "#fff",
+                },
+                duration: 5000,
+              }}
+              richColors
+            />
+          </NavigationLoader>
         </Providers>
       </body>
     </html>

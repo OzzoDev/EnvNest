@@ -7,7 +7,6 @@ import ProjectAccessHandler from "@/components/collaboration/ProjectAccessHandle
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOrgContext } from "@/context/OrgContext";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
 
 const CollaborationPage = () => {
   const { isLoading, selectedTab, setSelectedTab } = useOrgContext();
@@ -31,7 +30,10 @@ const CollaborationPage = () => {
       </h2>
       <Tabs
         value={selectedTab}
-        onValueChange={(val) => setSelectedTab(val as "Accesss" | "Organizations")}>
+        onValueChange={(val) =>
+          setSelectedTab(val as "Accesss" | "Organizations")
+        }
+      >
         <TabsList>
           <TabsTrigger value="Accesss">Project Accesss</TabsTrigger>
           <TabsTrigger value="Organizations">Organizations</TabsTrigger>
