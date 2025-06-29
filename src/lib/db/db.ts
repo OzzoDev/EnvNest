@@ -182,6 +182,64 @@ export const initDB = async () => {
   await seedDB();
 };
 
+export const dropTables = async () => {
+  await executeQuery(`
+    DROP TABLE IF EXISTS secret_history CASCADE;
+  `);
+
+  await executeQuery(`
+    DROP TABLE IF EXISTS secret_active CASCADE;
+  `);
+
+  await executeQuery(`
+    DROP TABLE IF EXISTS secret_version CASCADE;
+  `);
+
+  await executeQuery(`
+    DROP TABLE IF EXISTS secret CASCADE;
+  `);
+
+  await executeQuery(`
+    DROP TABLE IF EXISTS environment CASCADE;
+  `);
+
+  await executeQuery(`
+    DROP TABLE IF EXISTS project_key CASCADE;
+  `);
+
+  await executeQuery(`
+    DROP TABLE IF EXISTS org_project CASCADE;
+  `);
+
+  await executeQuery(`
+    DROP TABLE IF EXISTS project CASCADE;
+  `);
+
+  await executeQuery(`
+    DROP TABLE IF EXISTS org_profile CASCADE;
+  `);
+
+  await executeQuery(`
+    DROP TABLE IF EXISTS org CASCADE;
+  `);
+
+  await executeQuery(`
+    DROP TABLE IF EXISTS profile CASCADE;
+  `);
+
+  await executeQuery(`
+    DROP TABLE IF EXISTS collaborator CASCADE;
+  `);
+
+  await executeQuery(`
+    DROP TABLE IF EXISTS audit_log CASCADE;
+  `);
+
+  await executeQuery(`
+    DROP TABLE IF EXISTS template CASCADE;
+  `);
+};
+
 export const seedDB = async () => {
   const result = await executeQuery<{ count: number }>(
     `SELECT CAST(COUNT(*) AS INTEGER) FROM template`

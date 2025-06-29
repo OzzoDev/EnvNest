@@ -11,7 +11,10 @@ const profile = {
     const key = Object.keys(where)[0] as K;
     const value = where[key];
 
-    const result = await executeQuery<Profile>(`SELECT * FROM profile WHERE ${key} = $1`, [value]);
+    const result = await executeQuery<Profile>(
+      `SELECT * FROM profile WHERE ${key} = $1`,
+      [value]
+    );
 
     return result[0];
   },
@@ -30,7 +33,9 @@ const profile = {
     );
   },
   create: async (user: GithubUser): Promise<Profile> => {
-    const entries = Object.entries(user).filter(([_, value]) => value !== undefined);
+    const entries = Object.entries(user).filter(
+      ([_, value]) => value !== undefined
+    );
     const keys = entries.map(([key]) => key).join(", ");
     const placeholders = entries.map((_, i) => `$${i + 1}`).join(", ");
     const values = entries.map(([_, value]) => value);
@@ -52,8 +57,12 @@ const profile = {
     whereKey: K,
     whereValue: Profile[K]
   ): Promise<Profile> => {
-    const entries = Object.entries(user).filter(([_, value]) => value !== undefined);
-    const setClause = entries.map(([key], i) => `${key} = $${i + 1}`).join(", ");
+    const entries = Object.entries(user).filter(
+      ([_, value]) => value !== undefined
+    );
+    const setClause = entries
+      .map(([key], i) => `${key} = $${i + 1}`)
+      .join(", ");
     const values = entries.map(([_, value]) => value);
 
     const whereParamIndex = values.length + 1;

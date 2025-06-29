@@ -1,10 +1,11 @@
 import { beforeAll, beforeEach, afterEach, afterAll } from "vitest";
 import type { PoolClient } from "pg";
-import { initDB, pool, seedDB } from "@/lib/db/db";
+import { dropTables, initDB, pool, seedDB } from "@/lib/db/db";
 
 let client: PoolClient | null = null;
 
 beforeAll(async () => {
+  await dropTables();
   await initDB();
   await seedDB();
 });
