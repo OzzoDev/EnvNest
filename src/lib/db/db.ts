@@ -1,4 +1,7 @@
 import { Pool } from "pg";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -183,61 +186,31 @@ export const initDB = async () => {
 };
 
 export const dropTables = async () => {
-  await executeQuery(`
-    DROP TABLE IF EXISTS secret_history CASCADE;
-  `);
+  const tables = [
+    "secret_history",
+    "secret_active",
+    "secret_version",
+    "secret",
+    "environment",
+    "project_key",
+    "org_project",
+    "project",
+    "org_profile",
+    "org",
+    "profile",
+    "collaborator",
+    "audit_log",
+    "template",
+  ];
 
-  await executeQuery(`
-    DROP TABLE IF EXISTS secret_active CASCADE;
-  `);
-
-  await executeQuery(`
-    DROP TABLE IF EXISTS secret_version CASCADE;
-  `);
-
-  await executeQuery(`
-    DROP TABLE IF EXISTS secret CASCADE;
-  `);
-
-  await executeQuery(`
-    DROP TABLE IF EXISTS environment CASCADE;
-  `);
-
-  await executeQuery(`
-    DROP TABLE IF EXISTS project_key CASCADE;
-  `);
-
-  await executeQuery(`
-    DROP TABLE IF EXISTS org_project CASCADE;
-  `);
-
-  await executeQuery(`
-    DROP TABLE IF EXISTS project CASCADE;
-  `);
-
-  await executeQuery(`
-    DROP TABLE IF EXISTS org_profile CASCADE;
-  `);
-
-  await executeQuery(`
-    DROP TABLE IF EXISTS org CASCADE;
-  `);
-
-  await executeQuery(`
-    DROP TABLE IF EXISTS profile CASCADE;
-  `);
-
-  await executeQuery(`
-    DROP TABLE IF EXISTS collaborator CASCADE;
-  `);
-
-  await executeQuery(`
-    DROP TABLE IF EXISTS audit_log CASCADE;
-  `);
-
-  await executeQuery(`
-    DROP TABLE IF EXISTS template CASCADE;
-  `);
+  for (const table of tables) {
+    try {
+      await executeQuery(`DROP TABLE IF EXISTS ${table} CASCADE;`);
+    } catch (error) {
+      // console.error(`Failed to drop ${table}:`, error);
+      throw error;
+    }
+  }
 };
 
 export const seedDB = async () => {

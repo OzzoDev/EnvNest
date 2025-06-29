@@ -6,11 +6,9 @@ describe("handle user login", () => {
     const db = await getDbClient();
 
     const profile = await db.profile.create({
-      github_id: "1234",
-      username: "user",
+      github_id: "1111",
+      username: "test",
     });
-
-    console.log("Profile: ", profile);
 
     expect(profile).toHaveProperty("id");
   });

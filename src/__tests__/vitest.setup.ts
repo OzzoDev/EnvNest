@@ -1,13 +1,14 @@
-import { beforeAll, beforeEach, afterEach, afterAll } from "vitest";
+import { pool } from "@/lib/db/db";
+import { getDbClient } from "@/lib/db/models";
 import type { PoolClient } from "pg";
-import { dropTables, initDB, pool, seedDB } from "@/lib/db/db";
+import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
 
 let client: PoolClient | null = null;
 
 beforeAll(async () => {
-  await dropTables();
-  await initDB();
-  await seedDB();
+  const db = await getDbClient();
+
+  await db.profile.create({ github_id: "1234", username: "user" });
 });
 
 beforeEach(async () => {

@@ -7,9 +7,9 @@ export default defineConfig({
       "./src/__tests__/vitest.env.ts",
       "./src/__tests__/vitest.setup.ts",
     ],
+    globalSetup: "./src/__tests__/vitest.global.ts",
     environment: "node",
     include: ["src/__tests__/**/*.test.{ts,tsx,js,jsx}"],
-    testTimeout: 10000,
   },
   resolve: {
     alias: {
