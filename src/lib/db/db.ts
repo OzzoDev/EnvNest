@@ -1,6 +1,6 @@
 import { Pool } from "pg";
 
-const pool = new Pool({
+export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
@@ -13,7 +13,10 @@ export const sanitizeValues = (values: any[]) => {
   });
 };
 
-export const executeQuery = async <T>(queryText: string, values: unknown[] = []): Promise<T[]> => {
+export const executeQuery = async <T>(
+  queryText: string,
+  values: unknown[] = []
+): Promise<T[]> => {
   const sanitizedValues = sanitizeValues(values);
   const client = await pool.connect();
 
@@ -177,11 +180,9 @@ export const initDB = async () => {
   `);
 
   await seedDB();
-
-  console.log("✅ Database initialized");
 };
 
-const seedDB = async () => {
+export const seedDB = async () => {
   const result = await executeQuery<{ count: number }>(
     `SELECT CAST(COUNT(*) AS INTEGER) FROM template`
   );
@@ -210,11 +211,8 @@ const seedDB = async () => {
           UNION ALL
         SELECT 'Laravel', 'APP_ENV=local&&APP_KEY=base64:laravelsecret&&DB_URL=mysql://user:pass@localhost:3306/mydb&&MAIL_MAILER=smtp', 'public';
         `);
-      console.log("✅ Database seeded");
     } catch (error) {
       console.error("Error seeding database: ", error);
     }
-  } else {
-    console.log("✅ Database already seeded, no changes made.");
   }
 };

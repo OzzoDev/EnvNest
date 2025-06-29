@@ -15,25 +15,38 @@ export const secretRouter = router({
 
       const db = await getDbClient();
 
-      const projectKey = (await db.project.getKey(projectId, githubId))?.encrypted_key;
+      const projectKey = (await db.project.getKey(projectId, githubId))
+        ?.encrypted_key;
 
       if (!projectKey) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Encryption key not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Encryption key not found",
+        });
       }
 
-      const decryptedKey = aesDecrypt(projectKey, process.env.ENCRYPTION_ROOT_KEY!);
+      const decryptedKey = aesDecrypt(
+        projectKey,
+        process.env.ENCRYPTION_ROOT_KEY!
+      );
 
       let safeSecretId = secretId;
 
-      const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+      const profileId = (
+        await db.profile.getByField({ github_id: String(githubId) })
+      )?.id;
 
       if (!profileId) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Profile not found",
+        });
       }
 
       if (!secretId) {
         safeSecretId =
-          (await db.secretActive.getByProjectAndProfile(profileId, projectId))?.secret_id ?? null;
+          (await db.secretActive.getByProjectAndProfile(profileId, projectId))
+            ?.secret_id ?? null;
       } else {
         await db.secretActive.upsert(String(githubId), projectId, secretId);
       }
@@ -59,26 +72,27 @@ export const secretRouter = router({
 
       const db = await getDbClient();
 
-      const environments = (await db.environment.getByProject(projectId)).map((env) => env.name);
+      const environments = (await db.environment.getByProject(projectId)).map(
+        (env) => env.name
+      );
       const secrets = await db.secret.getByProject(projectId);
 
-      const result = environments.reduce<Record<string, { id: number; path: string }[]>>(
-        (acc, env) => {
-          const paths = secrets
-            .filter((secret) => secret.environment === env)
-            .map((secret) => ({
-              id: secret.id,
-              path: secret.path,
-            }));
+      const result = environments.reduce<
+        Record<string, { id: number; path: string }[]>
+      >((acc, env) => {
+        const paths = secrets
+          .filter((secret) => secret.environment === env)
+          .map((secret) => ({
+            id: secret.id,
+            path: secret.path,
+          }));
 
-          if (paths && paths.length > 0) {
-            acc[env] = paths;
-          }
+        if (paths && paths.length > 0) {
+          acc[env] = paths;
+        }
 
-          return acc;
-        },
-        {}
-      );
+        return acc;
+      }, {});
 
       return result;
     }),
@@ -126,24 +140,37 @@ export const secretRouter = router({
         });
       }
 
-      const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+      const profileId = (
+        await db.profile.getByField({ github_id: String(githubId) })
+      )?.id;
 
       if (!profileId) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Profile not found",
+        });
       }
 
       const project = await db.project.getById(projectId, githubId);
 
-      const projectKey = (await db.project.getKey(projectId, githubId))?.encrypted_key;
+      const projectKey = (await db.project.getKey(projectId, githubId))
+        ?.encrypted_key;
 
       if (!project || !projectKey) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Project not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
       }
 
-      const decryptedKey = aesDecrypt(projectKey, process.env.ENCRYPTION_ROOT_KEY!);
+      const decryptedKey = aesDecrypt(
+        projectKey,
+        process.env.ENCRYPTION_ROOT_KEY!
+      );
 
       const template = templateId
-        ? (await db.template.getOwnAndPublicById(profileId, templateId))?.template || ""
+        ? (await db.template.getOwnAndPublicById(profileId, templateId))
+            ?.template || ""
         : "";
 
       const encryptedContent = aesEncrypt(template, decryptedKey);
@@ -170,7 +197,11 @@ export const secretRouter = router({
         { type: "CREATE" }
       );
 
-      await db.secretActive.upsert(String(githubId), projectId, createdSecret.id);
+      await db.secretActive.upsert(
+        String(githubId),
+        projectId,
+        createdSecret.id
+      );
 
       return createdSecret.id;
     }),
@@ -187,7 +218,13 @@ export const secretRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { user } = ctx;
       const { id: githubId } = user;
-      const { secretId, projectId, content, type = "UPDATE", updateMessage } = input;
+      const {
+        secretId,
+        projectId,
+        content,
+        type = "UPDATE",
+        updateMessage,
+      } = input;
 
       const db = await getDbClient();
 
@@ -198,13 +235,20 @@ export const secretRouter = router({
         });
       }
 
-      const projectKey = (await db.project.getKey(projectId, githubId))?.encrypted_key;
+      const projectKey = (await db.project.getKey(projectId, githubId))
+        ?.encrypted_key;
 
       if (!projectKey) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Encryption key not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Encryption key not found",
+        });
       }
 
-      const decryptedKey = aesDecrypt(projectKey, process.env.ENCRYPTION_ROOT_KEY!);
+      const decryptedKey = aesDecrypt(
+        projectKey,
+        process.env.ENCRYPTION_ROOT_KEY!
+      );
 
       const encryptedContent = aesEncrypt(content, decryptedKey);
 
@@ -225,23 +269,37 @@ export const secretRouter = router({
         { type }
       );
 
-      const decryptedUpdatedSecret = aesDecrypt(updatedSecret?.content, decryptedKey);
+      const decryptedUpdatedSecret = aesDecrypt(
+        updatedSecret?.content,
+        decryptedKey
+      );
 
       return { ...updatedSecret, content: decryptedUpdatedSecret };
     }),
   delete: privateProcedure
-    .input(z.object({ secretId: z.number().nullable(), projectId: z.number().nullable() }))
+    .input(
+      z.object({
+        secretId: z.number().nullable(),
+        projectId: z.number().nullable(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       const { user } = ctx;
       const { id: githubId } = user;
       const { secretId, projectId } = input;
 
       if (!secretId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "SecretId must be provided" });
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "SecretId must be provided",
+        });
       }
 
       if (!projectId) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "ProjectId must be provided" });
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "ProjectId must be provided",
+        });
       }
 
       const db = await getDbClient();
