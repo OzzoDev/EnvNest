@@ -12,4 +12,21 @@ describe("handle user login", () => {
 
     expect(profile).toHaveProperty("id");
   });
+
+  it("should not login in user with alredy taken username", async () => {
+    const db = await getDbClient();
+
+    let profile;
+
+    try {
+      profile = await db.profile.create({
+        github_id: "2222",
+        username: "test",
+      });
+    } catch {
+      profile = null;
+    }
+
+    expect(profile).toBeFalsy();
+  });
 });
