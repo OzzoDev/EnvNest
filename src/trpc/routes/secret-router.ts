@@ -203,7 +203,7 @@ export const secretRouter = router({
         createdSecret.id
       );
 
-      return createdSecret.id;
+      return createdSecret;
     }),
   update: privateProcedure
     .input(

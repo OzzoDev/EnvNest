@@ -101,8 +101,8 @@
 
 ## Final touches
 
-- [] Write unit tests
-- [] Test flow
+- [x] Write unit tests
+- [x] Test flow
 - [] Make prod ready
 - [] Deploy
 - [] Ensure right secret is loaded on create

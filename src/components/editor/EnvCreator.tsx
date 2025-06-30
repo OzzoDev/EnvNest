@@ -16,8 +16,14 @@ export type FormData = {
 
 const EnvCreator = () => {
   const { project } = useProjectStore();
-  const { templates, environments, paths, createSecret, createEnvFormData, setCreateEnvFormData } =
-    useDashboardContext();
+  const {
+    templates,
+    environments,
+    paths,
+    createSecret,
+    createEnvFormData,
+    setCreateEnvFormData,
+  } = useDashboardContext();
 
   const handleSumbit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,7 +47,9 @@ const EnvCreator = () => {
     const environmentValue = ENVIRONMENTS.find(
       (env) => env.label === createEnvFormData.environment
     )?.value;
-    const templateId = templates?.find((temp) => temp.name === createEnvFormData.template)?.id;
+    const templateId = templates?.find(
+      (temp) => temp.name === createEnvFormData.template
+    )?.id;
 
     createSecret({
       projectId: project.id,
@@ -56,7 +64,7 @@ const EnvCreator = () => {
   return (
     <form onSubmit={handleSumbit} className="flex flex-col gap-y-4">
       <p className="font-medium text-text-color">Create .env file</p>
-      <div className="flex flex-col xl:flex-row items-start  gap-x-8 gap-y-4">
+      <div className="flex flex-col xl:flex-row items-start gap-x-4 gap-y-4">
         <ModeSelect
           selectPlaceholder="Select environment"
           emptyPlaceHolder="No environments found"
@@ -67,7 +75,9 @@ const EnvCreator = () => {
               .filter((label): label is string => Boolean(label)) || []
           }
           value={createEnvFormData.environment ?? null}
-          onSelect={(value) => setCreateEnvFormData((prev) => ({ ...prev, environment: value }))}
+          onSelect={(value) =>
+            setCreateEnvFormData((prev) => ({ ...prev, environment: value }))
+          }
         />
         {createEnvFormData.environment && (
           <ModeSelect
@@ -76,7 +86,9 @@ const EnvCreator = () => {
             enableSearch={true}
             options={paths ?? []}
             value={createEnvFormData.path ?? null}
-            onSelect={(value) => setCreateEnvFormData((prev) => ({ ...prev, path: value }))}
+            onSelect={(value) =>
+              setCreateEnvFormData((prev) => ({ ...prev, path: value }))
+            }
           />
         )}
         {createEnvFormData.path && (
@@ -86,7 +98,9 @@ const EnvCreator = () => {
             selectLabel="Templates"
             options={templates?.map((template) => template.name) ?? []}
             value={createEnvFormData.template ?? null}
-            onSelect={(value) => setCreateEnvFormData((prev) => ({ ...prev, template: value }))}
+            onSelect={(value) =>
+              setCreateEnvFormData((prev) => ({ ...prev, template: value }))
+            }
           />
         )}
         {isValid && (

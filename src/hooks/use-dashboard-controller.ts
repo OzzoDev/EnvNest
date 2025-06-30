@@ -264,9 +264,23 @@ export const useDashboardController = () => {
 
   const { mutate: createSecret, isPending: isCreatingSecret } =
     trpc.secret.create.useMutation({
-      onSuccess: (secretId) => {
-        setSecretId(secretId);
+      onSuccess: (data) => {
+        setSecretId(data.id);
         setCreateEnvFormData({});
+
+        const envVariables = data.content.split("&&").map((val) => {
+          const [name, value] = val.split("=");
+          return { name, value };
+        });
+
+        setEnvVariables(envVariables);
+
+        setUpdateSuccess(true);
+        setIsActicityLogOpen(false);
+
+        setVisibleInputs((prev) => prev.map(() => false));
+
+        setSecret(data);
 
         refetchTemplates();
         refetchPaths();
@@ -293,7 +307,7 @@ export const useDashboardController = () => {
 
       const secretIdRef = projectSecretRefs[projectId];
 
-      if (secretIdRef && secretId !== secretIdRef) {
+      if (secretIdRef && secretId !== secretIdRef && !secretId) {
         setSecretId(secretIdRef);
       }
 
