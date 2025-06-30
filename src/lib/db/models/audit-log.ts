@@ -33,7 +33,8 @@ const auditLog = {
     action: string,
     metaData: Record<string, T> = {}
   ): Promise<AuditLogTable | null> => {
-    const profileId = (await profileModel.getByField({ github_id: githubId }))?.id;
+    const profileId = (await profileModel.getByField({ github_id: githubId }))
+      ?.id;
 
     if (!profileId) {
       return null;
@@ -42,9 +43,12 @@ const auditLog = {
     return (
       await executeQuery<AuditLogTable>(
         `
-            INSERT INTO audit_log (profile_id, secret_id, secret_version_id, action, metadata)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING *    
+          INSERT INTO audit_log (profile_id, secret_id, secret_version_id, action, metadata)
+          SELECT $1, $2, $3, $4, $5
+          WHERE EXISTS (
+            SELECT 1 FROM secret_version WHERE id = $3
+          )
+          RETURNING *
         `,
         [profileId, secretId, secret_version_id, action, metaData]
       )
