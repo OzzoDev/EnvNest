@@ -326,6 +326,8 @@ export const useDashboardController = () => {
       setSecretSelectorFormData({});
     }
     setShowAll(false);
+
+    console.log("Secreyid:", secretId);
   }, [projectId, secretId]);
 
   useEffect(() => {

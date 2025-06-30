@@ -352,7 +352,7 @@ const EnvEditor = () => {
                     <DialogHeader>
                       <DialogTitle>Load</DialogTitle>
                       <DialogDescription>
-                        Load env variables from your .env file
+                        Paste env variables from your .env file
                       </DialogDescription>
                     </DialogHeader>
                     <Textarea

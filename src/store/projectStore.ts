@@ -1,4 +1,8 @@
-import { EnvironmentSecret, ProjectTable, ProjectWithRole } from "@/types/types";
+import {
+  EnvironmentSecret,
+  ProjectTable,
+  ProjectWithRole,
+} from "@/types/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -37,7 +41,9 @@ type ProjectStore = {
   setHasHistoryLogs: (hasHistoryLogs: boolean) => void;
   deleteProject: () => void;
   clear: () => void;
-  setProjectSecretRefs: (projectSecretRefs: ProjectSecretRefs | undefined) => void;
+  setProjectSecretRefs: (
+    projectSecretRefs: ProjectSecretRefs | undefined
+  ) => void;
 };
 
 export const useProjectStore = create<ProjectStore>()(
@@ -92,7 +98,8 @@ export const useProjectStore = create<ProjectStore>()(
           secretId: null,
           isDeletingProject: true,
         }),
-      setIsDeletingProject: (isDeletingProject: boolean) => set({ isDeletingProject }),
+      setIsDeletingProject: (isDeletingProject: boolean) =>
+        set({ isDeletingProject }),
       setError: (error: string | null) => set({ error }),
       setShowAll: (showAll) => set({ showAll }),
       setHasProjects: (hasProjects) => set({ hasProjects }),
