@@ -45,7 +45,7 @@ describe("secret creation with real DB", () => {
 
     const result = await caller.secret.create(input);
 
-    expect(typeof result).toBe("number");
+    expect(result).toHaveProperty("id");
   });
 
   it("creates secret from template", async () => {
@@ -67,7 +67,7 @@ describe("secret creation with real DB", () => {
 
     const result = await caller.secret.create(input);
 
-    expect(typeof result).toBe("number");
+    expect(result).toHaveProperty("id");
   });
 
   it("should not create secret with unauthenticated user", async () => {

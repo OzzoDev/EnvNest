@@ -105,5 +105,5 @@
 - [x] Test flow
 - [] Make prod ready
 - [] Deploy
-- [] Ensure right secret is loaded on create
-- [] Allow for pasting envs
+- [x] Ensure right secret is loaded on create
+- [x] Allow for pasting envs
