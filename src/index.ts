@@ -4,6 +4,7 @@ import { Command } from "commander";
 import { clearUserConfig, loadUserConfig } from "./config/config";
 import { authenticateWithGithub } from "./auth/github-auth";
 import { getDbClient } from "./db";
+import { selectProject, sortProjectsByCwd } from "./projectSelector";
 
 const program = new Command();
 
@@ -29,7 +30,16 @@ program
 
     const projects = await db.projects.find(config.userId);
 
-    console.log(projects);
+    const sortedProjects = sortProjectsByCwd(projects);
+
+    const selectedProject = await selectProject(sortedProjects);
+
+    if (!selectedProject) {
+      console.log("No project selected, exiting...");
+      process.exit(1);
+    }
+
+    console.log(`✅ You selected project: ${selectedProject.name}`);
   });
 
 program.parse();

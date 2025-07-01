@@ -5,6 +5,7 @@ const commander_1 = require("commander");
 const config_1 = require("./config/config");
 const github_auth_1 = require("./auth/github-auth");
 const db_1 = require("./db");
+const projectSelector_1 = require("./projectSelector");
 const program = new commander_1.Command();
 program
     .name("envsync")
@@ -23,6 +24,12 @@ program
     }
     const db = await (0, db_1.getDbClient)();
     const projects = await db.projects.find(config.userId);
-    console.log(projects);
+    const sortedProjects = (0, projectSelector_1.sortProjectsByCwd)(projects);
+    const selectedProject = await (0, projectSelector_1.selectProject)(sortedProjects);
+    if (!selectedProject) {
+        console.log("No project selected, exiting...");
+        process.exit(1);
+    }
+    console.log(`✅ You selected project: ${selectedProject.name}`);
 });
 program.parse();
