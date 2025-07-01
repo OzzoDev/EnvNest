@@ -1,6 +1,6 @@
-# EnvVault 🌱🔐
+# EnvNest 🌱🔐
 
-EnvVault is a secure, GitHub-integrated `.env` file manager for developers and teams. It helps manage, encrypt, version, and sync environment configuration files across teams and projects — with GitHub login, PostgreSQL backend, and custom encryption.
+EnvNest is a secure, GitHub-integrated `.env` file manager for developers and teams. It helps manage, encrypt, version, and sync environment configuration files across teams and projects — with GitHub login, PostgreSQL backend, and custom encryption.
 
 ---
 
@@ -50,12 +50,12 @@ Currently in MVP development phase.
 
 - [x] Project scaffolding (Next.js + Tailwind + TypeScript)
 - [x] GitHub OAuth login via NextAuth
-- [ ] User table sync (PostgreSQL)
-- [ ] Project/org structure
-- [ ] Encrypted `.env` file CRUD
-- [ ] Versioning & rollback
-- [ ] Custom editor
-- [ ] CLI tool
+- [x] User table sync (PostgreSQL)
+- [x] Project/org structure
+- [x] Encrypted `.env` file CRUD
+- [x] Versioning & rollback
+- [x] Custom editor
+- [x] CLI tool
 
 ---
 
