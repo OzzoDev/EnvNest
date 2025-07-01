@@ -8,7 +8,8 @@
     "scripts": {
         "dev": "ts-node src/index.ts",
         "build": "tsc",
-        "start": "node dist/index.js"
+        "start": "node dist/index.js",
+        "lint": "eslint src --ext .ts"
     },
     "repository": {
         "type": "git",
@@ -34,12 +35,16 @@
         "pg": "^8.16.3"
     },
     "devDependencies": {
+        "@eslint/js": "^9.30.0",
         "@types/fast-levenshtein": "^0.0.4",
         "@types/fs-extra": "^11.0.4",
         "@types/inquirer": "^9.0.8",
         "@types/node": "^24.0.8",
         "@types/pg": "^8.15.4",
+        "eslint": "^9.30.0",
+        "globals": "^16.3.0",
         "ts-node": "^10.9.2",
-        "typescript": "^5.8.3"
+        "typescript": "^5.8.3",
+        "typescript-eslint": "^8.35.1"
     }
 }
