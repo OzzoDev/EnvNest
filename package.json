@@ -1,0 +1,40 @@
+{
+    "name": "envsync",
+    "version": "1.0.0",
+    "main": "bin/index.js",
+    "bin": {
+        "envsync": "dist/index.js"
+    },
+    "scripts": {
+        "dev": "ts-node src/index.ts",
+        "build": "tsc",
+        "start": "node dist/index.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/OzzoDev/EnvVault.git"
+    },
+    "author": "OzzoDev",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/OzzoDev/EnvVault/issues"
+    },
+    "homepage": "https://github.com/OzzoDev/EnvVault#readme",
+    "description": "",
+    "dependencies": {
+        "@octokit/auth-oauth-app": "^9.0.1",
+        "axios": "^1.10.0",
+        "commander": "^14.0.0",
+        "env-paths": "^3.0.0",
+        "fs-extra": "^11.3.0",
+        "inquirer": "^12.6.3",
+        "open": "^10.1.2"
+    },
+    "devDependencies": {
+        "@types/fs-extra": "^11.0.4",
+        "@types/inquirer": "^9.0.8",
+        "@types/node": "^24.0.8",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.8.3"
+    }
+}
