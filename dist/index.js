@@ -4,6 +4,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const commander_1 = require("commander");
 const config_1 = require("./config/config");
 const github_auth_1 = require("./auth/github-auth");
+const db_1 = require("./db");
 const program = new commander_1.Command();
 program
     .name("envsync")
@@ -20,6 +21,8 @@ program
     else {
         console.log(`✅ Already logged in as GitHub user ID: ${config.userId}`);
     }
-    // Proceed with other CLI tasks here...
+    const db = await (0, db_1.getDbClient)();
+    const projects = await db.projects.find(config.userId);
+    console.log(projects);
 });
 program.parse();

@@ -3,6 +3,7 @@
 import { Command } from "commander";
 import { clearUserConfig, loadUserConfig } from "./config/config";
 import { authenticateWithGithub } from "./auth/github-auth";
+import { getDbClient } from "./db";
 
 const program = new Command();
 
@@ -24,7 +25,11 @@ program
       console.log(`✅ Already logged in as GitHub user ID: ${config.userId}`);
     }
 
-    // Proceed with other CLI tasks here...
+    const db = await getDbClient();
+
+    const projects = await db.projects.find(config.userId);
+
+    console.log(projects);
   });
 
 program.parse();
