@@ -22,9 +22,10 @@
     "homepage": "https://github.com/OzzoDev/EnvVault#readme",
     "description": "",
     "dependencies": {
-        "@octokit/auth-oauth-app": "^9.0.1",
+        "@octokit/oauth-app": "^8.0.1",
         "axios": "^1.10.0",
         "commander": "^14.0.0",
+        "dotenv": "^16.6.1",
         "env-paths": "^3.0.0",
         "fs-extra": "^11.3.0",
         "inquirer": "^12.6.3",
