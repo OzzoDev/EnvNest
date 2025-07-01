@@ -7,6 +7,7 @@ exports.getDbClient = exports.executeQuery = void 0;
 const pg_1 = require("pg");
 const dotenv_1 = __importDefault(require("dotenv"));
 const projects_1 = __importDefault(require("./projects"));
+const secrets_1 = __importDefault(require("./secrets"));
 dotenv_1.default.config();
 const pool = new pg_1.Pool({
     connectionString: process.env.DATABASE_URL,
@@ -38,6 +39,7 @@ exports.executeQuery = executeQuery;
 const getDbClient = async () => {
     return {
         projects: projects_1.default,
+        secrets: secrets_1.default,
     };
 };
 exports.getDbClient = getDbClient;

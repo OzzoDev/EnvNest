@@ -42,5 +42,5 @@ export const selectProject = async (projects: Project[]) => {
     },
   ]);
 
-  return answers.project;
+  return answers.project as Project;
 };

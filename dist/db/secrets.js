@@ -1,10 +1,9 @@
-import { executeQuery } from ".";
-import { Secret } from "../types/types";
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const _1 = require(".");
 const secrets = {
-  find: async (projectId: number): Promise<Secret[]> => {
-    return await executeQuery<Secret>(
-      `
+    find: async (projectId) => {
+        return await (0, _1.executeQuery)(`
           WITH latest_version AS (
             SELECT DISTINCT ON (secret_id)
               id,
@@ -27,12 +26,7 @@ const secrets = {
           INNER JOIN latest_version lv
             ON lv.secret_id = s.id
           WHERE p.id = $1
-        `,
-      [projectId]
-    );
-  },
+        `, [projectId]);
+    },
 };
-
-export type SecretsType = typeof secrets;
-
-export default secrets;
+exports.default = secrets;

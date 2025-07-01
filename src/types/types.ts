@@ -11,4 +11,5 @@ export type Project = {
 export type Secret = {
   path: string;
   content: string;
+  environment: string;
 };

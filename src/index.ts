@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import { clearUserConfig, loadUserConfig } from "./config/config";
+import { loadUserConfig } from "./config/config";
 import { authenticateWithGithub } from "./auth/github-auth";
 import { getDbClient } from "./db";
 import { selectProject, sortProjectsByCwd } from "./projectSelector";
+import { getSecrets } from "./utils/secrets";
+import { loadSecrets } from "./secretLoader";
 
 const program = new Command();
 
@@ -13,7 +15,6 @@ program
   .description("Sync secrets from your projects into .env files")
   .version("1.0.0")
   .action(async () => {
-    // await clearUserConfig();
     let config = await loadUserConfig();
 
     if (!config) {
@@ -22,8 +23,6 @@ program
       console.log(
         `✅ Successfully logged in as GitHub user ID: ${config.userId}`
       );
-    } else {
-      console.log(`✅ Already logged in as GitHub user ID: ${config.userId}`);
     }
 
     const db = await getDbClient();
@@ -39,7 +38,16 @@ program
       process.exit(1);
     }
 
-    console.log(`✅ You selected project: ${selectedProject.name}`);
+    const secrets = await getSecrets(selectedProject.id, config.userId);
+
+    if (secrets.length === 0) {
+      console.log("No .env files available in this project");
+      process.exit(1);
+    }
+
+    await loadSecrets(secrets);
+
+    process.exit(1);
   });
 
 program.parse();
