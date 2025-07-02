@@ -9,14 +9,9 @@ interface NavLinkProps extends React.ComponentProps<typeof NextLink> {
   activeClassName?: string;
 }
 
-export default function NavLink({
-  href,
-  children,
-  activeClassName,
-  ...props
-}: NavLinkProps) {
+export default function NavLink({ href, children, ...props }: NavLinkProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [_, startTransition] = useTransition();
   const startNavigation = useNavigationStore((s) => s.startNavigation);
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -28,15 +23,8 @@ export default function NavLink({
     });
   };
 
-  const className = isPending ? activeClassName : undefined;
-
   return (
-    <NextLink
-      href={href}
-      {...props}
-      onClick={handleClick}
-      className={className}
-    >
+    <NextLink href={href} {...props} onClick={handleClick}>
       {children}
     </NextLink>
   );

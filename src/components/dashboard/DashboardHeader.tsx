@@ -31,11 +31,15 @@ const DashboardHeader = () => {
           </p>
         </div>
         <div className="flex flex-col items-end gap-y-4">
-          <div className="flex justify-center items-center gap-x-8">
+          <div className="flex justify-center items-center gap-x-4">
             <Link
               href={project?.url ?? ""}
               target="_blank"
-              className={cn("w-full", buttonVariants({ variant: "outline", textSize: "lg" }))}>
+              className={cn(
+                "w-full",
+                buttonVariants({ variant: "outline", textSize: "lg" })
+              )}
+            >
               <Github aria-hidden="true" />
             </Link>
             {hasWriteAccess && (
@@ -43,7 +47,8 @@ const DashboardHeader = () => {
                 title="Delete project"
                 description={`Are you sure you want to delete ${project?.full_name}. This action can't be undone`}
                 action="Delete"
-                actionFn={() => deleteProject({ projectId: Number(projectId) })}>
+                actionFn={() => deleteProject({ projectId: Number(projectId) })}
+              >
                 <Button variant="secondary">Delete</Button>
               </AlertDialog>
             )}
@@ -62,23 +67,30 @@ const DashboardHeader = () => {
           </p>
         </div>
         <div className="flex flex-col items-end gap-y-4">
-          <div className="flex justify-center items-center gap-x-8">
+          <div className="flex justify-center items-center gap-x-4">
             <Link
               href={project?.url ?? ""}
               className={cn(
                 "w-full lg:w-fits",
                 buttonVariants({ variant: "outline", textSize: "lg" })
-              )}>
+              )}
+            >
               <Github aria-hidden="true" />
             </Link>
             {hasWriteAccess && (
               <>
-                <span aria-hidden="true" className="hidden lg:inline w-[2px] h-8 bg-secondary" />
+                <span
+                  aria-hidden="true"
+                  className="hidden lg:inline w-[2px] h-8 bg-secondary"
+                />
                 <AlertDialog
                   title="Delete project"
                   description={`Are you sure you want to delete ${project?.full_name}. This action can't be undone`}
                   action="Delete"
-                  actionFn={() => deleteProject({ projectId: Number(projectId) })}>
+                  actionFn={() =>
+                    deleteProject({ projectId: Number(projectId) })
+                  }
+                >
                   <Button variant="secondary">Delete</Button>
                 </AlertDialog>
               </>
