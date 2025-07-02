@@ -33,8 +33,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} dark bg-background`}
       >
         <Providers>
+          <NavBar />
           <NavigationLoader>
-            <NavBar />
             <>{children}</>
             <Toaster
               position="bottom-center"

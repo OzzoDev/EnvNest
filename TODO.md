@@ -88,16 +88,16 @@
 
 ## Landing page
 
-- [] Hero section
-- [] CTA (eg. get started today)
-- [] Perks and business overview
+- [x] Hero section
+- [x] CTA (eg. get started today)
+- [x] Perks and business overview
 
 ---
 
 ## CLI tool
 
-- [] CLI tool to install .env file locally
-- [] Handle github login in terminal
+- [x] CLI tool to install .env file locally
+- [x] Handle github login in terminal
 
 ## Final touches
 
