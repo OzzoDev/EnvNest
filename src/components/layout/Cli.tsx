@@ -21,7 +21,7 @@ const COMMANDS = [
 
 const Cli = () => {
   return (
-    <section className="max-w-5xl mx-auto px-6 py-20" id="cli">
+    <section className="max-w-5xl mx-auto px-8 py-32" id="cli">
       <h2 className="text-4xl font-semibold text-center text-text-color mb-10">
         Instant .env Access via CLI
       </h2>
