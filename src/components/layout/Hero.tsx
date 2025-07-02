@@ -5,7 +5,7 @@ import NavLink from "./nav/NavLink";
 
 const Hero = () => {
   return (
-    <div className="flex flex-col items-center justify-center gap-24 h-screen w-[90%] mx-auto">
+    <section className="flex flex-col items-center justify-center gap-24 h-screen w-[90%] mx-auto">
       <FadeInFromBottom delay={0}>
         <h2 className="text-6xl xl:text-8xl font-medium text-primary text-center opacity-90">
           Welcome to EnvNest
@@ -38,7 +38,7 @@ const Hero = () => {
           </div>
         </FadeInFromBottom>
       </div>
-    </div>
+    </section>
   );
 };
 

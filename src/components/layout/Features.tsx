@@ -30,7 +30,10 @@ const FEAUREITEMS = [
 
 const Features = () => {
   return (
-    <div className="flex flex-col items-center p-8">
+    <section className="flex flex-col items-center p-8">
+      <h2 className="text-4xl font-semibold text-center mb-16 text-text-color">
+        Powerful Features to Simplify .env Management
+      </h2>
       <ul className="flex md:grid md:grid-cols-[repeat(2,1fr)] md:grid-rows-[repeat(3,1fr)] xl:grid-cols-[repeat(3,1fr)] xl:grid-rows-[repeat(2,1fr)] flex-col items-center justify-center gap-8">
         {FEAUREITEMS.map((item, index) => (
           <SlideIn
@@ -42,7 +45,7 @@ const Features = () => {
           </SlideIn>
         ))}
       </ul>
-    </div>
+    </section>
   );
 };
 
