@@ -3,7 +3,7 @@ import NavLink from "./nav/NavLink";
 
 const FinalCTA = () => {
   return (
-    <section className="flex flex-col items-center gap-y-12 py-32 px-8 text-center border-y border-y-2 mb-12 mx-8">
+    <section className="flex flex-col items-center gap-y-12 py-32 px-8 text-center border-t mb-12">
       <h2 className="text-3xl md:text-4xl font-semibold text-primary mb-4">
         Take control of your environment files
       </h2>
