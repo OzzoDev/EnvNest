@@ -32,7 +32,14 @@ const Hero = () => {
             >
               <span className="text-base">Go Secure</span>
             </NavLink>
-            <Button size="lg" variant="secondary">
+            <Button
+              size="lg"
+              variant="secondary"
+              onClick={() => {
+                const el = document.getElementById("cli");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
               Try CLI
             </Button>
           </div>
