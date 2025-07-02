@@ -9,6 +9,8 @@ export const environmentRouter = router({
   getAvailable: privateProcedure
     .input(z.object({ repo: z.string(), projectId: z.number() }))
     .query(async ({ input, ctx }) => {
+      const { user } = ctx;
+      const { id: githubId } = user;
       const { accessToken } = ctx.session;
       const { repo, projectId } = input;
 
@@ -17,7 +19,10 @@ export const environmentRouter = router({
       const owner = await db.project.getProjectOwner(projectId);
 
       if (!owner) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Project owner not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project owner not found",
+        });
       }
 
       const helpers = await getHelpersClient();
@@ -28,6 +33,7 @@ export const environmentRouter = router({
             const hasUnusedPaths =
               (
                 await helpers.github.getPaths(
+                  String(githubId),
                   owner.username,
                   repo,
                   accessToken!,

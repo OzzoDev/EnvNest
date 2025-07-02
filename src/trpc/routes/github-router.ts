@@ -27,7 +27,9 @@ export const githubRouter = router({
 
     const projects = await db.project.getByProfile(githubId);
 
-    return repos.filter((repo) => !projects?.some((pro) => pro.repo_id === repo.id));
+    return repos.filter(
+      (repo) => !projects?.some((pro) => pro.repo_id === repo.id)
+    );
   }),
   getPaths: privateProcedure
     .input(
@@ -38,6 +40,8 @@ export const githubRouter = router({
       })
     )
     .query(async ({ input, ctx }) => {
+      const { user } = ctx;
+      const { id: githubId } = user;
       const { accessToken } = ctx.session;
 
       const { repo, projectId, environment } = input;
@@ -47,12 +51,16 @@ export const githubRouter = router({
       const owner = await db.project.getProjectOwner(projectId);
 
       if (!owner) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Project owner not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project owner not found",
+        });
       }
 
       const helpers = await getHelpersClient();
 
       return await helpers.github.getPaths(
+        String(githubId),
         owner.username,
         repo,
         accessToken!,

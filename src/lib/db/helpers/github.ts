@@ -1,4 +1,9 @@
-import { EnvironmentName, GithubOrg, GithubRepo, UpdateProjectName } from "@/types/types";
+import {
+  EnvironmentName,
+  GithubOrg,
+  GithubRepo,
+  UpdateProjectName,
+} from "@/types/types";
 import secretModel from "../models/secret";
 import axios from "axios";
 import apiHelpers from "./api";
@@ -7,6 +12,7 @@ import { getCache, setCache } from "@/lib/redis";
 
 const github = {
   getPaths: async (
+    githubId: string,
     owner: string,
     repo: string,
     accessToken: string,
@@ -16,7 +22,7 @@ const github = {
     const branchesToTry = ["main", "master"];
 
     for (const branch of branchesToTry) {
-      const cacheKey = `paths:${owner}:${repo}:${branch}:${projectId}:${environment}`;
+      const cacheKey = `${githubId}:paths:${owner}:${repo}:${branch}:${projectId}:${environment}`;
 
       const cached = await getCache<string[]>(cacheKey);
 
@@ -44,7 +50,10 @@ const github = {
         const paths = [{ path: "./" }, ...folders];
 
         const occupiedPaths = (
-          await secretModel.getByEnvironment(projectId, environment as EnvironmentName)
+          await secretModel.getByEnvironment(
+            projectId,
+            environment as EnvironmentName
+          )
         ).map((secrets) => secrets.path);
 
         const filteredPaths = paths
@@ -59,7 +68,10 @@ const github = {
 
     return [];
   },
-  getRepos: async (accessToken: string, githubId: number): Promise<GithubRepo[]> => {
+  getRepos: async (
+    accessToken: string,
+    githubId: number
+  ): Promise<GithubRepo[]> => {
     const headers = {
       Authorization: `Bearer ${accessToken}`,
       Accept: "application/vnd.github+json",
@@ -71,13 +83,18 @@ const github = {
 
     let userRepos = await getCache<GithubRepo[]>(cacheKeyUserRepos);
     if (!userRepos) {
-      userRepos = await apiHelpers.fetchAllPages("https://api.github.com/user/repos", headers);
+      userRepos = await apiHelpers.fetchAllPages(
+        "https://api.github.com/user/repos",
+        headers
+      );
       await setCache(cacheKeyUserRepos, userRepos, 60);
     }
 
     let orgs = (await getCache<GithubOrg[]>(cacheKeyUserOrgs)) ?? [];
     if (!orgs) {
-      const orgResponse = await axios.get("https://api.github.com/user/orgs", { headers });
+      const orgResponse = await axios.get("https://api.github.com/user/orgs", {
+        headers,
+      });
       orgs = orgResponse.data;
       await setCache(cacheKeyUserOrgs, orgs, 60);
     }
@@ -102,7 +119,10 @@ const github = {
 
     let sessionUser = await getCache<{ login: string }>(cacheKeyUserInfo);
     if (!sessionUser) {
-      const sessionUserResponse = await axios.get("https://api.github.com/user", { headers });
+      const sessionUserResponse = await axios.get(
+        "https://api.github.com/user",
+        { headers }
+      );
       sessionUser = sessionUserResponse.data;
       await setCache(cacheKeyUserInfo, sessionUser, 60);
     }
@@ -112,7 +132,8 @@ const github = {
 
     const filteredRepos: GithubRepo[] = allRepos.filter(
       (repo: GithubRepo) =>
-        (repo.owner?.login === yourLogin || orgLogins.includes(repo.owner?.login ?? "")) &&
+        (repo.owner?.login === yourLogin ||
+          orgLogins.includes(repo.owner?.login ?? "")) &&
         !repo.archived &&
         !repo.disabled &&
         !repo.fork
@@ -181,7 +202,10 @@ const github = {
 
     return existingRepos
       .filter((exRepo) =>
-        repos.some((repo) => repo.id === exRepo.repo_id && exRepo.full_name !== repo.full_name)
+        repos.some(
+          (repo) =>
+            repo.id === exRepo.repo_id && exRepo.full_name !== repo.full_name
+        )
       )
       .map((repo) => ({
         repo_id: repo.repo_id,
@@ -196,18 +220,23 @@ const github = {
 
     const unsyncedProjects = projects
       .filter((pro) => {
-        const repoVisibility = repos.find((rep) => rep.id === pro.repo_id)?.private;
+        const repoVisibility = repos.find(
+          (rep) => rep.id === pro.repo_id
+        )?.private;
         const projectVisibility = pro.private;
 
         return repoVisibility !== projectVisibility;
       })
       .map((pro) => ({
         id: pro.id,
-        private: repos.find((rep) => rep.id === pro.repo_id)?.private ?? pro.private,
+        private:
+          repos.find((rep) => rep.id === pro.repo_id)?.private ?? pro.private,
       }));
 
     await Promise.all(
-      unsyncedProjects.map((pro) => db.project.syncProjectVisibility(pro.id, pro.private))
+      unsyncedProjects.map((pro) =>
+        db.project.syncProjectVisibility(pro.id, pro.private)
+      )
     );
   },
 };

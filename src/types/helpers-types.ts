@@ -2,6 +2,7 @@ import { EnvironmentName, GithubRepo, UpdateProjectName } from "./types";
 
 export type TGihubHelpers = {
   getPaths: (
+    githubId: string,
     owner: string,
     repo: string,
     accessToken: string,
@@ -9,7 +10,10 @@ export type TGihubHelpers = {
     environment: EnvironmentName
   ) => Promise<string[]>;
   getRepos: (accessToken: string, githubId: number) => Promise<GithubRepo[]>;
-  updateProjectNames: (repos: GithubRepo[], githubId: number) => Promise<UpdateProjectName[]>;
+  updateProjectNames: (
+    repos: GithubRepo[],
+    githubId: number
+  ) => Promise<UpdateProjectName[]>;
   getUpdatedRepos: (
     repos: GithubRepo[],
     githubId: number
