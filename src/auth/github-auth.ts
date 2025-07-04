@@ -2,9 +2,9 @@ import http from "http";
 import open from "open";
 import axios from "axios";
 import { OAuthApp } from "@octokit/oauth-app";
-import { saveUserConfig } from "../config/config";
 import dotenv from "dotenv";
 import { User } from "../types/types";
+import { saveConfig } from "../config/config";
 dotenv.config();
 
 const CLIENT_ID = process.env.GITHUB_CLIENT_ID!;
@@ -131,7 +131,7 @@ export const authenticateWithGithub = async (): Promise<User> => {
   const userId = String(userRes.data.id);
   const token = authentication.token;
 
-  await saveUserConfig({ userId, token });
+  await saveConfig({ userId, token });
 
   return { userId, token };
 };

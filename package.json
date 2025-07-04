@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "main": "bin/index.js",
     "bin": {
-        "envsync": "dist/index.js"
+        "envnest": "dist/index.js"
     },
     "scripts": {
         "dev": "ts-node src/index.ts",

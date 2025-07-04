@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import { loadUserConfig } from "./config/config";
+import { clearConfig, loadConfig } from "./config/config";
 import { authenticateWithGithub } from "./auth/github-auth";
 import { getDbClient } from "./db";
 import { selectProject, sortProjectsByCwd } from "./projectSelector";
 import { getSecrets } from "./utils/secrets";
 import { loadSecrets } from "./secretLoader";
+import { Config } from "./types/types";
+import { selectSecret } from "./secretSelector";
 
 const program = new Command();
 
@@ -15,11 +17,15 @@ program
   .description("Sync secrets from your projects into .env files")
   .version("1.0.0")
   .action(async () => {
-    let config = await loadUserConfig();
+    let config = await loadConfig();
 
     if (!config) {
       console.log("🔐 No saved GitHub credentials. Logging in...");
-      config = await authenticateWithGithub();
+      const credentials = await authenticateWithGithub();
+      config = {
+        userId: credentials.userId,
+        token: credentials.token,
+      } as Config;
       console.log(
         `✅ Successfully logged in as GitHub user ID: ${config.userId}`
       );
@@ -47,6 +53,75 @@ program
 
     await loadSecrets(secrets);
 
+    process.exit(1);
+  });
+
+program
+  .command("up")
+  .description("Sync environment variables with remote server")
+  .action(async () => {
+    const config = await loadConfig();
+
+    let projectId = config?.projectId;
+
+    const db = await getDbClient();
+
+    if (!projectId && config) {
+      const projects = await db.projects.find(config?.userId as string);
+
+      const sortedProjects = sortProjectsByCwd(projects);
+
+      const selectedProject = await selectProject(sortedProjects);
+
+      if (!selectedProject) {
+        console.log("No project selected, exiting...");
+        process.exit(1);
+      }
+
+      projectId = selectedProject.id;
+    }
+
+    const secrets = await getSecrets(
+      projectId as number,
+      config?.userId as string
+    );
+
+    if (secrets.length === 0) {
+      console.log("No .env files available in this project");
+      process.exit(1);
+    }
+
+    const selectedSecret = await selectSecret([
+      { name: "all", id: -1 },
+      ...secrets.map((secret) => ({
+        id: secret.id,
+        name: `${secret.environment}:${secret.path}`,
+      })),
+    ]);
+
+    if (secrets.length === 0) {
+      console.log("No .env file selected, exiting...");
+      process.exit(1);
+    }
+
+    const secretsToSync =
+      selectedSecret?.id === -1
+        ? secrets.map((secret) => secret.path)
+        : [secrets.find((secret) => secret.id === selectedSecret?.id)];
+  });
+
+program
+  .command("logout")
+  .description("Logout from EnvNest")
+  .action(async () => {
+    if (!(await loadConfig())) {
+      console.log("Your are not logged in");
+      process.exit(-1);
+    }
+
+    await clearConfig();
+
+    console.log("Logged out successfully");
     process.exit(1);
   });
 

@@ -9,7 +9,10 @@ export type Project = {
 };
 
 export type Secret = {
+  id: number;
   path: string;
   content: string;
   environment: string;
 };
+
+export type Config = User & { projectId: Project["id"] };

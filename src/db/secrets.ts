@@ -16,6 +16,7 @@ const secrets = {
             ORDER BY secret_id, version DESC
           )
           SELECT
+            s.id,
             s.path,
             lv.content,
             e.name as environment

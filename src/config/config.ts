@@ -1,32 +1,34 @@
 import fs from "fs-extra";
 import path from "path";
 import envPaths from "env-paths";
-import { User } from "../types/types";
+import { Config, User } from "../types/types";
 
 const paths = envPaths("envsyncs", { suffix: "" });
 const configFile = path.join(paths.config, "config.json");
 
-export const saveUserConfig = async (data: User) => {
+export const saveConfig = async (data: Partial<Config>) => {
+  const currentConfig = await loadConfig();
+
+  const mergedConfig: Config = {
+    ...currentConfig,
+    ...data,
+  } as Config;
+
   await fs.ensureFile(configFile);
-  await fs.writeJSON(configFile, data);
+  await fs.writeJSON(configFile, mergedConfig);
 };
 
-export const loadUserConfig = async (): Promise<User | null> => {
+export const loadConfig = async (): Promise<Config | null> => {
   if (await fs.pathExists(configFile)) {
     return fs.readJSON(configFile);
   }
   return null;
 };
 
-export const clearUserConfig = async () => {
+export const clearConfig = async () => {
   try {
     if (await fs.pathExists(configFile)) {
       await fs.remove(configFile);
-      console.log("🗑️ Config file deleted for testing.");
-    } else {
-      console.log("⚠️ No config file to delete.");
     }
-  } catch (error) {
-    console.error("❌ Failed to delete config file:", error);
-  }
+  } catch {}
 };
