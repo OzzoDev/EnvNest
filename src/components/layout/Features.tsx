@@ -39,7 +39,7 @@ const Features = () => {
           <SlideIn
             key={item.headline}
             direction={index % 2 === 0 ? "left" : "right"}
-            delay={0.2 + index * 0.2}
+            delay={0.1 + index * 0.1}
           >
             <Feature headline={item.headline} text={item.text} />
           </SlideIn>

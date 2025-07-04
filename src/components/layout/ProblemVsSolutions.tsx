@@ -35,7 +35,7 @@ const ProblemVsSolutions = () => {
         </div>
 
         <div className="md:w-1/2 space-y-6">
-          <SlideIn delay={0.4} direction="bottom">
+          <SlideIn delay={0.2} direction="bottom">
             <h3 className="text-2xl font-medium mb-4 text-primary">
               How EnvNest Solves Them
             </h3>

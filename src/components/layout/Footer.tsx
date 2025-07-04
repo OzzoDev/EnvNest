@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 const Footer = () => {
   return (
-    <footer className="w-full border-t py-12 text-center text-sm text-muted-foreground">
+    <footer className="w-full border-t py-12 text-center mt-32 text-sm text-muted-foreground">
       <div className="flex flex-wrap items-center mx-auto w-fit">
         <p>
           © {new Date().getFullYear()}&nbsp;
