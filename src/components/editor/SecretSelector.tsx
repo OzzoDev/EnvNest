@@ -16,20 +16,30 @@ export type FormData = {
 const SecretSelector = () => {
   const { secretId, isSaved, setSecretId, setSecret } = useProjectStore();
 
-  const { environmentPaths, isLoading, secretSelectorFormData, setSecretSelectorFormData } =
-    useDashboardContext();
+  const {
+    environmentPaths,
+    isLoading,
+    secretSelectorFormData,
+    setSecretSelectorFormData,
+  } = useDashboardContext();
 
   useEffect(() => {
     if (secretId) {
-      const envKey = Object.entries(environmentPaths ?? {}).find(([_, paths]) =>
+      const envKey = Object.entries(environmentPaths ?? {}).find(([, paths]) =>
         paths.some((path) => path.id === secretId)
       )?.[0];
 
-      if (envKey && secretSelectorFormData.environment !== envKey && environmentPaths) {
+      if (
+        envKey &&
+        secretSelectorFormData.environment !== envKey &&
+        environmentPaths
+      ) {
         const label = ENVIRONMENTS.find((env) => env.value === envKey)?.label;
 
         const currentEnvironmentPaths = environmentPaths[envKey];
-        const currentPath = currentEnvironmentPaths.find((path) => path.id === secretId);
+        const currentPath = currentEnvironmentPaths.find(
+          (path) => path.id === secretId
+        );
 
         setSecretSelectorFormData({
           prevEnvironment: label,
@@ -49,11 +59,15 @@ const SecretSelector = () => {
     const prevEnvironment = secretSelectorFormData.prevEnvironment;
     const currentEnvironment = secretSelectorFormData.environment;
 
-    const environmentKey = ENVIRONMENTS.find((env) => env.label === currentEnvironment)?.value;
+    const environmentKey = ENVIRONMENTS.find(
+      (env) => env.label === currentEnvironment
+    )?.value;
 
     const path =
       secretId && environmentPaths?.[environmentKey || ""]
-        ? environmentPaths?.[environmentKey || ""].find((path) => path.id === secretId)?.path
+        ? environmentPaths?.[environmentKey || ""].find(
+            (path) => path.id === secretId
+          )?.path
         : environmentPaths?.[environmentKey || ""]?.[0].path ?? undefined;
 
     if (prevEnvironment !== currentEnvironment && prevEnvironment) {
@@ -85,7 +99,10 @@ const SecretSelector = () => {
           (path) => path.path === secretSelectorFormData.path
         );
 
-        setSecretSelectorFormData((prev) => ({ ...prev, secretId: currentPath?.id }));
+        setSecretSelectorFormData((prev) => ({
+          ...prev,
+          secretId: currentPath?.id,
+        }));
       }
     }
   }, [secretSelectorFormData.path]);
@@ -124,7 +141,9 @@ const SecretSelector = () => {
 
   return (
     <div>
-      <p className="font-medium text-text-color mb-4">View and edit .env file</p>
+      <p className="font-medium text-text-color mb-4">
+        View and edit .env file
+      </p>
 
       <div className="flex flex-col lg:flex-row gap-4">
         <ModeSelect
@@ -134,7 +153,10 @@ const SecretSelector = () => {
           options={environments}
           value={secretSelectorFormData.environment}
           onSelect={(value) =>
-            setSecretSelectorFormData((prev) => ({ ...prev, environment: value }))
+            setSecretSelectorFormData((prev) => ({
+              ...prev,
+              environment: value,
+            }))
           }
         />
         {secretSelectorFormData.environment && (
@@ -144,7 +166,9 @@ const SecretSelector = () => {
             disabled={!isSaved}
             options={paths}
             value={secretSelectorFormData.path}
-            onSelect={(value) => setSecretSelectorFormData((prev) => ({ ...prev, path: value }))}
+            onSelect={(value) =>
+              setSecretSelectorFormData((prev) => ({ ...prev, path: value }))
+            }
           />
         )}
       </div>

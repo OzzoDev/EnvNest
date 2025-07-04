@@ -54,7 +54,7 @@ export const authOptions: NextAuthOptions = {
         const db = await getDbClient();
 
         await db.profile.upsert({ github_id }, rest, githubUser);
-      } catch (err) {
+      } catch {
         throw new Error("Database error on sign-in");
       }
       return true;

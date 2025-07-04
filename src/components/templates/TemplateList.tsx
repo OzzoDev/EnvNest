@@ -2,7 +2,7 @@
 
 import { trpc } from "@/trpc/client";
 import { Button } from "../ui/button";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { Trash2 } from "lucide-react";
 import { useTemplateStore } from "@/store/templateStore";
 import { cn } from "@/lib/utils";
@@ -16,7 +16,11 @@ type TemplateListProps = {
   refetchTemplates: () => void;
 };
 
-const TemplateList = ({ templates, setIsLoading, refetchTemplates }: TemplateListProps) => {
+const TemplateList = ({
+  templates,
+  setIsLoading,
+  refetchTemplates,
+}: TemplateListProps) => {
   const selectedTemplate = useTemplateStore((state) => state.template);
   const isSaved = useTemplateStore((state) => state.isSaved);
   const setTemplate = useTemplateStore((state) => state.setTemplate);
@@ -56,7 +60,11 @@ const TemplateList = ({ templates, setIsLoading, refetchTemplates }: TemplateLis
   }, [templates]);
 
   if (ownTemplates?.length === 0) {
-    return <p className="text-sm text-muted-foreground mt-6 ml-2">No templates created</p>;
+    return (
+      <p className="text-sm text-muted-foreground mt-6 ml-2">
+        No templates created
+      </p>
+    );
   }
 
   return (
@@ -67,7 +75,8 @@ const TemplateList = ({ templates, setIsLoading, refetchTemplates }: TemplateLis
             title="Delete template"
             description={`Are you sure you want to delete ${template.name}. This action can't be undone`}
             action="Delete"
-            actionFn={() => handleDeleteTemplate(template.id)}>
+            actionFn={() => handleDeleteTemplate(template.id)}
+          >
             <Button variant="outline" className="p-2 h-auto">
               <Trash2 className="w-4 h-4" />
             </Button>
@@ -76,7 +85,10 @@ const TemplateList = ({ templates, setIsLoading, refetchTemplates }: TemplateLis
             <Button
               variant="ghost"
               onClick={() => setTemplate(template)}
-              className={cn({ "text-primary": selectedTemplate?.name === template.name })}>
+              className={cn({
+                "text-primary": selectedTemplate?.name === template.name,
+              })}
+            >
               {template.name}
             </Button>
           ) : (
@@ -84,11 +96,15 @@ const TemplateList = ({ templates, setIsLoading, refetchTemplates }: TemplateLis
               title="Unsaved changes detected"
               description="You have an incomplete form currently in progress. Are you sure you want to override it? Please note that any unsaved progress will be lost."
               action="Continue"
-              actionFn={() => setTemplate(template)}>
+              actionFn={() => setTemplate(template)}
+            >
               <Button
                 key={index}
                 variant="ghost"
-                className={cn({ "text-primary": selectedTemplate?.name === template.name })}>
+                className={cn({
+                  "text-primary": selectedTemplate?.name === template.name,
+                })}
+              >
                 {template.name}
               </Button>
             </AlertDialog>

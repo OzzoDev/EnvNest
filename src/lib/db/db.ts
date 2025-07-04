@@ -7,7 +7,7 @@ export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-export const sanitizeValues = (values: any[]) => {
+export const sanitizeValues = (values: unknown[]) => {
   return values.map((value) => {
     if (typeof value === "string") {
       return value.trim();

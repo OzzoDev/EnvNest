@@ -3,7 +3,7 @@ import { appRouter } from "@/trpc";
 import { getDbClient } from "@/lib/db/models";
 import { beforeAll, describe, expect, it } from "vitest";
 import { generateAESKey, aesEncrypt } from "@/lib/aes-helpers";
-import { executeQuery } from "@/lib/db/db";
+import { Session } from "next-auth";
 
 beforeAll(async () => {
   const db = await getDbClient();
@@ -32,7 +32,7 @@ beforeAll(async () => {
 
 describe("secret creation with real DB", () => {
   it("creates secret", async () => {
-    const session = { user: { id: 1234 } } as any;
+    const session = { user: { id: 1234 } } as Session;
 
     const ctx = createInnerTRPCContext({
       session,
@@ -49,7 +49,7 @@ describe("secret creation with real DB", () => {
   });
 
   it("creates secret from template", async () => {
-    const session = { user: { id: 1234 } } as any;
+    const session = { user: { id: 1234 } } as Session;
 
     const ctx = createInnerTRPCContext({
       session,
@@ -71,7 +71,7 @@ describe("secret creation with real DB", () => {
   });
 
   it("should not create secret with unauthenticated user", async () => {
-    const session = { user: { id: 1235 } } as any;
+    const session = { user: { id: 1235 } } as Session;
 
     const ctx = createInnerTRPCContext({
       session,
@@ -101,7 +101,7 @@ describe("secret creation with real DB", () => {
       username: "notAllowedUser",
     });
 
-    const session = { user: { id: tempUser.github_id } } as any;
+    const session = { user: { id: tempUser.github_id } } as unknown as Session;
 
     const ctx = createInnerTRPCContext({
       session,
@@ -124,7 +124,7 @@ describe("secret creation with real DB", () => {
   });
 
   it("updates secret", async () => {
-    const session = { user: { id: 1234 } } as any;
+    const session = { user: { id: 1234 } } as Session;
 
     const ctx = createInnerTRPCContext({
       session,
@@ -147,7 +147,7 @@ describe("secret creation with real DB", () => {
   });
 
   it("should not update secret with unauthenticated user", async () => {
-    const session = { user: { id: 1235 } } as any;
+    const session = { user: { id: 1235 } } as Session;
 
     const ctx = createInnerTRPCContext({
       session,
@@ -176,7 +176,7 @@ describe("secret creation with real DB", () => {
   });
 
   it("deletes secret", async () => {
-    const session = { user: { id: 1234 } } as any;
+    const session = { user: { id: 1234 } } as Session;
 
     const ctx = createInnerTRPCContext({
       session,
@@ -196,7 +196,7 @@ describe("secret creation with real DB", () => {
   });
 
   it("should not delete secret with unauthenticated user", async () => {
-    const session = { user: { id: 1235 } } as any;
+    const session = { user: { id: 1235 } } as Session;
 
     const ctx = createInnerTRPCContext({
       session,

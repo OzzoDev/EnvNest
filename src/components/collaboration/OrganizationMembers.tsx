@@ -46,14 +46,16 @@ const OrganizationMembers = () => {
   const members = useOrgStore((state) => state.org)?.members ?? [];
   const org = useOrgStore((state) => state.org);
   const setOrg = useOrgStore((state) => state.setOrg);
-  const [controlledMembers, setControlledMembers] = useState<OrgMember[]>(members);
+  const [controlledMembers, setControlledMembers] =
+    useState<OrgMember[]>(members);
 
   const formMethods = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: getDefualtValues(controlledMembers),
   });
 
-  const { control, getValues, setValue, register, watch, handleSubmit, reset } = formMethods;
+  const { control, getValues, setValue, register, watch, handleSubmit, reset } =
+    formMethods;
 
   const {
     fields: orgMembers,
@@ -65,7 +67,8 @@ const OrganizationMembers = () => {
   });
 
   useEffect(() => {
-    const mems = (orgs?.find((o) => o.id === org?.id)?.members ?? []) as OrgMember[];
+    const mems = (orgs?.find((o) => o.id === org?.id)?.members ??
+      []) as OrgMember[];
 
     reset(getDefualtValues(mems));
     setControlledMembers(mems);
@@ -83,7 +86,9 @@ const OrganizationMembers = () => {
     },
     onSuccess: (data) => {
       toast.success("Member removed successfully");
-      setControlledMembers((prev) => prev.filter((member) => member.name !== data.username));
+      setControlledMembers((prev) =>
+        prev.filter((member) => member.name !== data.username)
+      );
     },
   });
 
@@ -98,7 +103,9 @@ const OrganizationMembers = () => {
 
       const [message, errorUsername] = errorMessage.split("username:");
 
-      const errorMsg = errorUsername ? `${message} '${errorUsername}'` : err.message;
+      const errorMsg = errorUsername
+        ? `${message} '${errorUsername}'`
+        : err.message;
 
       toast.error(errorMsg);
 
@@ -120,21 +127,26 @@ const OrganizationMembers = () => {
     },
   });
 
-  const { mutate: updateMemberRole } = trpc.organization.updateMemberRole.useMutation({
-    onError: (err) => {
-      toast.error(err.message || "Something went wrong. Please try again");
-    },
-    onSuccess: (data) => {
-      toast.success("Role updated successfully");
-      setControlledMembers((prev) =>
-        prev.map((member) =>
-          member.name === data.username
-            ? { name: data.username, role: data.role, profileId: data.profileId }
-            : member
-        )
-      );
-    },
-  });
+  const { mutate: updateMemberRole } =
+    trpc.organization.updateMemberRole.useMutation({
+      onError: (err) => {
+        toast.error(err.message || "Something went wrong. Please try again");
+      },
+      onSuccess: (data) => {
+        toast.success("Role updated successfully");
+        setControlledMembers((prev) =>
+          prev.map((member) =>
+            member.name === data.username
+              ? {
+                  name: data.username,
+                  role: data.role,
+                  profileId: data.profileId,
+                }
+              : member
+          )
+        );
+      },
+    });
 
   const appendField = () => {
     if (orgMembers.length >= 10) {
@@ -149,10 +161,12 @@ const OrganizationMembers = () => {
     const member = controlledMembers[index];
 
     if (member && member.name) {
-      removeMember({
-        username: member.name,
-        orgId: org?.id!,
-      });
+      if (org) {
+        removeMember({
+          username: member.name,
+          orgId: org?.id,
+        });
+      }
       remove(index);
     } else {
       remove(index);
@@ -187,10 +201,14 @@ const OrganizationMembers = () => {
 
     const isNew = !controlledMembers[index];
 
+    if (!org) {
+      return;
+    }
+
     if (isNew) {
-      addMember({ username, role, orgId: org?.id! });
+      addMember({ username, role, orgId: org?.id });
     } else {
-      updateMemberRole({ username, role, orgId: org?.id! });
+      updateMemberRole({ username, role, orgId: org?.id });
     }
   };
 
@@ -201,11 +219,18 @@ const OrganizationMembers = () => {
   return (
     <div className="flex flex-col gap-y-8 sm:p-6 w-full">
       <div className="flex items-center gap-8 w-full">
-        <Button type="button" onClick={appendField} variant="secondary" className="self-start">
+        <Button
+          type="button"
+          onClick={appendField}
+          variant="secondary"
+          className="self-start"
+        >
           <FiPlus />
         </Button>
         {orgMembers.length === 0 && (
-          <p className="text-muted-foreground text-base">No members in this organization</p>
+          <p className="text-muted-foreground text-base">
+            No members in this organization
+          </p>
         )}
       </div>
       <ul className="flex flex-col items-center md:items-start gap-y-8 md:gap-y-4 lg:gap-y-8 border-t pt-8 w-full ">
@@ -213,13 +238,15 @@ const OrganizationMembers = () => {
           <form
             key={member.id}
             onSubmit={handleSubmit((data) => onSubmit(data, index))}
-            className="flex flex-col md:flex-row gap-4 lg:gap-8 gap-y-4 w-fit md:w-full">
+            className="flex flex-col md:flex-row gap-4 lg:gap-8 gap-y-4 w-fit md:w-full"
+          >
             <AlertDialog
               title="Remove member"
               description={`Are you sure you want remove ${member.username} as a member`}
               action="Remove"
               actionFn={() => handleRemoveCollaborator(index)}
-              unsafe={isEmptyField(index)}>
+              unsafe={isEmptyField(index)}
+            >
               <Button type="button" variant="outline" className="w-fit">
                 <MdClose />
               </Button>
@@ -248,9 +275,11 @@ const OrganizationMembers = () => {
               className="w-full"
               disabled={
                 controlledMembers[index]
-                  ? getValues("members")[index]?.role === controlledMembers[index]?.role
+                  ? getValues("members")[index]?.role ===
+                    controlledMembers[index]?.role
                   : false
-              }>
+              }
+            >
               {controlledMembers[index] ? "Update" : "Add"}
             </Button>
           </form>

@@ -117,7 +117,9 @@ const secret = {
     try {
       await executeQuery("BEGIN");
 
-      const environmentId = (await environmentModel.create(projectId, environment)).id;
+      const environmentId = (
+        await environmentModel.create(projectId, environment)
+      ).id;
 
       const secretId = (
         await executeQuery<SecretTable>(
@@ -142,13 +144,16 @@ const secret = {
       await executeQuery("COMMIT");
 
       return await secret.getById(secretId);
-    } catch (err) {
+    } catch {
       await executeQuery("ROLLBACK");
 
       return null;
     }
   },
-  update: async (secretId: number, content: string): Promise<EnvironmentSecret | null> => {
+  update: async (
+    secretId: number,
+    content: string
+  ): Promise<EnvironmentSecret | null> => {
     try {
       await executeQuery(`BEGIN`);
 

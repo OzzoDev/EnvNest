@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Button, buttonVariants } from "../ui/button";
 import FadeInFromBottom from "./animations/FadeInFromBottom";
 import NavLink from "./nav/NavLink";

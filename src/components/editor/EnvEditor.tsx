@@ -207,9 +207,9 @@ const EnvEditor = () => {
   const handleToggleAllInputs = () => {
     if (showAll) {
       setShowAll(false);
-      setVisibleInputs((watchedValues?.envVariables ?? []).map((env) => false));
+      setVisibleInputs((watchedValues?.envVariables ?? []).map(() => false));
     } else {
-      setVisibleInputs((watchedValues?.envVariables ?? []).map((env) => true));
+      setVisibleInputs((watchedValues?.envVariables ?? []).map(() => true));
       setShowAll(true);
     }
   };

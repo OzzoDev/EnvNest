@@ -25,7 +25,9 @@ const SecretHistoryLog = () => {
   const loadSecret = (log: SecretHistory) => {
     setProjectId(log.project_id);
     setSecretId(log.secret_id);
-    isMobile && toggleSidebar();
+    if (isMobile) {
+      toggleSidebar();
+    }
     saveToHistory({ secretId: log.secret_id });
   };
 
@@ -52,21 +54,26 @@ const SecretHistoryLog = () => {
         className={cn(
           "flex flex-col gap-y-4 max-h-[500px]",
           isCollapsed ? "overflow-y-hidden" : "overflow-y-auto"
-        )}>
+        )}
+      >
         {logs?.map((log) => {
           const logContent = (
             <div className="flex flex-col gap-y-2 w-full">
               <span className="text-text-color text-sm">{log.project}</span>
               <div className="flex justify-between items-center w-full">
                 <Badge variant="outline">
-                  {ENVIRONMENTS.find((env) => env.value === log.environment)?.label}
+                  {
+                    ENVIRONMENTS.find((env) => env.value === log.environment)
+                      ?.label
+                  }
                 </Badge>
                 <span className="text-xs">{timeAgo(log.created_at)}</span>
               </div>
               <p
                 className={cn({
                   "text-primary underline": secretId === log.secret_id,
-                })}>
+                })}
+              >
                 {log.path}
               </p>
             </div>
@@ -81,9 +88,11 @@ const SecretHistoryLog = () => {
                   className={cn(
                     "justify-start w-full text-left break-all whitespace-normal h-auto border-l-2 border-transparent",
                     {
-                      "hover:bg-transparent hover:text-foreground": secretId === log.secret_id,
+                      "hover:bg-transparent hover:text-foreground":
+                        secretId === log.secret_id,
                     }
-                  )}>
+                  )}
+                >
                   {logContent}
                 </Button>
               ) : (
@@ -91,16 +100,19 @@ const SecretHistoryLog = () => {
                   title="Are you sure you want to change .env file?"
                   description="Any unsaved changes will be lost. This action cannot be undone."
                   action="Continue"
-                  actionFn={() => loadSecret(log)}>
+                  actionFn={() => loadSecret(log)}
+                >
                   <Button
                     onClick={() => loadSecret(log)}
                     variant="ghost"
                     className={cn(
                       "justify-start w-full text-left break-all whitespace-normal h-auto border-l-2 border-transparent",
                       {
-                        "hover:bg-transparent hover:text-foreground": secretId === log.secret_id,
+                        "hover:bg-transparent hover:text-foreground":
+                          secretId === log.secret_id,
                       }
-                    )}>
+                    )}
+                  >
                     {logContent}
                   </Button>
                 </AlertDialog>

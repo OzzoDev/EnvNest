@@ -9,7 +9,7 @@ import { useOrgContext } from "@/context/OrgContext";
 const OrganizationList = () => {
   const { orgs, setOrg: setSelectedOrg, refetchOrgs } = useOrgContext();
 
-  const { mutate: deleteOrg, isPending: isDeletingOrg } = trpc.organization.delete.useMutation({
+  const { mutate: deleteOrg } = trpc.organization.delete.useMutation({
     onError: (err) => {
       toast.error(err.message || "Something went wrong. Please try again");
     },
@@ -22,7 +22,7 @@ const OrganizationList = () => {
     },
   });
 
-  const { mutate: leaveOrg, isPending: isLeavingOrg } = trpc.organization.delete.useMutation({
+  const { mutate: leaveOrg } = trpc.organization.delete.useMutation({
     onError: (err) => {
       toast.error(err.message || "Something went wrong. Please try again");
     },
@@ -44,7 +44,9 @@ const OrganizationList = () => {
   };
 
   if (orgs?.length === 0) {
-    return <p className="text-muted-foreground text-sm">No orgranization created</p>;
+    return (
+      <p className="text-muted-foreground text-sm">No orgranization created</p>
+    );
   }
 
   return (

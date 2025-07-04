@@ -1,4 +1,4 @@
-import { Org, OrgProfileTable, OrgRole, OrgTable, OrgWithRole } from "@/types/types";
+import { Org, OrgProfileTable, OrgRole, OrgTable } from "@/types/types";
 import { executeQuery } from "../db";
 
 const organization = {
@@ -40,7 +40,10 @@ const organization = {
       [profileId]
     );
   },
-  getMember: async (profileId: number, orgId: number): Promise<OrgProfileTable | null> => {
+  getMember: async (
+    profileId: number,
+    orgId: number
+  ): Promise<OrgProfileTable | null> => {
     return (
       (
         await executeQuery<OrgProfileTable>(
@@ -173,7 +176,10 @@ const organization = {
       )[0] ?? null
     );
   },
-  deleteMember: async (profileId: number, orgId: number): Promise<OrgProfileTable | null> => {
+  deleteMember: async (
+    profileId: number,
+    orgId: number
+  ): Promise<OrgProfileTable | null> => {
     return (
       (
         await executeQuery<OrgProfileTable>(
@@ -187,7 +193,10 @@ const organization = {
       )[0] ?? null
     );
   },
-  leave: async (profileId: number, orgId: number): Promise<OrgProfileTable | null> => {
+  leave: async (
+    profileId: number,
+    orgId: number
+  ): Promise<OrgProfileTable | null> => {
     return (
       (
         await executeQuery<OrgProfileTable>(

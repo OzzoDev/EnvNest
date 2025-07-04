@@ -99,7 +99,7 @@ export const useDashboardController = () => {
     isLoading: isLoadingEnvironments,
     isFetching: isFetchingEnvironments,
   } = trpc.environment.getAvailable.useQuery(
-    { repo: project?.name!, projectId: Number(projectId) },
+    { repo: project?.name as string, projectId: Number(projectId) },
     { enabled: false, retry: false }
   );
 
@@ -109,11 +109,11 @@ export const useDashboardController = () => {
     refetch: refetchPaths,
   } = trpc.github.getPaths.useQuery(
     {
-      repo: project?.name!,
+      repo: project?.name as string,
       projectId: Number(projectId),
       environment: ENVIRONMENTS.find(
         (env) => env.label === createEnvFormData.environment
-      )?.value!,
+      )?.value as string,
     },
     {
       enabled: false,
@@ -257,7 +257,9 @@ export const useDashboardController = () => {
         setSecret(null);
         setIsSaved(true);
         refetchRepos();
-        isMobile && toggleSidebar();
+        if (isMobile) {
+          toggleSidebar();
+        }
         toast.success(`Project ${data.full_name} created successfully`);
       },
     });

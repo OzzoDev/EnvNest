@@ -31,9 +31,10 @@ type ActivityLogProps = {
 
 const ActivityLog = ({ isOpen, setIsOpen, updateSecret }: ActivityLogProps) => {
   const { projectId, secretId, project, secret } = useProjectStore();
-  const { auditLogs, updateSuccess } = useDashboardContext();
+  const { auditLogs } = useDashboardContext();
 
-  const [controlledAuditLogs, setControlledAuditLogs] = useState<typeof auditLogs>(auditLogs);
+  const [controlledAuditLogs, setControlledAuditLogs] =
+    useState<typeof auditLogs>(auditLogs);
 
   useEffect(() => {
     setControlledAuditLogs(auditLogs);
@@ -72,15 +73,24 @@ const ActivityLog = ({ isOpen, setIsOpen, updateSecret }: ActivityLogProps) => {
             </span>
             <span className="flex flex-col">
               <span className="font-medium text-xs text-muted-foreground">
-                {ENVIRONMENTS.find((env) => env.value === secret?.environment)?.label}
+                {
+                  ENVIRONMENTS.find((env) => env.value === secret?.environment)
+                    ?.label
+                }
               </span>
-              <span className="font-medium text-xs text-muted-foreground">{secret?.path}</span>
+              <span className="font-medium text-xs text-muted-foreground">
+                {secret?.path}
+              </span>
             </span>
           </SheetDescription>
         </SheetHeader>
         <ul className="flex flex-col gap-y-8">
           {controlledAuditLogs?.map((audit) => (
-            <AuditLogItem key={audit.id} audit={audit} onRollback={onRollback} />
+            <AuditLogItem
+              key={audit.id}
+              audit={audit}
+              onRollback={onRollback}
+            />
           ))}
         </ul>
       </SheetContent>

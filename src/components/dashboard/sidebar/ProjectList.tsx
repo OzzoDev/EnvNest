@@ -21,7 +21,9 @@ const ProjectList = () => {
   const selectProject = (projectId: number) => {
     setSecretId(null);
     setProjectId(projectId);
-    isMobile && toggleSidebar();
+    if (isMobile) {
+      toggleSidebar();
+    }
   };
 
   const hasProjects = !projects || projects.length;
@@ -51,7 +53,8 @@ const ProjectList = () => {
         className={cn(
           "flex flex-col gap-y-4 max-h-[300px]",
           isCollapsed ? "overflow-y-hidden" : "overflow-y-auto"
-        )}>
+        )}
+      >
         {projects?.map((project) => {
           return isSaved ? (
             <div key={project.id} className="my-2 px-1">
@@ -64,7 +67,8 @@ const ProjectList = () => {
                     "hover:bg-transparent hover:text-primary underline text-primary":
                       projectId === project.id,
                   }
-                )}>
+                )}
+              >
                 {project.full_name}
               </Button>
             </div>
@@ -74,7 +78,8 @@ const ProjectList = () => {
                 title="Are you sure you want to change project?"
                 description="Any unsaved changes will be lost. This action cannot be undone."
                 action="Continue"
-                actionFn={() => selectProject(project.id)}>
+                actionFn={() => selectProject(project.id)}
+              >
                 <Button
                   key={project.id}
                   onClick={() => selectProject(project.id)}
@@ -85,7 +90,8 @@ const ProjectList = () => {
                       "hover:bg-transparent hover:text-primary underline text-primary":
                         projectId === project.id,
                     }
-                  )}>
+                  )}
+                >
                   {project.full_name}
                 </Button>
               </AlertDialog>

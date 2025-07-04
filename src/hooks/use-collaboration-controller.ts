@@ -6,8 +6,11 @@ import { toast } from "sonner";
 
 export const useOrgController = () => {
   const members = useOrgStore((state) => state.org)?.members ?? [];
-  const [controlledMembers, setControlledMembers] = useState<OrgMember[]>(members);
-  const [selectedTab, setSelectedTab] = useState<"Accesss" | "Organizations">("Accesss");
+  const [controlledMembers, setControlledMembers] =
+    useState<OrgMember[]>(members);
+  const [selectedTab, setSelectedTab] = useState<"Accesss" | "Organizations">(
+    "Accesss"
+  );
   const [error, setError] = useState<string | null>(null);
 
   const orgStore = useOrgStore();
@@ -16,8 +19,6 @@ export const useOrgController = () => {
 
   const {
     data: orgs,
-    isLoading: isLoadingOrgs,
-    isFetching: isFetchingOrgs,
     refetch: refetchOrgs,
     error: orgError,
   } = trpc.organization.get.useQuery(undefined, { retry: false });
@@ -30,31 +31,33 @@ export const useOrgController = () => {
     refetch: refetchProjects,
   } = trpc.collaborator.get.useQuery(undefined, { retry: false });
 
-  const { mutate: deleteOrg, isPending: isDeletingOrg } = trpc.organization.delete.useMutation({
-    onError: (err) => {
-      toast.error(err.message || "Something went wrong. Please try again");
-    },
-    onSuccess: () => {
-      toast.success("Organization deleted successfully");
+  const { mutate: deleteOrg, isPending: isDeletingOrg } =
+    trpc.organization.delete.useMutation({
+      onError: (err) => {
+        toast.error(err.message || "Something went wrong. Please try again");
+      },
+      onSuccess: () => {
+        toast.success("Organization deleted successfully");
 
-      refetchOrgs();
+        refetchOrgs();
 
-      setSelectedOrg(null);
-    },
-  });
+        setSelectedOrg(null);
+      },
+    });
 
-  const { mutate: leaveOrg, isPending: isLeavingOrg } = trpc.organization.delete.useMutation({
-    onError: (err) => {
-      toast.error(err.message || "Something went wrong. Please try again");
-    },
-    onSuccess: () => {
-      toast.success("Organization left successfully");
+  const { mutate: leaveOrg, isPending: isLeavingOrg } =
+    trpc.organization.delete.useMutation({
+      onError: (err) => {
+        toast.error(err.message || "Something went wrong. Please try again");
+      },
+      onSuccess: () => {
+        toast.success("Organization left successfully");
 
-      refetchOrgs();
+        refetchOrgs();
 
-      setSelectedOrg(null);
-    },
-  });
+        setSelectedOrg(null);
+      },
+    });
 
   useEffect(() => {
     const err = orgError?.message || projectsError?.message;
@@ -92,7 +95,8 @@ export const useOrgController = () => {
     error,
     selectedTab,
     setSelectedTab,
-    isLoading: isLoadingProjects || isFetchingProjects || isDeletingOrg || isLeavingOrg,
+    isLoading:
+      isLoadingProjects || isFetchingProjects || isDeletingOrg || isLeavingOrg,
   };
 };
 

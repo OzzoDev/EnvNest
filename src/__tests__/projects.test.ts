@@ -2,6 +2,7 @@ import { createInnerTRPCContext } from "@/trpc/context";
 import { appRouter } from "@/trpc";
 import { getDbClient } from "@/lib/db/models";
 import { beforeAll, describe, expect, it } from "vitest";
+import { Session } from "next-auth";
 
 beforeAll(async () => {
   const db = await getDbClient();
@@ -11,7 +12,7 @@ beforeAll(async () => {
 
 describe("project creation with real DB", () => {
   it("creates project", async () => {
-    const session = { user: { id: 1234 } } as any;
+    const session = { user: { id: 1234 } } as Session;
 
     const ctx = createInnerTRPCContext({
       session,
@@ -35,7 +36,7 @@ describe("project creation with real DB", () => {
   });
 
   it("should not create project with unauthenticated user", async () => {
-    const session = { user: { id: 9999 } } as any;
+    const session = { user: { id: 9999 } } as Session;
 
     const ctx = createInnerTRPCContext({
       session,
@@ -65,7 +66,7 @@ describe("project creation with real DB", () => {
   });
 
   it("creates project in organization", async () => {
-    const session = { user: { id: 1234 } } as any;
+    const session = { user: { id: 1234 } } as Session;
 
     const ctx = createInnerTRPCContext({
       session,
@@ -90,7 +91,7 @@ describe("project creation with real DB", () => {
   });
 
   it("deletes project", async () => {
-    const session = { user: { id: 1234 } } as any;
+    const session = { user: { id: 1234 } } as Session;
 
     const ctx = createInnerTRPCContext({
       session,
@@ -105,7 +106,7 @@ describe("project creation with real DB", () => {
   });
 
   it("delete project should be protected", async () => {
-    const session = { user: { id: 3333 } } as any;
+    const session = { user: { id: 3333 } } as Session;
 
     const ctx = createInnerTRPCContext({
       session,

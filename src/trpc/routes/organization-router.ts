@@ -10,7 +10,9 @@ export const organizationRouter = router({
 
     const db = await getDbClient();
 
-    const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+    const profileId = (
+      await db.profile.getByField({ github_id: String(githubId) })
+    )?.id;
 
     if (!profileId) {
       throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
@@ -31,7 +33,9 @@ export const organizationRouter = router({
 
     const db = await getDbClient();
 
-    const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+    const profileId = (
+      await db.profile.getByField({ github_id: String(githubId) })
+    )?.id;
 
     if (!profileId) {
       throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
@@ -39,30 +43,44 @@ export const organizationRouter = router({
 
     return await db.organization.getAsAdmin(profileId);
   }),
-  create: privateProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
-    const { user } = ctx;
-    const { id: githubId } = user;
-    const orgName = input;
+  create: privateProcedure
+    .input(z.string())
+    .mutation(async ({ input, ctx }) => {
+      const { user } = ctx;
+      const { id: githubId } = user;
+      const orgName = input;
 
-    const db = await getDbClient();
+      const db = await getDbClient();
 
-    const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+      const profileId = (
+        await db.profile.getByField({ github_id: String(githubId) })
+      )?.id;
 
-    if (!profileId) {
-      throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
-    }
+      if (!profileId) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Profile not found",
+        });
+      }
 
-    const createdOrg = await db.organization.create(profileId, orgName);
+      const createdOrg = await db.organization.create(profileId, orgName);
 
-    if (!createdOrg) {
-      throw new TRPCError({ code: "CONFLICT", message: "Organization name must be unique" });
-    }
+      if (!createdOrg) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "Organization name must be unique",
+        });
+      }
 
-    return createdOrg;
-  }),
+      return createdOrg;
+    }),
   addMember: privateProcedure
     .input(
-      z.object({ username: z.string(), role: z.enum(["viewer", "editor"]), orgId: z.number() })
+      z.object({
+        username: z.string(),
+        role: z.enum(["viewer", "editor"]),
+        orgId: z.number(),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const { user } = ctx;
@@ -71,10 +89,15 @@ export const organizationRouter = router({
 
       const db = await getDbClient();
 
-      const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+      const profileId = (
+        await db.profile.getByField({ github_id: String(githubId) })
+      )?.id;
 
       if (!profileId) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Profile not found",
+        });
       }
 
       const isOrgAdmin = await db.organization.isOrgAdmin(profileId, orgId);
@@ -89,7 +112,10 @@ export const organizationRouter = router({
       const member = await db.profile.getByField({ username });
 
       if (!member) {
-        throw new TRPCError({ code: "NOT_FOUND", message: `User not found username:${username}` });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `User not found username:${username}`,
+        });
       }
 
       const memberId = member.id;
@@ -114,7 +140,11 @@ export const organizationRouter = router({
 
       const newMember = await db.organization.getMember(memberId, orgId);
 
-      return { username: member.username, role: newMember?.role!, profileId: memberId };
+      return {
+        username: member.username,
+        role: newMember?.role,
+        profileId: memberId,
+      };
     }),
   update: privateProcedure
     .input(z.object({ orgId: z.number(), name: z.string() }))
@@ -125,10 +155,15 @@ export const organizationRouter = router({
 
       const db = await getDbClient();
 
-      const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+      const profileId = (
+        await db.profile.getByField({ github_id: String(githubId) })
+      )?.id;
 
       if (!profileId) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Profile not found",
+        });
       }
 
       const isOrgAdmin = await db.organization.isOrgAdmin(profileId, orgId);
@@ -143,14 +178,21 @@ export const organizationRouter = router({
       const updatedOrg = await db.organization.update(orgId, name);
 
       if (!updatedOrg) {
-        throw new TRPCError({ code: "CONFLICT", message: "Organization name must be unique" });
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "Organization name must be unique",
+        });
       }
 
       return updatedOrg;
     }),
   updateMemberRole: privateProcedure
     .input(
-      z.object({ username: z.string(), role: z.enum(["viewer", "editor"]), orgId: z.number() })
+      z.object({
+        username: z.string(),
+        role: z.enum(["viewer", "editor"]),
+        orgId: z.number(),
+      })
     )
     .mutation(async ({ input, ctx }) => {
       const { user } = ctx;
@@ -159,10 +201,15 @@ export const organizationRouter = router({
 
       const db = await getDbClient();
 
-      const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+      const profileId = (
+        await db.profile.getByField({ github_id: String(githubId) })
+      )?.id;
 
       if (!profileId) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Profile not found",
+        });
       }
 
       const isOrgAdmin = await db.organization.isOrgAdmin(profileId, orgId);
@@ -177,7 +224,10 @@ export const organizationRouter = router({
       const member = await db.profile.getByField({ username });
 
       if (!member) {
-        throw new TRPCError({ code: "NOT_FOUND", message: `User not found username:${username}` });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `User not found username:${username}`,
+        });
       }
 
       const memberId = member.id;
@@ -186,38 +236,52 @@ export const organizationRouter = router({
 
       const newMember = await db.organization.getMember(memberId, orgId);
 
-      return { username: member.username, role: newMember?.role!, profileId: memberId };
+      return {
+        username: member.username,
+        role: newMember?.role,
+        profileId: memberId,
+      };
     }),
-  delete: privateProcedure.input(z.number()).mutation(async ({ input, ctx }) => {
-    const { user } = ctx;
-    const { id: githubId } = user;
-    const orgId = input;
+  delete: privateProcedure
+    .input(z.number())
+    .mutation(async ({ input, ctx }) => {
+      const { user } = ctx;
+      const { id: githubId } = user;
+      const orgId = input;
 
-    const db = await getDbClient();
+      const db = await getDbClient();
 
-    const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+      const profileId = (
+        await db.profile.getByField({ github_id: String(githubId) })
+      )?.id;
 
-    if (!profileId) {
-      throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
-    }
+      if (!profileId) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Profile not found",
+        });
+      }
 
-    const isOrgAdmin = await db.organization.isOrgAdmin(profileId, orgId);
+      const isOrgAdmin = await db.organization.isOrgAdmin(profileId, orgId);
 
-    if (!isOrgAdmin) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "Only organization admin can delete organization",
-      });
-    }
+      if (!isOrgAdmin) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Only organization admin can delete organization",
+        });
+      }
 
-    const deletedOrg = await db.organization.delete(orgId);
+      const deletedOrg = await db.organization.delete(orgId);
 
-    if (!deletedOrg) {
-      throw new TRPCError({ code: "NOT_FOUND", message: "Organization not found" });
-    }
+      if (!deletedOrg) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Organization not found",
+        });
+      }
 
-    return deletedOrg;
-  }),
+      return deletedOrg;
+    }),
   deleteMember: privateProcedure
     .input(z.object({ username: z.string(), orgId: z.number() }))
     .mutation(async ({ input, ctx }) => {
@@ -227,10 +291,15 @@ export const organizationRouter = router({
 
       const db = await getDbClient();
 
-      const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+      const profileId = (
+        await db.profile.getByField({ github_id: String(githubId) })
+      )?.id;
 
       if (!profileId) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Profile not found",
+        });
       }
 
       const isOrgAdmin = await db.organization.isOrgAdmin(profileId, orgId);
@@ -245,7 +314,10 @@ export const organizationRouter = router({
       const member = await db.profile.getByField({ username });
 
       if (!member) {
-        throw new TRPCError({ code: "NOT_FOUND", message: `User not found username:${username}` });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `User not found username:${username}`,
+        });
       }
 
       const memberId = member.id;
@@ -268,7 +340,9 @@ export const organizationRouter = router({
 
     const db = await getDbClient();
 
-    const profileId = (await db.profile.getByField({ github_id: String(githubId) }))?.id;
+    const profileId = (
+      await db.profile.getByField({ github_id: String(githubId) })
+    )?.id;
 
     if (!profileId) {
       throw new TRPCError({ code: "NOT_FOUND", message: "Profile not found" });
@@ -286,7 +360,10 @@ export const organizationRouter = router({
     const leftOrg = await db.organization.leave(profileId, orgId);
 
     if (!leftOrg) {
-      throw new TRPCError({ code: "NOT_FOUND", message: "Organization not found" });
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Organization not found",
+      });
     }
 
     return leftOrg;

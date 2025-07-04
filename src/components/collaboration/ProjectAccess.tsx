@@ -1,7 +1,12 @@
 "use client";
 
 import { ProjectWithCollaborators } from "@/types/types";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "../ui/accordion";
 import { Button, buttonVariants } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp, Loader2, User2 } from "lucide-react";
@@ -12,12 +17,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import ModeSelect from "../utils/ModeSelect";
 import { Input } from "../ui/input";
 import { MdClose } from "react-icons/md";
-import AlertDialog from "../utils/AleartDialog";
 import { FiPlus } from "react-icons/fi";
 import { toast } from "sonner";
 import { trpc } from "@/trpc/client";
 import { ROLES } from "@/config";
-import { useOrgContext } from "@/context/OrgContext";
+import AlertDialog from "../utils/AleartDialog";
 
 const formSchema = z.object({
   collaborators: z.array(
@@ -42,14 +46,16 @@ const getDefualtValues = (project: ProjectWithCollaborators): FormData => {
 };
 
 const ProjectAccess = ({ project }: ProjectAccessProps) => {
-  const [controlledProject, setControlledProject] = useState<ProjectWithCollaborators>(project);
+  const [controlledProject, setControlledProject] =
+    useState<ProjectWithCollaborators>(project);
 
   const formMethods = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: getDefualtValues(controlledProject),
   });
 
-  const { control, getValues, setValue, register, watch, handleSubmit, reset } = formMethods;
+  const { control, getValues, setValue, register, watch, handleSubmit, reset } =
+    formMethods;
 
   const [isVisible, setIsVisible] = useState<boolean>(false);
 
@@ -86,7 +92,9 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
 
         const [message, errorUsername] = errorMessage.split("username:");
 
-        const errorMsg = errorUsername ? `${message} '${errorUsername}'` : err.message;
+        const errorMsg = errorUsername
+          ? `${message} '${errorUsername}'`
+          : err.message;
 
         toast.error(errorMsg);
 
@@ -101,7 +109,10 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
       onSuccess: (data) => {
         const safeData: { username: string; role: "viewer" | "editor" } = {
           username: data.username,
-          role: data.role === "viewer" || data.role === "editor" ? data.role : "viewer",
+          role:
+            data.role === "viewer" || data.role === "editor"
+              ? data.role
+              : "viewer",
         };
 
         toast.success("Collaborator added successfully");
@@ -113,26 +124,30 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
       },
     });
 
-  const { mutate: updateRole, isPending: isUpdatingRole } = trpc.collaborator.update.useMutation({
-    onError: (err) => {
-      toast.error(err.message || "Something went wrong. Please try again");
-    },
-    onSuccess: (data) => {
-      const safeData: { username: string; role: "viewer" | "editor" } = {
-        username: data.username,
-        role: data.role === "viewer" || data.role === "editor" ? data.role : "viewer",
-      };
+  const { mutate: updateRole, isPending: isUpdatingRole } =
+    trpc.collaborator.update.useMutation({
+      onError: (err) => {
+        toast.error(err.message || "Something went wrong. Please try again");
+      },
+      onSuccess: (data) => {
+        const safeData: { username: string; role: "viewer" | "editor" } = {
+          username: data.username,
+          role:
+            data.role === "viewer" || data.role === "editor"
+              ? data.role
+              : "viewer",
+        };
 
-      toast.success("Role updated successfuly");
+        toast.success("Role updated successfuly");
 
-      setControlledProject((prev) => ({
-        ...prev,
-        collaborators: (prev.collaborators ?? []).map((col) =>
-          col.username === safeData.username ? safeData : col
-        ),
-      }));
-    },
-  });
+        setControlledProject((prev) => ({
+          ...prev,
+          collaborators: (prev.collaborators ?? []).map((col) =>
+            col.username === safeData.username ? safeData : col
+          ),
+        }));
+      },
+    });
 
   const numCollaborators = controlledProject.collaborators?.length ?? 0;
 
@@ -186,7 +201,8 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
         "collaborators",
         getValues("collaborators").map((val, index) => ({
           ...val,
-          username: index === usernames.lastIndexOf(val.username) ? "" : val.username,
+          username:
+            index === usernames.lastIndexOf(val.username) ? "" : val.username,
         }))
       );
 
@@ -196,26 +212,33 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
     const isNew = !controlledProject.collaborators?.[index];
 
     if (isNew) {
-      addCollaboratror({ project: controlledProject.full_name, username, role });
+      addCollaboratror({
+        project: controlledProject.full_name,
+        username,
+        role,
+      });
     } else {
       updateRole({ projectId: project.project_id, username, role });
     }
   };
 
-  const isLoadingUi = isRemovingCollaborator || isAddingCollaborator || isUpdatingRole;
+  const isLoadingUi =
+    isRemovingCollaborator || isAddingCollaborator || isUpdatingRole;
 
   return (
     <Accordion
       type="single"
       collapsible
       onValueChange={() => setIsVisible((prev) => !prev)}
-      className="w-full flex flex-col p-0 overflow-hidden">
+      className="w-full flex flex-col p-0 overflow-hidden"
+    >
       <AccordionItem value="item-1" className="flex flex-col border-0 w-full">
         <AccordionTrigger
           className={cn(
             buttonVariants({ variant: "ghost" }),
             "flex justify-between w-full text-muted-foreground"
-          )}>
+          )}
+        >
           <p className="text-sm sm:text-lg ">{controlledProject.full_name}</p>
           <div className="flex gap-4">
             {numCollaborators > 0 && (
@@ -230,7 +253,11 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
         <AccordionContent>
           <div className="flex flex-col gap-y-8 p-2 py-6 sm:p-6 w-full">
             <div className="flex items-center gap-8">
-              <Button onClick={appendField} variant="secondary" className="self-start">
+              <Button
+                onClick={appendField}
+                variant="secondary"
+                className="self-start"
+              >
                 <FiPlus />
               </Button>
               {!controlledProject.collaborators ||
@@ -245,13 +272,15 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
                 <form
                   key={collaborator.id}
                   onSubmit={handleSubmit((data) => onSubmit(data, index))}
-                  className="flex flex-col md:flex-row gap-4 lg:gap-8 gap-y-4 w-fit md:w-full">
+                  className="flex flex-col md:flex-row gap-4 lg:gap-8 gap-y-4 w-fit md:w-full"
+                >
                   <AlertDialog
                     title="Remove collaborator"
                     description={`Are you sure you want remove ${collaborator.username} as a collaborator`}
                     action="Remove"
                     actionFn={() => handleRemoveCollaborator(index)}
-                    unsafe={isEmptyField(index)}>
+                    unsafe={isEmptyField(index)}
+                  >
                     <Button type="button" variant="outline" className="w-fit">
                       <MdClose />
                     </Button>
@@ -283,9 +312,14 @@ const ProjectAccess = ({ project }: ProjectAccessProps) => {
                         ? getValues("collaborators")[index].role ===
                           controlledProject.collaborators?.[index].role
                         : false
-                    }>
-                    {controlledProject.collaborators?.[index] ? "Update" : "Add"}
-                    {isLoadingUi && <Loader2 className="animate-spin h-4 w-4" />}
+                    }
+                  >
+                    {controlledProject.collaborators?.[index]
+                      ? "Update"
+                      : "Add"}
+                    {isLoadingUi && (
+                      <Loader2 className="animate-spin h-4 w-4" />
+                    )}
                   </Button>
                 </form>
               ))}

@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes, cloneElement, ReactElement, ReactNode } from "react";
+import { ButtonHTMLAttributes, cloneElement, ReactElement } from "react";
 import {
   AlertDialog as AlertDialogRoot,
   AlertDialogAction,
@@ -42,7 +42,9 @@ const AlertDialog = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={() => actionFn()}>{action}</AlertDialogAction>
+          <AlertDialogAction onClick={() => actionFn()}>
+            {action}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialogRoot>

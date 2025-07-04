@@ -1,8 +1,4 @@
-import {
-  EnvironmentSecret,
-  ProjectTable,
-  ProjectWithRole,
-} from "@/types/types";
+import { EnvironmentSecret, ProjectWithRole } from "@/types/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 

@@ -1,9 +1,20 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, FieldErrors, useFieldArray, useForm, useWatch } from "react-hook-form";
+import {
+  Controller,
+  FieldErrors,
+  useFieldArray,
+  useForm,
+} from "react-hook-form";
 import { z } from "zod";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { Button } from "../ui/button";
 import { FiPlus } from "react-icons/fi";
 import { MdClose } from "react-icons/md";
@@ -28,7 +39,9 @@ const formSchema = z.object({
   values: z
     .array(
       z.object({
-        name: z.string({ message: "Name is required" }).nonempty({ message: "Name is required" }),
+        name: z
+          .string({ message: "Name is required" })
+          .nonempty({ message: "Name is required" }),
         value: z
           .string({ message: "Value is required" })
           .nonempty({ message: "Value is required" }),
@@ -63,7 +76,9 @@ const NewTemplateForm = () => {
             const [name, value] = temp.split("=");
             return { name, value };
           }),
-          visibility: (template.visibility || "private") as "private" | "organization",
+          visibility: (template.visibility || "private") as
+            | "private"
+            | "organization",
         }
       : defaultValues;
   };
@@ -107,7 +122,9 @@ const NewTemplateForm = () => {
       onSuccess: () => {
         setTemplate(null);
         reset(defaultValues);
-        toast.success("Template created successfully. It is now available for use");
+        toast.success(
+          "Template created successfully. It is now available for use"
+        );
       },
     });
 
@@ -131,13 +148,17 @@ const NewTemplateForm = () => {
       updateTemplate({
         templateId: template.id,
         name: data.name,
-        template: data.values.map(({ name, value }) => `${name}=${value}`).join("&&"),
+        template: data.values
+          .map(({ name, value }) => `${name}=${value}`)
+          .join("&&"),
         visibility: data.visibility,
       });
     } else {
       createTemplate({
         name: data.name,
-        template: data.values.map(({ name, value }) => `${name}=${value}`).join("&&"),
+        template: data.values
+          .map(({ name, value }) => `${name}=${value}`)
+          .join("&&"),
         visibility: data.visibility,
       });
     }
@@ -157,13 +178,20 @@ const NewTemplateForm = () => {
   const isLoading = isCreatingTemplate || isUpdatingTemplate;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onError)} className="flex flex-col gap-y-16 w-full">
+    <form
+      onSubmit={handleSubmit(onSubmit, onError)}
+      className="flex flex-col gap-y-16 w-full"
+    >
       <div className="flex items-end gap-4 lg:gap-12">
         <Controller
           name="visibility"
           control={control}
           render={({ field }) => (
-            <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+            <Select
+              onValueChange={field.onChange}
+              value={field.value}
+              defaultValue={field.value}
+            >
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="Select visibility" />
               </SelectTrigger>
@@ -183,7 +211,8 @@ const NewTemplateForm = () => {
             className={cn(
               "text-sm text-destructive mb-2",
               errors.name?.message ? "visible" : "invisible"
-            )}>
+            )}
+          >
             Required
           </p>
           <Input {...register("name")} placeholder="Template name" />
@@ -192,26 +221,45 @@ const NewTemplateForm = () => {
           variant="secondary"
           type="button"
           onClick={() => {
-            fields.length < 20
-              ? append({ name: "", value: "" })
-              : toast.error("Limit reached: You can only add up to 20 key-value pairs.");
-          }}>
+            if (fields.length < 20) {
+              append({ name: "", value: "" });
+            } else {
+              toast.error(
+                "Limit reached: You can only add up to 20 key-value pairs."
+              );
+            }
+          }}
+        >
           <FiPlus size={18} />
         </Button>
       </div>
 
-      {isEmpty && <p className="text-center text-muted-foreground">Template is empty...</p>}
+      {isEmpty && (
+        <p className="text-center text-muted-foreground">
+          Template is empty...
+        </p>
+      )}
 
       <ul className="flex flex-col gap-y-12">
         {fields.map((field, index) => (
           <div
             key={field.id}
-            className="flex flex-col md:grid grid-cols-[1fr_1fr] gap-x-4 lg:gap-x-12 gap-y-4 items-center">
+            className="flex flex-col md:grid grid-cols-[1fr_1fr] gap-x-4 lg:gap-x-12 gap-y-4 items-center"
+          >
             <div className="flex gap-x-4 w-full">
-              <Button type="button" variant="ghost" onClick={() => remove(index)} className="w-12">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => remove(index)}
+                className="w-12"
+              >
                 <MdClose />
               </Button>
-              <Input placeholder="Name" {...register(`values.${index}.name`)} className="w-full" />
+              <Input
+                placeholder="Name"
+                {...register(`values.${index}.name`)}
+                className="w-full"
+              />
             </div>
             <div className="pl-[64px] md:p-0 w-full">
               <Input

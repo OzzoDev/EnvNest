@@ -11,7 +11,7 @@ interface NavLinkProps extends React.ComponentProps<typeof NextLink> {
 
 export default function NavLink({ href, children, ...props }: NavLinkProps) {
   const router = useRouter();
-  const [_, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const startNavigation = useNavigationStore((s) => s.startNavigation);
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
