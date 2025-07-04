@@ -13,7 +13,7 @@ const appOAuth = new OAuthApp({
   clientSecret: CLIENT_SECRET,
 });
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   const state = crypto.randomBytes(16).toString("hex");
 
   sessions.set(state, { state });
