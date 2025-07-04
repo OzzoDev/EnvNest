@@ -103,7 +103,7 @@
 
 - [x] Write unit tests
 - [x] Test flow
-- [] Make prod ready
-- [] Deploy
+- [x] Make prod ready
+- [x] Deploy
 - [x] Ensure right secret is loaded on create
 - [x] Allow for pasting envs

@@ -15,6 +15,8 @@ const NavigationLoader = ({ children }: { children: ReactNode }) => {
     finishNavigation();
   }, [pathname]);
 
+  console.log("is navi: ", isNavigating);
+
   if (isNavigating) {
     if (isNavigating) {
       return (

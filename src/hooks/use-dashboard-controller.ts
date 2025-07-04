@@ -4,7 +4,7 @@ import { FormData as EditEnvFormData } from "@/components/editor/EnvEditor";
 import { FormData as SecretSelectorFormData } from "@/components/editor/SecretSelector";
 import { useProjectStore } from "@/store/projectStore";
 import { trpc } from "@/trpc/client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import usePrev from "./use-prev";
 import { toast } from "sonner";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -60,7 +60,6 @@ export const useDashboardController = () => {
     data: projects,
     error: projectsError,
     isLoading: isLoadingProjects,
-    isFetching: isFetchingProjects,
     refetch: refetchProjects,
   } = trpc.project.get.useQuery(undefined, { retry: false });
 
@@ -147,7 +146,6 @@ export const useDashboardController = () => {
     data: templates,
     error: templatesError,
     isLoading: isLoadingTemplates,
-    isFetching: isFetchingTemplates,
     refetch: refetchTemplates,
   } = trpc.template.getOwnAndPublic.useQuery(undefined, { retry: false });
 
@@ -155,7 +153,6 @@ export const useDashboardController = () => {
     data: repos = [],
     error: reposError,
     isLoading: isLoadingRepos,
-    isFetching: isFetchingRepos,
     refetch: refetchRepos,
   } = trpc.github.getAvailableRepos.useQuery(undefined, { retry: false });
 
@@ -163,7 +160,6 @@ export const useDashboardController = () => {
     data: orgs = [],
     error: orgsError,
     isLoading: isLoadingOrgs,
-    isFetching: isFetchingOrgs,
     refetch: refetchOrgs,
   } = trpc.organization.getAsAdmin.useQuery(undefined, { retry: false });
 
@@ -171,7 +167,6 @@ export const useDashboardController = () => {
     data: logs = [],
     error: logsError,
     isLoading: isLoadingLogs,
-    isFetching: isFetchingLogs,
     refetch: refetchLogs,
   } = trpc.secret.getHistory.useQuery(undefined, { retry: false });
 
@@ -328,8 +323,6 @@ export const useDashboardController = () => {
       setSecretSelectorFormData({});
     }
     setShowAll(false);
-
-    console.log("Secreyid:", secretId);
   }, [projectId, secretId]);
 
   useEffect(() => {
@@ -441,6 +434,29 @@ export const useDashboardController = () => {
     logsError,
   ]);
 
+  const isActuallyLoading =
+    isLoadingProjects ||
+    isLoadingNewSecret ||
+    isLoadingNewProject ||
+    isLoadingEnvironments ||
+    isLoadingEnvironmentPaths ||
+    isLoadingAuditLogs ||
+    isLoadingTemplates ||
+    isLoadingRepos ||
+    isLoadingOrgs ||
+    isLoadingLogs ||
+    isFetchingNewProject ||
+    isFetchingNewSecret ||
+    isFetchingEnvironments ||
+    isFetchingEnvironmentPaths ||
+    isFetchingAuditLogs ||
+    isDeletingProject ||
+    isUpdatingSecret ||
+    isDeletingSecret ||
+    isSavingToHistory ||
+    isCreatingProject ||
+    isCreatingSecret;
+
   return {
     hasWriteAccess,
     updateSuccess,
@@ -477,34 +493,7 @@ export const useDashboardController = () => {
     createProject,
     setRepo,
     saveToHistory,
-    isLoading:
-      isLoadingProjects ||
-      isLoadingNewSecret ||
-      isLoadingNewProject ||
-      isLoadingEnvironments ||
-      isLoadingEnvironmentPaths ||
-      isLoadingAuditLogs ||
-      isLoadingTemplates ||
-      isLoadingRepos ||
-      isLoadingOrgs ||
-      isLoadingLogs ||
-      isDeletingProject ||
-      isUpdatingSecret ||
-      isDeletingSecret ||
-      isSavingToHistory ||
-      isCreatingProject ||
-      isCreatingSecret ||
-      isFetchingEnvironmentPaths ||
-      isFetchingEnvironmentPaths ||
-      isFetchingProjects ||
-      isFetchingNewProject ||
-      isFetchingNewSecret ||
-      isFetchingEnvironments ||
-      isFetchingAuditLogs ||
-      isFetchingRepos ||
-      isFetchingOrgs ||
-      isFetchingTemplates ||
-      isFetchingLogs,
+    isLoading: isActuallyLoading,
   };
 };
 
