@@ -32,6 +32,7 @@ import { copyToClipBoard } from "@/lib/utils";
 import { useProjectStore } from "@/store/projectStore";
 import { useDashboardContext } from "@/context/DashboardContext";
 import { Textarea } from "../ui/textarea";
+import { en } from "zod/v4/locales";
 
 export const formSchema = z.object({
   envVariables: z.array(
@@ -338,7 +339,7 @@ const EnvEditor = () => {
         )}
 
         <div className="self-end mt-[-16px]">
-          {envVariables && secret && envVariables.length > 0 && (
+          {secret && (
             <div className="flex gap-4 self-end">
               <Dialog
                 open={pasteDialogIsOpen}
@@ -403,17 +404,23 @@ const EnvEditor = () => {
                   </DialogContent>
                 </form>
               </Dialog>
-              <Button
-                variant="outline"
-                onClick={() =>
-                  copyToClipBoard(secret.content.split("&&").join("\n"))
-                }
-              >
-                Copy
-              </Button>
-              <Button variant="outline" onClick={handleToggleAllInputs}>
-                {showAll ? "Hide all" : "Show all"}
-              </Button>
+              {envVariables && envVariables.length > 0 && (
+                <>
+                  (
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      copyToClipBoard(secret.content.split("&&").join("\n"))
+                    }
+                  >
+                    Copy
+                  </Button>
+                  <Button variant="outline" onClick={handleToggleAllInputs}>
+                    {showAll ? "Hide all" : "Show all"}
+                  </Button>
+                  )
+                </>
+              )}
             </div>
           )}
         </div>
