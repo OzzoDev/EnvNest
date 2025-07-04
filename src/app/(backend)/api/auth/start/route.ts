@@ -24,5 +24,5 @@ export async function GET() {
     state,
   });
 
-  return NextResponse.redirect(url);
+  return NextResponse.json({ url, state });
 }
