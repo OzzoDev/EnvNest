@@ -122,7 +122,11 @@ const OrganizationMembers = () => {
       toast.success("Member added successfully");
       setControlledMembers((prev) => [
         ...prev,
-        { name: data.username, role: data.role, profileId: data.profileId },
+        {
+          name: data.username,
+          role: data.role ?? "viewer",
+          profileId: data.profileId,
+        },
       ]);
     },
   });
@@ -139,7 +143,7 @@ const OrganizationMembers = () => {
             member.name === data.username
               ? {
                   name: data.username,
-                  role: data.role,
+                  role: data.role ?? "viewer",
                   profileId: data.profileId,
                 }
               : member
