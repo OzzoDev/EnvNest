@@ -405,7 +405,6 @@ const EnvEditor = () => {
               </Dialog>
               {envVariables && envVariables.length > 0 && (
                 <>
-                  (
                   <Button
                     variant="outline"
                     onClick={() =>
@@ -417,7 +416,6 @@ const EnvEditor = () => {
                   <Button variant="outline" onClick={handleToggleAllInputs}>
                     {showAll ? "Hide all" : "Show all"}
                   </Button>
-                  )
                 </>
               )}
             </div>
