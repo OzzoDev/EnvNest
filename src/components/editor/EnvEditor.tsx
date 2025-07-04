@@ -32,7 +32,6 @@ import { copyToClipBoard } from "@/lib/utils";
 import { useProjectStore } from "@/store/projectStore";
 import { useDashboardContext } from "@/context/DashboardContext";
 import { Textarea } from "../ui/textarea";
-import { en } from "zod/v4/locales";
 
 export const formSchema = z.object({
   envVariables: z.array(
