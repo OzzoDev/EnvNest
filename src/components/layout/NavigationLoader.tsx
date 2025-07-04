@@ -13,6 +13,7 @@ const NavigationLoader = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     finishNavigation();
+    window.scrollTo({ top: 0, behavior: "instant" });
   }, [pathname]);
 
   console.log("is navi: ", isNavigating);
