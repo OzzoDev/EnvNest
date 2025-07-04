@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { OAuthApp } from "@octokit/oauth-app";
 import { sessions } from "../sessionStore";
