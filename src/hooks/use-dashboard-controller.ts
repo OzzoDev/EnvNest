@@ -4,7 +4,7 @@ import { FormData as EditEnvFormData } from "@/components/editor/EnvEditor";
 import { FormData as SecretSelectorFormData } from "@/components/editor/SecretSelector";
 import { useProjectStore } from "@/store/projectStore";
 import { trpc } from "@/trpc/client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import usePrev from "./use-prev";
 import { toast } from "sonner";
 import { useSidebar } from "@/components/ui/sidebar";
