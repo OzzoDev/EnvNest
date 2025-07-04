@@ -14,6 +14,11 @@ const COMMANDS = [
       "Login and start securely syncing your secrets locally with one command.",
   },
   {
+    command: "envnest up",
+    description:
+      "Synchronize your local project changes and environment variables with the remote server, ensuring your configurations are up-to-date and accessible across all environments.",
+  },
+  {
     command: "envnest logout",
     description: "Logout from EnvNest CLI and clear local authentication.",
   },

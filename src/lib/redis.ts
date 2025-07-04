@@ -1,12 +1,22 @@
-import Redis from "ioredis";
+import { Redis } from "@upstash/redis";
+import dotenv from "dotenv";
 
-const redis = new Redis(process.env.REDIS_URL || "redis://localhost:6379");
+dotenv.config();
+
+const redis = new Redis({
+  url: process.env.REDIS_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+});
 
 export const getCache = async <T>(key: string): Promise<T | null> => {
-  const cached = await redis.get(key);
-  return cached ? JSON.parse(cached) : null;
+  const cached = await redis.get<T>(key);
+  return cached ?? null;
 };
 
-export const setCache = async <T>(key: string, value: T, ttl = 60): Promise<void> => {
-  await redis.set(key, JSON.stringify(value), "EX", ttl);
+export const setCache = async <T>(
+  key: string,
+  value: T,
+  ttl = 60
+): Promise<void> => {
+  await redis.set(key, value, { ex: ttl });
 };
