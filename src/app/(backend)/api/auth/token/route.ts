@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sessions } from "../sessionStore";
 import { OAuthApp } from "@octokit/oauth-app";
 
 const CLIENT_ID = process.env.GITHUB_CLIENT_ID!;
@@ -13,28 +12,27 @@ const appOAuth = new OAuthApp({
 });
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const state = searchParams.get("state");
+  const { cookies } = req;
+  const code = cookies.get("oauth_code")?.value;
 
-  if (!state || !sessions.has(state)) {
-    return NextResponse.json({ error: "Invalid state" }, { status: 400 });
+  if (!code) {
+    return NextResponse.json({ error: "Code not found" }, { status: 400 });
   }
 
-  const session = sessions.get(state)!;
+  try {
+    const { authentication } = await appOAuth.createToken({
+      code,
+      redirectUrl: REDIRECT_URI,
+    });
 
-  if (!session.code) {
+    const response = NextResponse.json({ token: authentication.token });
+    response.cookies.delete("oauth_code");
+
+    return response;
+  } catch (err: any) {
     return NextResponse.json(
-      { error: "Code not yet received" },
-      { status: 400 }
+      { error: "Failed to exchange token", details: err.message },
+      { status: 500 }
     );
   }
-
-  const { authentication } = await appOAuth.createToken({
-    code: session.code,
-    redirectUrl: REDIRECT_URI,
-  });
-
-  sessions.delete(state);
-
-  return NextResponse.json({ token: authentication.token });
 }

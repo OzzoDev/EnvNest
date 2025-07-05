@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { OAuthApp } from "@octokit/oauth-app";
-import { sessions } from "../sessionStore";
 
 const CLIENT_ID = process.env.GITHUB_CLIENT_ID!;
 const CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET!;
@@ -16,13 +15,21 @@ const appOAuth = new OAuthApp({
 export async function GET() {
   const state = crypto.randomBytes(16).toString("hex");
 
-  sessions.set(state, { state });
-
   const { url } = appOAuth.getWebFlowAuthorizationUrl({
     scopes: ["read:user"],
     redirectUrl: REDIRECT_URI,
     state,
   });
 
-  return NextResponse.json({ url, state });
+  const response = NextResponse.json({ url, state });
+
+  response.cookies.set("oauth_state", state, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 600,
+  });
+
+  return response;
 }
