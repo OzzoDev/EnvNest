@@ -20,3 +20,7 @@ export const setCache = async <T>(
 ): Promise<void> => {
   await redis.set(key, value, { ex: ttl });
 };
+
+export const delCache = async (key: string) => {
+  await redis.del(key);
+};
