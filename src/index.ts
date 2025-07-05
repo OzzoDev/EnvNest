@@ -2,7 +2,6 @@
 
 import { Command } from "commander";
 import { clearConfig, loadConfig, saveConfig } from "./config/config";
-import { getDbClient } from "./db";
 import { selectProject, sortProjectsByCwd } from "./projectSelector";
 import { getSecrets, syncSecrets } from "./utils/secrets";
 import { loadSecrets } from "./secretLoader";
@@ -67,10 +66,8 @@ program
 
     let projectId = config?.projectId;
 
-    const db = await getDbClient();
-
     if (!projectId && config) {
-      const projects = await db.projects.find(config?.userId as string);
+      const projects = await getProjects();
 
       const sortedProjects = sortProjectsByCwd(projects);
 
@@ -92,7 +89,7 @@ program
     }
 
     const selectedSecret = await selectSecret([
-      { name: "all", id: -1 },
+      { name: "All", id: -1 },
       ...secrets.map((secret) => ({
         id: secret.id,
         name: `${secret.environment}:${secret.path}`,
@@ -113,11 +110,7 @@ program
 
     const localSecrets = await readSecrets(secretsToSync);
 
-    await syncSecrets(
-      projectId as number,
-      config?.userId as string,
-      localSecrets
-    );
+    await syncSecrets(projectId as number, localSecrets);
 
     console.log("File(s) synced successfully");
     process.exit(1);

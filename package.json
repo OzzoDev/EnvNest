@@ -26,13 +26,11 @@
         "@octokit/oauth-app": "^8.0.1",
         "axios": "^1.10.0",
         "commander": "^14.0.0",
-        "dotenv": "^16.6.1",
         "env-paths": "^3.0.0",
         "fast-levenshtein": "^3.0.0",
         "fs-extra": "^11.3.0",
         "inquirer": "^12.6.3",
-        "open": "^10.1.2",
-        "pg": "^8.16.3"
+        "open": "^10.1.2"
     },
     "devDependencies": {
         "@eslint/js": "^9.30.0",

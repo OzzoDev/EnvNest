@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Project } from "../types/types";
 import { loadConfig } from "../config/config";
+import { SERVER_URL } from "../config";
 
 export const getProjects = async (): Promise<Project[]> => {
   const config = await loadConfig();
@@ -11,12 +12,9 @@ export const getProjects = async (): Promise<Project[]> => {
     throw new Error("userId and accessToken are required");
   }
 
-  const { data } = await axios.get(
-    "http://localhost:3000/api/auth/cli/projects",
-    {
-      params: { userId, accessToken },
-    }
-  );
+  const { data } = await axios.get(`${SERVER_URL}/projects`, {
+    params: { userId, accessToken },
+  });
 
   return (
     data.projects.map((project: { id: number; full_name: string }) => ({

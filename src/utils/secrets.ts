@@ -1,8 +1,7 @@
 import axios from "axios";
-import { aesDecrypt, aesEncrypt } from ".";
-import { getDbClient } from "../db";
 import { Project, Secret, User } from "../types/types";
 import { loadConfig } from "../config/config";
+import { SERVER_URL } from "../config";
 
 export const getSecrets = async (
   projectId: Project["id"]
@@ -15,12 +14,9 @@ export const getSecrets = async (
     throw new Error("userId and accessToken are required");
   }
 
-  const { data } = await axios.get(
-    "http://localhost:3000/api/auth/cli/secrets",
-    {
-      params: { userId, accessToken, projectId },
-    }
-  );
+  const { data } = await axios.get(`${SERVER_URL}/secrets`, {
+    params: { userId, accessToken, projectId },
+  });
 
   return (
     data.secrets.map(
@@ -41,27 +37,21 @@ export const getSecrets = async (
 
 export const syncSecrets = async (
   projectId: Project["id"],
-  userId: User["userId"],
   secrets: Secret[]
 ) => {
-  const db = await getDbClient();
+  const config = await loadConfig();
+  const userId = config?.userId;
+  const accessToken = config?.token;
 
-  const projectKey = await db.projects.findKey(projectId, userId);
-
-  if (!projectKey) {
-    console.log("Project key not found");
-    process.exit(1);
+  if (!userId || !accessToken) {
+    throw new Error("userId and accessToken are required");
   }
 
-  const decryptedKey = aesDecrypt(projectKey, "");
-
-  await Promise.all(
-    secrets.map((secret) =>
-      db.secrets.update(
-        userId,
-        secret.id,
-        aesEncrypt(secret.content, decryptedKey)
-      )
-    )
+  await axios.post(
+    `${SERVER_URL}/secrets`,
+    { secrets },
+    {
+      params: { userId, accessToken, projectId },
+    }
   );
 };

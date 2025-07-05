@@ -67,7 +67,7 @@ program
         process.exit(1);
     }
     const selectedSecret = await (0, secretSelector_1.selectSecret)([
-        { name: "all", id: -1 },
+        { name: "All", id: -1 },
         ...secrets.map((secret) => ({
             id: secret.id,
             name: `${secret.environment}:${secret.path}`,
@@ -83,7 +83,7 @@ program
             secrets.find((secret) => secret.id === selectedSecret?.id),
         ];
     const localSecrets = await (0, secretReader_1.readSecrets)(secretsToSync);
-    await (0, secrets_1.syncSecrets)(projectId, config?.userId, localSecrets);
+    await (0, secrets_1.syncSecrets)(projectId, localSecrets);
     console.log("File(s) synced successfully");
     process.exit(1);
 });
