@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import { clearConfig, loadConfig } from "./config/config";
+import { clearConfig, loadConfig, saveConfig } from "./config/config";
 import { authenticateWithGithub } from "./auth/github-auth";
 import { getDbClient } from "./db";
 import { selectProject, sortProjectsByCwd } from "./projectSelector";
-import { getSecrets } from "./utils/secrets";
+import { getSecrets, syncSecrets } from "./utils/secrets";
 import { loadSecrets } from "./secretLoader";
-import { Config } from "./types/types";
+import { Config, Secret } from "./types/types";
 import { selectSecret } from "./secretSelector";
+import { readSecrets } from "./secretReader";
 
 const program = new Command();
 
@@ -20,20 +21,21 @@ program
     let config = await loadConfig();
 
     if (!config) {
-      console.log("🔐 No saved GitHub credentials. Logging in...");
       const credentials = await authenticateWithGithub();
-      config = {
-        userId: credentials.userId,
-        token: credentials.token,
-      } as Config;
-      console.log(
-        `✅ Successfully logged in as GitHub user ID: ${config.userId}`
-      );
+      if (credentials) {
+        config = {
+          userId: credentials.userId,
+          token: credentials.token,
+        } as Config;
+        console.log(
+          `✅ Successfully logged in as GitHub user ID: ${config.userId}`
+        );
+      }
     }
 
     const db = await getDbClient();
 
-    const projects = await db.projects.find(config.userId);
+    const projects = await db.projects.find(config?.userId as string);
 
     const sortedProjects = sortProjectsByCwd(projects);
 
@@ -44,7 +46,12 @@ program
       process.exit(1);
     }
 
-    const secrets = await getSecrets(selectedProject.id, config.userId);
+    await saveConfig({ projectId: selectedProject.id });
+
+    const secrets = await getSecrets(
+      selectedProject.id,
+      config?.userId as string
+    );
 
     if (secrets.length === 0) {
       console.log("No .env files available in this project");
@@ -106,8 +113,21 @@ program
 
     const secretsToSync =
       selectedSecret?.id === -1
-        ? secrets.map((secret) => secret.path)
-        : [secrets.find((secret) => secret.id === selectedSecret?.id)];
+        ? [...secrets]
+        : ([
+            secrets.find((secret) => secret.id === selectedSecret?.id),
+          ] as Secret[]);
+
+    const localSecrets = await readSecrets(secretsToSync);
+
+    await syncSecrets(
+      projectId as number,
+      config?.userId as string,
+      localSecrets
+    );
+
+    console.log("File(s) synced successfully");
+    process.exit(1);
   });
 
 program

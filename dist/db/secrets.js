@@ -15,6 +15,7 @@ const secrets = {
             ORDER BY secret_id, version DESC
           )
           SELECT
+            s.id,
             s.path,
             lv.content,
             e.name as environment
@@ -27,6 +28,35 @@ const secrets = {
             ON lv.secret_id = s.id
           WHERE p.id = $1
         `, [projectId]);
+    },
+    update: async (userId, secretId, content) => {
+        try {
+            await (0, _1.executeQuery)(`BEGIN`);
+            await (0, _1.executeQuery)(`
+          SELECT * FROM secret
+          WHERE id = $1
+          FOR UPDATE
+        `, [secretId]);
+            const secretVersionId = (await (0, _1.executeQuery)(`
+          INSERT INTO secret_version (secret_id, content, version)
+          SELECT $1, $2, COALESCE(MAX(version), 0) + 1
+          FROM secret_version
+          WHERE secret_id = $1
+          RETURNING id;
+        `, [secretId, content]))[0]?.id ?? null;
+            await (0, _1.executeQuery)(`
+          UPDATE secret
+          SET updated_at = CURRENT_TIMESTAMP
+          WHERE id = $1
+        `, [secretId]);
+            const db = await (0, _1.getDbClient)();
+            await db.auditLogs.create(userId, secretId, secretVersionId, "Synced with CLI", { type: "CLI" });
+            await (0, _1.executeQuery)(`COMMIT`);
+        }
+        catch (err) {
+            await (0, _1.executeQuery)(`ROLLBACK`);
+            return null;
+        }
     },
 };
 exports.default = secrets;

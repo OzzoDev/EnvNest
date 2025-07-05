@@ -5,9 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getDbClient = exports.executeQuery = void 0;
 const pg_1 = require("pg");
-const dotenv_1 = __importDefault(require("dotenv"));
 const projects_1 = __importDefault(require("./projects"));
 const secrets_1 = __importDefault(require("./secrets"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const profiles_1 = __importDefault(require("./profiles"));
+const audit_logs_1 = __importDefault(require("./audit-logs"));
 dotenv_1.default.config();
 const pool = new pg_1.Pool({
     connectionString: process.env.DATABASE_URL,
@@ -40,6 +42,8 @@ const getDbClient = async () => {
     return {
         projects: projects_1.default,
         secrets: secrets_1.default,
+        profiles: profiles_1.default,
+        auditLogs: audit_logs_1.default,
     };
 };
 exports.getDbClient = getDbClient;

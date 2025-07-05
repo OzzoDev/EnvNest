@@ -28,15 +28,20 @@ const selectProject = async (projects) => {
         name: p.name,
         value: p,
     }));
-    const answers = await inquirer_1.default.prompt([
-        {
-            type: "list",
-            name: "project",
-            message: "Select a project",
-            choices,
-            pageSize: 10,
-        },
-    ]);
-    return answers.project;
+    try {
+        const answers = await inquirer_1.default.prompt([
+            {
+                type: "list",
+                name: "project",
+                message: "Select a project",
+                choices,
+                pageSize: 10,
+            },
+        ]);
+        return answers.project;
+    }
+    catch {
+        process.exit(0);
+    }
 };
 exports.selectProject = selectProject;

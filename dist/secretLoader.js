@@ -9,18 +9,19 @@ const fs_1 = __importDefault(require("fs"));
 const loadSecrets = async (secrets) => {
     const cwd = process.cwd();
     for (const secret of secrets) {
-        const absolutePath = path_1.default.resolve(cwd, secret.path);
+        const relativePath = secret.path.replace(/^[/\\]+/, "");
+        const absolutePath = path_1.default.resolve(cwd, relativePath);
         try {
             const stats = await fs_1.default.promises.stat(absolutePath);
             if (!stats.isDirectory()) {
-                const relativePath = path_1.default.relative(cwd, absolutePath);
-                console.log(`❌ Path is not a directory: ${relativePath}. Skipping.`);
+                const relPath = path_1.default.relative(cwd, absolutePath);
+                console.log(`❌ Path is not a directory: ${relPath}. Skipping.`);
                 continue;
             }
         }
         catch {
-            const relativePath = path_1.default.relative(cwd, absolutePath);
-            console.log(`❌ Path does not exist: ${relativePath}. Skipping.`);
+            const relPath = path_1.default.relative(cwd, absolutePath);
+            console.log(`❌ Path does not exist: ${relPath}. Skipping.`);
             continue;
         }
         const fileName = secret.environment === "production" ? ".prod.env" : ".env";
@@ -32,12 +33,12 @@ const loadSecrets = async (secrets) => {
                 .filter(Boolean)
                 .join("\n");
             await fs_1.default.promises.writeFile(fullFilePath, formattedContent, "utf-8");
-            const relativePath = path_1.default.relative(cwd, absolutePath).trim() || "./";
-            console.log(`✅ Successfully installed env file at: ${relativePath}`);
+            const relPath = path_1.default.relative(cwd, absolutePath).trim() || "./";
+            console.log(`✅ Successfully installed env file at: ${relPath}`);
         }
         catch (err) {
-            const relativePath = path_1.default.relative(cwd, absolutePath).trim() || "./";
-            console.log(`❌ Failed to write env file at: ${relativePath}`, err);
+            const relPath = path_1.default.relative(cwd, absolutePath).trim() || "./";
+            console.log(`❌ Failed to write env file at: ${relPath}`, err);
         }
     }
 };

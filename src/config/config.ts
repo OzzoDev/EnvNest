@@ -1,7 +1,7 @@
 import fs from "fs-extra";
 import path from "path";
 import envPaths from "env-paths";
-import { Config, User } from "../types/types";
+import { Config } from "../types/types";
 
 const paths = envPaths("envsyncs", { suffix: "" });
 const configFile = path.join(paths.config, "config.json");

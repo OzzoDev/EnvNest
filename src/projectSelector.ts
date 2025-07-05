@@ -1,5 +1,6 @@
 import path from "path";
 import inquirer from "inquirer";
+
 import levenshtein from "fast-levenshtein";
 import { Project } from "./types/types";
 
@@ -32,15 +33,19 @@ export const selectProject = async (projects: Project[]) => {
     value: p,
   }));
 
-  const answers = await inquirer.prompt([
-    {
-      type: "list",
-      name: "project",
-      message: "Select a project",
-      choices,
-      pageSize: 10,
-    },
-  ]);
+  try {
+    const answers = await inquirer.prompt([
+      {
+        type: "list",
+        name: "project",
+        message: "Select a project",
+        choices,
+        pageSize: 10,
+      },
+    ]);
 
-  return answers.project as Project;
+    return answers.project as Project;
+  } catch {
+    process.exit(0);
+  }
 };

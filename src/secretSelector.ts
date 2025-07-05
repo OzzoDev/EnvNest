@@ -14,15 +14,19 @@ export const selectSecret = async (
     value: p,
   }));
 
-  const answers = await inquirer.prompt([
-    {
-      type: "list",
-      name: "secret",
-      message: "Select a or all .env file to sync with the remote sever",
-      choices,
-      pageSize: 10,
-    },
-  ]);
+  try {
+    const answers = await inquirer.prompt([
+      {
+        type: "list",
+        name: "secret",
+        message: "Select a or all .env file to sync with the remote sever",
+        choices,
+        pageSize: 10,
+      },
+    ]);
 
-  return answers.secret as { name: string; id: Secret["id"] };
+    return answers.secret as { name: string; id: Secret["id"] };
+  } catch {
+    process.exit(0);
+  }
 };

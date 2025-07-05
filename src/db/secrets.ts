@@ -1,4 +1,4 @@
-import { executeQuery } from ".";
+import { executeQuery, getDbClient } from ".";
 import { Secret } from "../types/types";
 
 const secrets = {
@@ -31,6 +31,58 @@ const secrets = {
         `,
       [projectId]
     );
+  },
+  update: async (userId: string, secretId: number, content: string) => {
+    try {
+      await executeQuery(`BEGIN`);
+
+      await executeQuery(
+        `
+          SELECT * FROM secret
+          WHERE id = $1
+          FOR UPDATE
+        `,
+        [secretId]
+      );
+
+      const secretVersionId =
+        (
+          await executeQuery<{ id: number }>(
+            `
+          INSERT INTO secret_version (secret_id, content, version)
+          SELECT $1, $2, COALESCE(MAX(version), 0) + 1
+          FROM secret_version
+          WHERE secret_id = $1
+          RETURNING id;
+        `,
+            [secretId, content]
+          )
+        )[0]?.id ?? null;
+
+      await executeQuery(
+        `
+          UPDATE secret
+          SET updated_at = CURRENT_TIMESTAMP
+          WHERE id = $1
+        `,
+        [secretId]
+      );
+
+      const db = await getDbClient();
+
+      await db.auditLogs.create(
+        userId,
+        secretId,
+        secretVersionId,
+        "Synced with CLI",
+        { type: "CLI" }
+      );
+
+      await executeQuery(`COMMIT`);
+    } catch (err) {
+      await executeQuery(`ROLLBACK`);
+      return null;
+    }
   },
 };
 

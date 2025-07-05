@@ -1,8 +1,9 @@
 import { Pool } from "pg";
-import dotenv from "dotenv";
 import projects, { ProjectsType } from "./projects";
 import secrets, { SecretsType } from "./secrets";
-
+import dotenv from "dotenv";
+import profiles, { ProfilesType } from "./profiles";
+import auditLogs, { AuditLogsType } from "./audit-logs";
 dotenv.config();
 
 const pool = new Pool({
@@ -39,11 +40,15 @@ export const executeQuery = async <T>(
 type dbClientType = {
   projects: ProjectsType;
   secrets: SecretsType;
+  profiles: ProfilesType;
+  auditLogs: AuditLogsType;
 };
 
 export const getDbClient = async (): Promise<dbClientType> => {
   return {
     projects: projects,
     secrets: secrets,
+    profiles: profiles,
+    auditLogs: auditLogs,
   };
 };

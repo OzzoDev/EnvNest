@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSecrets = void 0;
+exports.syncSecrets = exports.getSecrets = void 0;
 const _1 = require(".");
 const db_1 = require("../db");
 const dotenv_1 = __importDefault(require("dotenv"));
@@ -28,3 +28,14 @@ const getSecrets = async (projectId, userId) => {
     return decryptedSecrets;
 };
 exports.getSecrets = getSecrets;
+const syncSecrets = async (projectId, userId, secrets) => {
+    const db = await (0, db_1.getDbClient)();
+    const projectKey = await db.projects.findKey(projectId, userId);
+    if (!projectKey) {
+        console.log("Project key not found");
+        process.exit(1);
+    }
+    const decryptedKey = (0, _1.aesDecrypt)(projectKey, ENCRYPTION_ROOT_KEY);
+    await Promise.all(secrets.map((secret) => db.secrets.update(userId, secret.id, (0, _1.aesEncrypt)(secret.content, decryptedKey))));
+};
+exports.syncSecrets = syncSecrets;

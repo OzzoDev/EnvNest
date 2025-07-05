@@ -6,19 +6,20 @@ export const loadSecrets = async (secrets: Secret[]) => {
   const cwd = process.cwd();
 
   for (const secret of secrets) {
-    const absolutePath = path.resolve(cwd, secret.path);
+    const relativePath = secret.path.replace(/^[/\\]+/, "");
+    const absolutePath = path.resolve(cwd, relativePath);
 
     try {
       const stats = await fs.promises.stat(absolutePath);
 
       if (!stats.isDirectory()) {
-        const relativePath = path.relative(cwd, absolutePath);
-        console.log(`❌ Path is not a directory: ${relativePath}. Skipping.`);
+        const relPath = path.relative(cwd, absolutePath);
+        console.log(`❌ Path is not a directory: ${relPath}. Skipping.`);
         continue;
       }
     } catch {
-      const relativePath = path.relative(cwd, absolutePath);
-      console.log(`❌ Path does not exist: ${relativePath}. Skipping.`);
+      const relPath = path.relative(cwd, absolutePath);
+      console.log(`❌ Path does not exist: ${relPath}. Skipping.`);
       continue;
     }
 
@@ -34,12 +35,11 @@ export const loadSecrets = async (secrets: Secret[]) => {
 
       await fs.promises.writeFile(fullFilePath, formattedContent, "utf-8");
 
-      const relativePath = path.relative(cwd, absolutePath).trim() || "./";
-
-      console.log(`✅ Successfully installed env file at: ${relativePath}`);
+      const relPath = path.relative(cwd, absolutePath).trim() || "./";
+      console.log(`✅ Successfully installed env file at: ${relPath}`);
     } catch (err) {
-      const relativePath = path.relative(cwd, absolutePath).trim() || "./";
-      console.log(`❌ Failed to write env file at: ${relativePath}`, err);
+      const relPath = path.relative(cwd, absolutePath).trim() || "./";
+      console.log(`❌ Failed to write env file at: ${relPath}`, err);
     }
   }
 };

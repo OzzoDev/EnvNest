@@ -1,137 +1,84 @@
-import http from "http";
-import open from "open";
 import axios from "axios";
-import { OAuthApp } from "@octokit/oauth-app";
 import dotenv from "dotenv";
-import { User } from "../types/types";
 import { saveConfig } from "../config/config";
+import { User } from "../types/types";
+
 dotenv.config();
 
 const CLIENT_ID = process.env.GITHUB_CLIENT_ID!;
-const CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET!;
-const PORT = process.env.PORT;
-const REDIRECT_URI = `http://localhost:${PORT}/api/auth/callback/github`;
 
-if (!CLIENT_ID || !CLIENT_SECRET || !PORT) {
-  throw new Error(
-    "Missing GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET or PORT in .env file"
-  );
-}
+if (!CLIENT_ID) throw new Error("Missing GITHUB_CLIENT_ID in .env");
 
-export const authenticateWithGithub = async (): Promise<User> => {
-  const app = new OAuthApp({
-    clientType: "oauth-app",
-    clientId: CLIENT_ID,
-    clientSecret: CLIENT_SECRET,
-  });
-
-  const { url } = app.getWebFlowAuthorizationUrl({
-    scopes: ["read:user"],
-    redirectUrl: REDIRECT_URI,
-  });
-
-  const code = await new Promise<string>((resolve, reject) => {
-    const server = http.createServer((req, res) => {
-      if (!req.url) {
-        res.end();
-        return;
+export const authenticateWithGithub = async (): Promise<User | null> => {
+  try {
+    const { data } = await axios.post(
+      "https://github.com/login/device/code",
+      new URLSearchParams({
+        client_id: CLIENT_ID,
+        scope: "read:user",
+      }),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Accept: "application/json",
+        },
       }
+    );
 
-      const reqUrl = new URL(req.url, `http://localhost:${PORT}`);
-      if (reqUrl.pathname === "/api/auth/callback/github") {
-        const code = reqUrl.searchParams.get("code");
-        if (code) {
-          res.writeHead(200, { "Content-Type": "text/html" });
-          res.end(`
-            <html>
-              <head>
-                <title>Authentication Successful</title>
-                <style>
-                  body {
-                    background-color: #000;
-                    color: #FFA500;
-                    font-family: Arial, sans-serif;
-                    padding: 40px;
-                    text-align: center;
-                  }
-                  h1 {
-                    font-size: 2.5rem;
-                    margin-bottom: 1rem;
-                  }
-                  p {
-                    font-size: 1.2rem;
-                  }
-                </style>
-              </head>
-              <body>
-                <h1>Authentication successful!</h1>
-                <p>You can close this tab now.</p>
-              </body>
-            </html>
-          `);
-          server.close();
-          resolve(code);
-        } else {
-          res.writeHead(400, { "Content-Type": "text/html" });
-          res.end(`
-            <html>
-              <head>
-                <title>Authentication Error</title>
-                <style>
-                  body {
-                    background-color: #000;
-                    color: #FFA500;
-                    font-family: Arial, sans-serif;
-                    padding: 40px;
-                    text-align: center;
-                  }
-                  h1 {
-                    font-size: 2.5rem;
-                    margin-bottom: 1rem;
-                  }
-                  p {
-                    font-size: 1.2rem;
-                  }
-                </style>
-              </head>
-              <body>
-                <h1>No code received.</h1>
-                <p>Please try logging in again.</p>
-              </body>
-            </html>
-          `);
-          reject(new Error("No code received"));
-          server.close();
+    console.log(`\n🔗 Visit: ${data.verification_uri}`);
+    console.log(`📝 Enter code: ${data.user_code}\n`);
+
+    const pollInterval = data.interval * 1000;
+    const expiresIn = data.expires_in;
+    const maxAttempts = Math.ceil(expiresIn / data.interval);
+    let attempts = 0;
+    let token: string | null = null;
+
+    while (!token && attempts < maxAttempts) {
+      await new Promise((r) => setTimeout(r, pollInterval));
+      attempts++;
+
+      try {
+        const res = await axios.post(
+          "https://github.com/login/oauth/access_token",
+          new URLSearchParams({
+            client_id: CLIENT_ID,
+            device_code: data.device_code,
+            grant_type: "urn:ietf:params:oauth:grant-type:device_code",
+          }),
+          {
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              Accept: "application/json",
+            },
+          }
+        );
+
+        if (res.data.access_token) {
+          token = res.data.access_token;
+        } else if (
+          res.data.error &&
+          res.data.error !== "authorization_pending"
+        ) {
+          throw new Error(`GitHub error: ${res.data.error_description}`);
         }
-      } else {
-        res.writeHead(404);
-        res.end();
-      }
+      } catch {}
+    }
+
+    if (!token) {
+      throw new Error("Authentication timed out or failed.");
+    }
+
+    const userRes = await axios.get("https://api.github.com/user", {
+      headers: { Authorization: `token ${token}` },
     });
 
-    server.listen(PORT, () => {
-      console.log(`🔐 Opening GitHub login in your browser...`);
-      open(url).catch(() => {
-        console.log(`Failed to open browser. Please open manually:\n${url}`);
-      });
-    });
-  });
+    const userId = String(userRes.data.id);
 
-  const { authentication } = await app.createToken({
-    code,
-    redirectUrl: REDIRECT_URI,
-  });
+    await saveConfig({ userId, token });
 
-  const userRes = await axios.get("https://api.github.com/user", {
-    headers: {
-      Authorization: `token ${authentication.token}`,
-    },
-  });
-
-  const userId = String(userRes.data.id);
-  const token = authentication.token;
-
-  await saveConfig({ userId, token });
-
-  return { userId, token };
+    return { userId, token };
+  } catch {
+    return null;
+  }
 };
