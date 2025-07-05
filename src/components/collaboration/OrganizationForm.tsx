@@ -27,7 +27,7 @@ const getDefaultValues = (org: Org | null | undefined): FormData => {
 };
 
 const OrganizationForm = () => {
-  const { selectedTab } = useOrgContext();
+  const { selectedTab, refetchOrgs } = useOrgContext();
   const setSelectedOrg = useOrgStore((state) => state.setOrg);
   const selectedOrg = useOrgStore((state) => state.org);
   const setIsSaved = useOrgStore((state) => state.setIsSaved);
@@ -57,37 +57,43 @@ const OrganizationForm = () => {
     reset(getDefaultValues(selectedOrg));
   }, [selectedOrg]);
 
-  const { mutate: createOrg, isPending: isCreatingOrg } = trpc.organization.create.useMutation({
-    onMutate: () => {
-      setSelectedOrg(undefined);
-    },
-    onError: (err) => {
-      toast.error(err.message || "Something went wrong. Please try again");
-    },
-    onSuccess: () => {
-      toast.success("Organization created successfully");
+  const { mutate: createOrg, isPending: isCreatingOrg } =
+    trpc.organization.create.useMutation({
+      onMutate: () => {
+        setSelectedOrg(undefined);
+      },
+      onError: (err) => {
+        toast.error(err.message || "Something went wrong. Please try again");
+      },
+      onSuccess: () => {
+        toast.success("Organization created successfully");
 
-      reset(getDefaultValues(null));
+        reset(getDefaultValues(null));
 
-      setSelectedOrg(null);
-    },
-  });
+        refetchOrgs();
 
-  const { mutate: udpateOrg, isPending: isUpdatingOrg } = trpc.organization.update.useMutation({
-    onMutate: () => {
-      setSelectedOrg(undefined);
-    },
-    onError: (err) => {
-      toast.error(err.message || "Something went wrong. Please try again");
-    },
-    onSuccess: () => {
-      toast.success("Organization updated successfully");
+        setSelectedOrg(null);
+      },
+    });
 
-      reset(getDefaultValues(null));
+  const { mutate: udpateOrg, isPending: isUpdatingOrg } =
+    trpc.organization.update.useMutation({
+      onMutate: () => {
+        setSelectedOrg(undefined);
+      },
+      onError: (err) => {
+        toast.error(err.message || "Something went wrong. Please try again");
+      },
+      onSuccess: () => {
+        toast.success("Organization updated successfully");
 
-      setSelectedOrg(null);
-    },
-  });
+        reset(getDefaultValues(null));
+
+        refetchOrgs();
+
+        setSelectedOrg(null);
+      },
+    });
 
   const onSumbit: SubmitHandler<FormData> = (data) => {
     if (selectedOrg) {
@@ -105,13 +111,24 @@ const OrganizationForm = () => {
 
   return (
     <div className="flex flex-col gap-8">
-      <p className="text-lg">{selectedOrg ? "Update organization" : "Create new organization"}</p>
+      <p className="text-lg">
+        {selectedOrg ? "Update organization" : "Create new organization"}
+      </p>
       <form
         onSubmit={handleSubmit(onSumbit, onError)}
-        className="flex flex-col sm:flex-row gap-4 sm:gap-8">
-        <Input {...register("name")} placeholder="Organization name" className="w-[240px]" />
+        className="flex flex-col sm:flex-row gap-4 sm:gap-8"
+      >
+        <Input
+          {...register("name")}
+          placeholder="Organization name"
+          className="w-[240px]"
+        />
         <div className="flex gap-4">
-          <Button disabled={selectedOrg ? selectedOrg.name === getValues("name") : false}>
+          <Button
+            disabled={
+              selectedOrg ? selectedOrg.name === getValues("name") : false
+            }
+          >
             {selectedOrg ? "Update" : "Create"}
             {isLoadingUi && <Loader2 className="animate-spin h-5 w-5" />}
           </Button>
