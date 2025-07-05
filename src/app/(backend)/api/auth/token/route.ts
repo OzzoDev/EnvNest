@@ -29,9 +29,9 @@ export async function GET(req: NextRequest) {
     response.cookies.delete("oauth_code");
 
     return response;
-  } catch (err: any) {
+  } catch (err) {
     return NextResponse.json(
-      { error: "Failed to exchange token", details: err.message },
+      { error: "Failed to exchange token", details: err },
       { status: 500 }
     );
   }
