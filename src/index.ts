@@ -47,10 +47,7 @@ program
 
     await saveConfig({ projectId: selectedProject.id });
 
-    const secrets = await getSecrets(
-      selectedProject.id,
-      config?.userId as string
-    );
+    const secrets = await getSecrets(selectedProject.id);
 
     if (secrets.length === 0) {
       console.log("No .env files available in this project");
@@ -87,10 +84,7 @@ program
       projectId = selectedProject.id;
     }
 
-    const secrets = await getSecrets(
-      projectId as number,
-      config?.userId as string
-    );
+    const secrets = await getSecrets(projectId as number);
 
     if (secrets.length === 0) {
       console.log("No .env files available in this project");

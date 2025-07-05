@@ -36,7 +36,7 @@ program
         process.exit(1);
     }
     await (0, config_1.saveConfig)({ projectId: selectedProject.id });
-    const secrets = await (0, secrets_1.getSecrets)(selectedProject.id, config?.userId);
+    const secrets = await (0, secrets_1.getSecrets)(selectedProject.id);
     if (secrets.length === 0) {
         console.log("No .env files available in this project");
         process.exit(1);
@@ -61,7 +61,7 @@ program
         }
         projectId = selectedProject.id;
     }
-    const secrets = await (0, secrets_1.getSecrets)(projectId, config?.userId);
+    const secrets = await (0, secrets_1.getSecrets)(projectId);
     if (secrets.length === 0) {
         console.log("No .env files available in this project");
         process.exit(1);

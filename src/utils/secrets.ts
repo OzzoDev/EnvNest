@@ -1,40 +1,44 @@
+import axios from "axios";
 import { aesDecrypt, aesEncrypt } from ".";
 import { getDbClient } from "../db";
 import { Project, Secret, User } from "../types/types";
-import dotenv from "dotenv";
-dotenv.config();
-
-const ENCRYPTION_ROOT_KEY = process.env.ENCRYPTION_ROOT_KEY;
-
-if (!ENCRYPTION_ROOT_KEY) {
-  throw new Error("Missing ENCRYPTION_ROOT_KEY in .env file");
-}
+import { loadConfig } from "../config/config";
 
 export const getSecrets = async (
-  projectId: Project["id"],
-  userId: User["userId"]
+  projectId: Project["id"]
 ): Promise<Secret[]> => {
-  const db = await getDbClient();
+  const config = await loadConfig();
+  const userId = config?.userId;
+  const accessToken = config?.token;
 
-  const projectKey = await db.projects.findKey(projectId, userId);
-
-  if (!projectKey) {
-    console.log("Project key not found");
-    process.exit(1);
+  if (!userId || !accessToken) {
+    throw new Error("userId and accessToken are required");
   }
 
-  const decryptedKey = aesDecrypt(projectKey, ENCRYPTION_ROOT_KEY);
+  const { data } = await axios.get(
+    "http://localhost:3000/api/auth/cli/secrets",
+    {
+      params: { userId, accessToken, projectId },
+    }
+  );
 
-  const secrets = await db.secrets.find(projectId);
-
-  const decryptedSecrets = secrets.map((secret) => {
-    const decryptedContent = aesDecrypt(secret.content, decryptedKey);
-
-    return { ...secret, content: decryptedContent };
-  });
-
-  return decryptedSecrets;
+  return (
+    data.secrets.map(
+      (secret: {
+        id: number;
+        path: string;
+        environment: string;
+        content: string;
+      }) => ({
+        id: secret.id,
+        path: secret.path,
+        environment: secret.environment,
+        content: secret.content,
+      })
+    ) || []
+  );
 };
+
 export const syncSecrets = async (
   projectId: Project["id"],
   userId: User["userId"],
@@ -49,7 +53,7 @@ export const syncSecrets = async (
     process.exit(1);
   }
 
-  const decryptedKey = aesDecrypt(projectKey, ENCRYPTION_ROOT_KEY);
+  const decryptedKey = aesDecrypt(projectKey, "");
 
   await Promise.all(
     secrets.map((secret) =>
