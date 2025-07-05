@@ -2,7 +2,6 @@
 
 import { Command } from "commander";
 import { clearConfig, loadConfig, saveConfig } from "./config/config";
-import { authenticateWithGithub } from "./auth/github-auth";
 import { getDbClient } from "./db";
 import { selectProject, sortProjectsByCwd } from "./projectSelector";
 import { getSecrets, syncSecrets } from "./utils/secrets";
@@ -10,6 +9,7 @@ import { loadSecrets } from "./secretLoader";
 import { Config, Secret } from "./types/types";
 import { selectSecret } from "./secretSelector";
 import { readSecrets } from "./secretReader";
+import { authenticate } from "./auth/auth";
 
 const program = new Command();
 
@@ -21,7 +21,7 @@ program
     let config = await loadConfig();
 
     if (!config) {
-      const credentials = await authenticateWithGithub();
+      const credentials = await authenticate();
       if (credentials) {
         config = {
           userId: credentials.userId,

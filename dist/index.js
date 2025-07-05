@@ -3,13 +3,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const commander_1 = require("commander");
 const config_1 = require("./config/config");
-const github_auth_1 = require("./auth/github-auth");
 const db_1 = require("./db");
 const projectSelector_1 = require("./projectSelector");
 const secrets_1 = require("./utils/secrets");
 const secretLoader_1 = require("./secretLoader");
 const secretSelector_1 = require("./secretSelector");
 const secretReader_1 = require("./secretReader");
+const auth_1 = require("./auth/auth");
 const program = new commander_1.Command();
 program
     .name("envsync")
@@ -18,7 +18,7 @@ program
     .action(async () => {
     let config = await (0, config_1.loadConfig)();
     if (!config) {
-        const credentials = await (0, github_auth_1.authenticateWithGithub)();
+        const credentials = await (0, auth_1.authenticate)();
         if (credentials) {
             config = {
                 userId: credentials.userId,
