@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCache } from "../../../../../lib/redis";
 import { OAuthApp } from "@octokit/oauth-app";
-import { delCache } from "@/lib/redis";
+import { delCache } from "../../../../../lib/redis";
 
 const CLIENT_ID = process.env.GITHUB_CLIENT_ID!;
 const CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET!;
