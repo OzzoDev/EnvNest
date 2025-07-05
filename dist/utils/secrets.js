@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.syncSecrets = exports.getSecrets = void 0;
 const axios_1 = __importDefault(require("axios"));
 const config_1 = require("../config/config");
+const config_2 = require("../config");
 const getSecrets = async (projectId) => {
     const config = await (0, config_1.loadConfig)();
     const userId = config?.userId;
@@ -13,7 +14,7 @@ const getSecrets = async (projectId) => {
     if (!userId || !accessToken) {
         throw new Error("userId and accessToken are required");
     }
-    const { data } = await axios_1.default.get("http://localhost:3000/api/auth/cli/secrets", {
+    const { data } = await axios_1.default.get(`${config_2.SERVER_URL}/secrets`, {
         params: { userId, accessToken, projectId },
     });
     return (data.secrets.map((secret) => ({
@@ -31,7 +32,7 @@ const syncSecrets = async (projectId, secrets) => {
     if (!userId || !accessToken) {
         throw new Error("userId and accessToken are required");
     }
-    await axios_1.default.post("http://localhost:3000/api/auth/cli/secrets", { secrets }, {
+    await axios_1.default.post(`${config_2.SERVER_URL}/secrets`, { secrets }, {
         params: { userId, accessToken, projectId },
     });
 };

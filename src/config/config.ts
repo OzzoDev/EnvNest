@@ -30,5 +30,7 @@ export const clearConfig = async () => {
     if (await fs.pathExists(configFile)) {
       await fs.remove(configFile);
     }
-  } catch {}
+  } catch {
+    //
+  }
 };

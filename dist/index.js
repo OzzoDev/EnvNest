@@ -3,7 +3,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const commander_1 = require("commander");
 const config_1 = require("./config/config");
-const db_1 = require("./db");
 const projectSelector_1 = require("./projectSelector");
 const secrets_1 = require("./utils/secrets");
 const secretLoader_1 = require("./secretLoader");
@@ -50,9 +49,8 @@ program
     .action(async () => {
     const config = await (0, config_1.loadConfig)();
     let projectId = config?.projectId;
-    const db = await (0, db_1.getDbClient)();
     if (!projectId && config) {
-        const projects = await db.projects.find(config?.userId);
+        const projects = await (0, projects_1.getProjects)();
         const sortedProjects = (0, projectSelector_1.sortProjectsByCwd)(projects);
         const selectedProject = await (0, projectSelector_1.selectProject)(sortedProjects);
         if (!selectedProject) {

@@ -47,7 +47,9 @@ export const authenticate = async (): Promise<User | null> => {
           await saveConfig({ userId: user.userId, token: user.token });
           break;
         }
-      } catch {}
+      } catch {
+        //
+      }
     }
 
     if (!authenticated) {

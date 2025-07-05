@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getProjects = void 0;
 const axios_1 = __importDefault(require("axios"));
 const config_1 = require("../config/config");
+const config_2 = require("../config");
 const getProjects = async () => {
     const config = await (0, config_1.loadConfig)();
     const userId = config?.userId;
@@ -13,7 +14,7 @@ const getProjects = async () => {
     if (!userId || !accessToken) {
         throw new Error("userId and accessToken are required");
     }
-    const { data } = await axios_1.default.get("http://localhost:3000/api/auth/cli/projects", {
+    const { data } = await axios_1.default.get(`${config_2.SERVER_URL}/projects`, {
         params: { userId, accessToken },
     });
     return (data.projects.map((project) => ({

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Project, Secret, User } from "../types/types";
+import { Project, Secret } from "../types/types";
 import { loadConfig } from "../config/config";
 import { SERVER_URL } from "../config";
 

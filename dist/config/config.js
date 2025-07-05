@@ -32,6 +32,8 @@ const clearConfig = async () => {
             await fs_extra_1.default.remove(configFile);
         }
     }
-    catch { }
+    catch {
+        //
+    }
 };
 exports.clearConfig = clearConfig;

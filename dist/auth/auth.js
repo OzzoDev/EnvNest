@@ -42,7 +42,9 @@ const authenticate = async () => {
                     break;
                 }
             }
-            catch { }
+            catch {
+                //
+            }
         }
         if (!authenticated) {
             console.log("Authentication timed out.");
