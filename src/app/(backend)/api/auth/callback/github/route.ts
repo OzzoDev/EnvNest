@@ -18,33 +18,37 @@ export async function GET(req: NextRequest) {
 
   return new NextResponse(
     `<!DOCTYPE html>
-        <html>
-        <head>
-        <title>Authentication Successful</title>
-            <style>
-            body {
-                background-color: #000;
-                color: #FFA500;
-                font-family: Arial, sans-serif;
-                padding: 40px;
-                text-align: center;
-            }
-            h1 {
-                font-size: 2.5rem;
-                margin-bottom: 1rem;
-            }
-            p {
-                font-size: 1.2rem;
-            }
-            </style>
-        </head>
-        <body>
-            <h1>Authentication successful!</h1>
-            <p>You can close this tab now.</p>
-        </body>
-    </html>`,
+    <html>
+    <head>
+      <title>Authentication Successful</title>
+      <style>
+        body {
+          background-color: #000;
+          color: #FFA500;
+          font-family: Arial, sans-serif;
+          padding: 40px;
+          text-align: center;
+        }
+        h1 {
+          font-size: 2.5rem;
+          margin-bottom: 1rem;
+        }
+        p {
+          font-size: 1.2rem;
+        }
+      </style>
+    </head>
+    <body>
+      <h1>Authentication successful!</h1>
+      <p>You can close this tab now.</p>
+    </body>
+  </html>`,
     {
-      headers: { "Content-Type": "text/html" },
+      status: 200,
+      headers: {
+        "Content-Type": "text/html",
+        "X-Auth-Code": code,
+      },
     }
   );
 }
