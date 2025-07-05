@@ -10,9 +10,10 @@ const secretLoader_1 = require("./secretLoader");
 const secretSelector_1 = require("./secretSelector");
 const secretReader_1 = require("./secretReader");
 const auth_1 = require("./auth/auth");
+const projects_1 = require("./utils/projects");
 const program = new commander_1.Command();
 program
-    .name("envsync")
+    .name("envnest")
     .description("Sync secrets from your projects into .env files")
     .version("1.0.0")
     .action(async () => {
@@ -27,8 +28,7 @@ program
             console.log(`✅ Successfully logged in as GitHub user ID: ${config.userId}`);
         }
     }
-    const db = await (0, db_1.getDbClient)();
-    const projects = await db.projects.find(config?.userId);
+    const projects = await (0, projects_1.getProjects)();
     const sortedProjects = (0, projectSelector_1.sortProjectsByCwd)(projects);
     const selectedProject = await (0, projectSelector_1.selectProject)(sortedProjects);
     if (!selectedProject) {

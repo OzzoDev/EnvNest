@@ -3,6 +3,7 @@ import open from "open";
 import readline from "readline";
 import { START_URL, TOKEN_URL } from "../config";
 import { User } from "../types/types";
+import { saveConfig } from "../config/config";
 
 const POLL_INTERVAL = 500;
 
@@ -41,7 +42,9 @@ export const authenticate = async (): Promise<User | null> => {
 
         if (session) {
           authenticated = true;
-          user = { token: session.access_token, userId: session.user.id };
+          user = { token: session.accessToken, userId: session.user.id };
+
+          await saveConfig({ userId: user.userId, token: user.token });
           break;
         }
       } catch {}

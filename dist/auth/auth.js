@@ -8,6 +8,7 @@ const axios_1 = __importDefault(require("axios"));
 const open_1 = __importDefault(require("open"));
 const readline_1 = __importDefault(require("readline"));
 const config_1 = require("../config");
+const config_2 = require("../config/config");
 const POLL_INTERVAL = 500;
 const prompt = (query) => {
     const rl = readline_1.default.createInterface({
@@ -36,7 +37,8 @@ const authenticate = async () => {
                 const session = response.data.session;
                 if (session) {
                     authenticated = true;
-                    user = { token: session.access_token, userId: session.user.id };
+                    user = { token: session.accessToken, userId: session.user.id };
+                    await (0, config_2.saveConfig)({ userId: user.userId, token: user.token });
                     break;
                 }
             }

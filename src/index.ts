@@ -10,11 +10,12 @@ import { Config, Secret } from "./types/types";
 import { selectSecret } from "./secretSelector";
 import { readSecrets } from "./secretReader";
 import { authenticate } from "./auth/auth";
+import { getProjects } from "./utils/projects";
 
 const program = new Command();
 
 program
-  .name("envsync")
+  .name("envnest")
   .description("Sync secrets from your projects into .env files")
   .version("1.0.0")
   .action(async () => {
@@ -33,9 +34,7 @@ program
       }
     }
 
-    const db = await getDbClient();
-
-    const projects = await db.projects.find(config?.userId as string);
+    const projects = await getProjects();
 
     const sortedProjects = sortProjectsByCwd(projects);
 
