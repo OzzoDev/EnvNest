@@ -10,10 +10,14 @@ export async function GET() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    NextResponse.redirect(`/auth/failed`);
+    return NextResponse.redirect(
+      new URL(`/auth/failed`, process.env.NEXT_PUBLIC_BASE_URL)
+    );
   }
 
   await setCache(`cli-auth:${accessKey}`, session, 600);
 
-  return NextResponse.redirect(`/auth/success?key=${accessKey}`);
+  return NextResponse.redirect(
+    new URL(`/auth/success?key=${accessKey}`, process.env.NEXT_PUBLIC_BASE_URL)
+  );
 }
