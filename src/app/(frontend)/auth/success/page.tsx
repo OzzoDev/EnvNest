@@ -2,10 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { copyToClipBoard } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 
-const Page = () => {
+const SuccessPageContent = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -32,6 +33,22 @@ const Page = () => {
         Copy
       </Button>
     </div>
+  );
+};
+
+const Page = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center h-screen relative w-full">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pb-20">
+            <Loader2 className="animate-spin h-12 w-12 text-primary" />
+          </div>
+        </div>
+      }
+    >
+      <SuccessPageContent />
+    </Suspense>
   );
 };
 

@@ -34,7 +34,7 @@ export type TProfileModel = {
   ): Promise<Profile | undefined>;
   searchOne: (username: string) => Promise<Profile | null>;
   create: (user: GithubUser) => Promise<Profile>;
-  createAccessToken: (github_id: string, accessToken: string) => Promise<void>;
+  createAccessToken: (github_id: string, accessToken: string) => void;
   getAccessToken: (github_id: string) => Promise<string | null>;
   update<K extends keyof Profile>(
     user: GithubUserNoId,
