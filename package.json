@@ -1,5 +1,5 @@
 {
-    "name": "envsync",
+    "name": "envnest-cli",
     "version": "1.0.0",
     "main": "bin/index.js",
     "bin": {

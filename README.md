@@ -4,6 +4,7 @@ EnvNest is a secure, GitHub-integrated `.env` file manager for developers and te
 It helps you manage, encrypt, version, and sync environment configuration files across projects — with GitHub login, PostgreSQL backend, and custom encryption.
 
 ## Features
+
 - 🔐 Secure storage of environment variables
 - 🔄 Sync secrets between local and remote projects
 - 🔑 GitHub authentication
@@ -13,8 +14,8 @@ It helps you manage, encrypt, version, and sync environment configuration files 
 ## Installation
 
 ```bash
-npm install envnest
-````
+npm install envnest-cli
+```
 
 ## Commands
 
@@ -28,7 +29,7 @@ npm install envnest
 
 ```bash
 # Install CLI
-npm install envnest
+npm install envnest-cli
 
 # Login
 envnest
