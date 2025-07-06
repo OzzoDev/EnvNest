@@ -1,8 +1,8 @@
 import { setCache } from "../../../../../../lib/redis";
 import { v4 as uuidv4 } from "uuid";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../../[...nextauth]/route";
 import { NextResponse } from "next/server";
+import { authOptions } from "../../../../../../lib/authOptions";
 
 export async function GET() {
   const accessKey = uuidv4();
