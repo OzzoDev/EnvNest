@@ -11,15 +11,20 @@ const getProjects = async () => {
     const config = await (0, config_1.loadConfig)();
     const userId = config?.userId;
     const accessToken = config?.token;
+    console.log("access token ", accessToken);
     if (!userId || !accessToken) {
         throw new Error("userId and accessToken are required");
     }
-    const { data } = await axios_1.default.get(`${config_2.SERVER_URL}/projects`, {
+    const response = await axios_1.default.get(`${config_2.SERVER_URL}/projects`, {
         params: { userId, accessToken },
     });
-    return (data.projects.map((project) => ({
+    const projectsData = response.data.projects;
+    if (!Array.isArray(projectsData)) {
+        throw new Error("Invalid response format: projects is not an array");
+    }
+    return projectsData.map((project) => ({
         id: project.id,
         name: project.full_name,
-    })) || []);
+    }));
 };
 exports.getProjects = getProjects;

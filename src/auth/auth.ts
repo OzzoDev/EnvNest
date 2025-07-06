@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import open from "open";
 import readline from "readline";
 import { START_URL, TOKEN_URL } from "../config";
@@ -37,7 +37,9 @@ export const authenticate = async (): Promise<User | null> => {
       attempts++;
 
       try {
-        const response = await axios.get(`${TOKEN_URL}?key=${accessKey}`);
+        const response = await axios.get(
+          `${TOKEN_URL}?key=${encodeURIComponent(accessKey)}`
+        );
         const session = response.data.session;
 
         if (session) {
@@ -47,8 +49,14 @@ export const authenticate = async (): Promise<User | null> => {
           await saveConfig({ userId: user.userId, token: user.token });
           break;
         }
-      } catch {
-        //
+      } catch (err) {
+        if (axios.isAxiosError(err)) {
+          if (attempts % 10 === 0) {
+            console.error(
+              `Polling error (attempt ${attempts}): ${err.message}`
+            );
+          }
+        }
       }
     }
 
@@ -59,7 +67,9 @@ export const authenticate = async (): Promise<User | null> => {
 
     return user;
   } catch (err) {
-    console.error("Authentication failed:", err);
+    if (err instanceof AxiosError) {
+      console.error("Authentication failed:", err.message);
+    }
     return null;
   }
 };
