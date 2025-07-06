@@ -11,13 +11,16 @@ export async function GET() {
 
   if (!session) {
     return NextResponse.redirect(
-      new URL(`/auth/failed`, process.env.NEXT_PUBLIC_BASE_URL)
+      new URL(`/auth/failed`, process.env.NEXT_PUBLIC_SERVER_URL)
     );
   }
 
   await setCache(`cli-auth:${accessKey}`, session, 600);
 
   return NextResponse.redirect(
-    new URL(`/auth/success?key=${accessKey}`, process.env.NEXT_PUBLIC_BASE_URL)
+    new URL(
+      `/auth/success?key=${accessKey}`,
+      process.env.NEXT_PUBLIC_SERVER_URL
+    )
   );
 }
