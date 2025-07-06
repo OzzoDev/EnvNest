@@ -1,7 +1,7 @@
-import { authOptions } from "@/app/(backend)/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 import NavControls from "./NavControls";
+import { authOptions } from "@/lib/authOptions";
 
 const NavBar = async () => {
   const session = await getServerSession(authOptions);
