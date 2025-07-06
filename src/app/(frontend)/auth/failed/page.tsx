@@ -1,7 +1,7 @@
 import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 
-const page = () => {
+const Page = () => {
   return (
     <div className="flex flex-col justify-center items-center gap-y-12 h-screen w-[90%] mx-auto">
       <h2 className="text-4xl font-medium text-primary text-center">
@@ -14,4 +14,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

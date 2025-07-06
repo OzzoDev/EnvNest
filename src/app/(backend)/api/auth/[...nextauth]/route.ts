@@ -59,10 +59,12 @@ export const authOptions: NextAuthOptions = {
           githubUser
         );
 
-        await db.profile.createAccessToken(
-          profile.github_id,
-          account?.access_token!
-        );
+        if (account && account.access_token) {
+          await db.profile.createAccessToken(
+            profile.github_id,
+            account?.access_token
+          );
+        }
       } catch {
         throw new Error("Database error on sign-in");
       }

@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     const projects = await db.project.getByProfile(parseInt(userId));
 
     return NextResponse.json({ projects });
-  } catch (err) {
+  } catch {
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
