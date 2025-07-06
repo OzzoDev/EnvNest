@@ -60,6 +60,7 @@ export const useDashboardController = () => {
     data: projects,
     error: projectsError,
     isLoading: isLoadingProjects,
+    isPending: isPendingProjects,
     refetch: refetchProjects,
   } = trpc.project.get.useQuery(undefined, { retry: false });
 
@@ -360,7 +361,11 @@ export const useDashboardController = () => {
   }, [project, projectId, createEnvFormData.environment]);
 
   useEffect(() => {
-    if (!projects || projects.length === 0) {
+    if (
+      (!projects || projects.length === 0) &&
+      !isLoadingProjects &&
+      !isPendingProjects
+    ) {
       clear();
     }
 
