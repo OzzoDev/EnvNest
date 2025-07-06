@@ -1,4 +1,9 @@
-import { GithubUser, GithubUserNoId, Profile } from "@/types/types";
+import {
+  AccessTokenTable,
+  GithubUser,
+  GithubUserNoId,
+  Profile,
+} from "@/types/types";
 import { executeQuery } from "../db";
 
 const profile = {
@@ -51,6 +56,42 @@ const profile = {
     );
 
     return result[0];
+  },
+  createAccessToken: async (github_id: string, accessToken: string) => {
+    const profileId = (await profile.getByField({ github_id }))?.id;
+
+    if (!profileId) {
+      return null;
+    }
+
+    await executeQuery(
+      `
+        INSERT INTO access_token (profile_id, access_token)
+        VALUES ($1, $2)
+        ON CONFLICT (profile_id) DO UPDATE SET access_token = EXCLUDED.access_token
+      `,
+      [profileId, accessToken]
+    );
+  },
+  getAccessToken: async (github_id: string): Promise<string | null> => {
+    const profileId = (await profile.getByField({ github_id }))?.id;
+
+    if (!profileId) {
+      return null;
+    }
+
+    return (
+      (
+        await executeQuery<AccessTokenTable>(
+          `
+        SELECT *
+        FROM access_token
+        WHERE profile_id = $1
+      `,
+          [profileId]
+        )
+      )[0].access_token ?? null
+    );
   },
   update: async <K extends keyof Profile>(
     user: GithubUserNoId,

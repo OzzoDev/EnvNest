@@ -16,8 +16,6 @@ const NavigationLoader = ({ children }: { children: ReactNode }) => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [pathname]);
 
-  console.log("is navi: ", isNavigating);
-
   if (isNavigating) {
     if (isNavigating) {
       return (

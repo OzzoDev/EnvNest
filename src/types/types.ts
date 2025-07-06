@@ -22,6 +22,11 @@ export type Profile = GithubUser & {
   created_at: string; // ISO 8601 timestamp
 };
 
+export type AccessTokenTable = {
+  profile_id: number;
+  access_token: string;
+};
+
 // Organization
 export type OrgTable = {
   id: number;
@@ -209,7 +214,10 @@ export type AuditLogTable<T = unknown> = {
   created_at: string;
 };
 
-export type AuditLogWithUser = AuditLogTable & { user: string; content: string };
+export type AuditLogWithUser = AuditLogTable & {
+  user: string;
+  content: string;
+};
 
 export type TemplateVisibility = "public" | "private" | "organization";
 

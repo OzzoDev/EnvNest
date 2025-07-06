@@ -48,6 +48,13 @@ export const initDB = async () => {
   `);
 
   await executeQuery(`
+    CREATE TABLE IF NOT EXISTS access_token (
+      profile_id INTEGER REFERENCES profile(id) ON DELETE CASCADE PRIMARY KEY,
+      access_token TEXT NOT NULL
+    );
+  `);
+
+  await executeQuery(`
     CREATE TABLE IF NOT EXISTS org (
       id SERIAL PRIMARY KEY,
       name TEXT UNIQUE NOT NULL,

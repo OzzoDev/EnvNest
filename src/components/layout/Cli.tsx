@@ -4,7 +4,7 @@ import SlideIn from "./animations/SlideIn";
 
 const COMMANDS = [
   {
-    command: "npm install envnest",
+    command: "npm install envnest-cli",
     description:
       "Install the EnvNest CLI globally to start managing your .env files from the terminal.",
   },

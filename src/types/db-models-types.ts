@@ -29,9 +29,13 @@ import {
 
 export type TProfileModel = {
   get: () => Promise<Profile[]>;
-  getByField<K extends keyof Profile>(where: Record<K, Profile[K]>): Promise<Profile | undefined>;
+  getByField<K extends keyof Profile>(
+    where: Record<K, Profile[K]>
+  ): Promise<Profile | undefined>;
   searchOne: (username: string) => Promise<Profile | null>;
   create: (user: GithubUser) => Promise<Profile>;
+  createAccessToken: (github_id: string, accessToken: string) => Promise<void>;
+  getAccessToken: (github_id: string) => Promise<string | null>;
   update<K extends keyof Profile>(
     user: GithubUserNoId,
     whereKey: K,
@@ -46,8 +50,14 @@ export type TProfileModel = {
 
 export type TProjectModel = {
   getByProfile: (githubId: number) => Promise<ProjectWithRole[]>;
-  getById: (projectId: number, githubId: number) => Promise<ProjectWithRole | null>;
-  getKey: (projectId: number, githubId: number) => Promise<ProjectKeyTable | null>;
+  getById: (
+    projectId: number,
+    githubId: number
+  ) => Promise<ProjectWithRole | null>;
+  getKey: (
+    projectId: number,
+    githubId: number
+  ) => Promise<ProjectKeyTable | null>;
   getProjectOwner: (projectId: number) => Promise<Profile | null>;
   isProjectOwner: (githubId: string, projectId: number) => Promise<boolean>;
   hasWriteAccess: (githubId: string, projectId: number) => Promise<boolean>;
@@ -60,13 +70,19 @@ export type TProjectModel = {
   addKey: (projectId: number, encryptedKey: string) => Promise<ProjectKeyTable>;
   addOrg: (projectId: number, orgId: number) => Promise<OrgProjectTable>;
   updateName: (project: UpdateProjectName) => Promise<ProjectTable | null>;
-  syncProjectVisibility: (projectId: number, isPrivate: boolean) => Promise<ProjectTable | null>;
+  syncProjectVisibility: (
+    projectId: number,
+    isPrivate: boolean
+  ) => Promise<ProjectTable | null>;
   delete: (projectId: number) => Promise<ProjectTable>;
 };
 
 export type TEnvironmentModel = {
   getByProject: (projectId: number) => Promise<EnvironmentTable[]>;
-  create: (projectId: number, environment: EnvironmentName) => Promise<EnvironmentTable>;
+  create: (
+    projectId: number,
+    environment: EnvironmentName
+  ) => Promise<EnvironmentTable>;
 };
 
 export type TSecretModel = {
@@ -82,12 +98,18 @@ export type TSecretModel = {
     path: string,
     content: string
   ) => Promise<EnvironmentSecret | null>;
-  update: (secretId: number, content: string) => Promise<EnvironmentSecret | null>;
+  update: (
+    secretId: number,
+    content: string
+  ) => Promise<EnvironmentSecret | null>;
   delete: (secretId: number) => Promise<SecretTable>;
 };
 
 export type TTemplateModel = {
-  getOwnAndPublicById: (profileId: number, templateId: number) => Promise<TemplateTable | null>;
+  getOwnAndPublicById: (
+    profileId: number,
+    templateId: number
+  ) => Promise<TemplateTable | null>;
   getOwnAndPublic: (profileId: number) => Promise<TemplateTable[]>;
   create: (
     profileId: number,
@@ -102,7 +124,10 @@ export type TTemplateModel = {
     template?: string,
     visibility?: TemplateVisibility
   ) => Promise<TemplateTable | null>;
-  delete: (profileId: number, templateId: number) => Promise<TemplateTable | null>;
+  delete: (
+    profileId: number,
+    templateId: number
+  ) => Promise<TemplateTable | null>;
 };
 
 export type TAuditLogModel = {
@@ -140,7 +165,10 @@ export type TSecretActive = {
 
 export type TSecretHistory = {
   get: (githubId: string) => Promise<SecretHistory[] | null>;
-  create: (githubId: string, secretId: number) => Promise<SecretHistoryTable | null>;
+  create: (
+    githubId: string,
+    secretId: number
+  ) => Promise<SecretHistoryTable | null>;
 };
 
 export type TCollaborator = {
@@ -148,19 +176,40 @@ export type TCollaborator = {
     projectId: number,
     githubId: string
   ) => Promise<ProjectWithCollaborators | null>;
-  getByProfileId: (profileId: number, projectId: number) => Promise<CollaboratorTable | null>;
-  create: (profileId: number, projectId: number, role: string) => Promise<CollaboratorTable | null>;
-  update: (profileId: number, projectId: number, role: string) => Promise<CollaboratorTable | null>;
-  delete: (profileId: number, projectId: number) => Promise<CollaboratorTable | null>;
+  getByProfileId: (
+    profileId: number,
+    projectId: number
+  ) => Promise<CollaboratorTable | null>;
+  create: (
+    profileId: number,
+    projectId: number,
+    role: string
+  ) => Promise<CollaboratorTable | null>;
+  update: (
+    profileId: number,
+    projectId: number,
+    role: string
+  ) => Promise<CollaboratorTable | null>;
+  delete: (
+    profileId: number,
+    projectId: number
+  ) => Promise<CollaboratorTable | null>;
 };
 
 export type TOrganization = {
   get: (profileId: number) => Promise<Org[]>;
-  getMember: (profileId: number, orgId: number) => Promise<OrgProfileTable | null>;
+  getMember: (
+    profileId: number,
+    orgId: number
+  ) => Promise<OrgProfileTable | null>;
   getAsAdmin: (profileId: number) => Promise<OrgTable[]>;
   isOrgAdmin: (profileId: number, orgId: number) => Promise<boolean>;
   create: (profileId: number, name: string) => Promise<OrgTable | null>;
-  addMember: (profileId: number, orgId: number, role: OrgRole) => Promise<OrgProfileTable | null>;
+  addMember: (
+    profileId: number,
+    orgId: number,
+    role: OrgRole
+  ) => Promise<OrgProfileTable | null>;
   update: (orgId: number, name: string) => Promise<OrgTable | null>;
   updateMemberRole: (
     profileId: number,
@@ -168,7 +217,10 @@ export type TOrganization = {
     role: OrgRole
   ) => Promise<OrgProfileTable | null>;
   delete: (orgId: number) => Promise<OrgTable | null>;
-  deleteMember: (profileId: number, orgId: number) => Promise<OrgProfileTable | null>;
+  deleteMember: (
+    profileId: number,
+    orgId: number
+  ) => Promise<OrgProfileTable | null>;
   leave: (profileId: number, orgId: number) => Promise<OrgProfileTable | null>;
 };
 

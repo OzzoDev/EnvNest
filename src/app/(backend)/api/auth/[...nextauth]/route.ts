@@ -37,7 +37,7 @@ export const authOptions: NextAuthOptions = {
 
       return session;
     },
-    async signIn({ user, profile }) {
+    async signIn({ user, profile, account }) {
       const githubProfile = profile as { login: string };
 
       try {
@@ -53,7 +53,16 @@ export const authOptions: NextAuthOptions = {
 
         const db = await getDbClient();
 
-        await db.profile.upsert({ github_id }, rest, githubUser);
+        const profile = await db.profile.upsert(
+          { github_id },
+          rest,
+          githubUser
+        );
+
+        await db.profile.createAccessToken(
+          profile.github_id,
+          account?.access_token!
+        );
       } catch {
         throw new Error("Database error on sign-in");
       }
