@@ -48,7 +48,7 @@ const TemplatesPage = () => {
   }
 
   return (
-    <div className="flex flex-col-reverse lg:grid grid-cols-[2fr_8fr] gap-y-20 pt-6 px-6 lg:px-20">
+    <div className="flex flex-col-reverse lg:grid grid-cols-[2fr_8fr] gap-y-20 pt-6 px-6 lg:px-20 min-h-screen">
       <div>
         <h4 className="text-lg text-text-color">Your templates</h4>
         <TemplateList
