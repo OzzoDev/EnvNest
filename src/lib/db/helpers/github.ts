@@ -85,8 +85,6 @@ const github = {
       await setCache(cacheKeyUserOrgs, orgs, 60);
     }
 
-    console.log("Orgs: ", orgs);
-
     const orgReposResults = await Promise.all(
       orgs.map(async (org: GithubOrg) => {
         const cacheKeyOrgRepos = `org:repos:${org.login}:${accessToken}`;
