@@ -38,19 +38,14 @@ export const useDashboardController = () => {
   const [updateMessage, setUpdateMessage] = useState<string>("");
   const [isValid, setIsValid] = useState<boolean>(false);
   const [visibleInputs, setVisibleInputs] = useState<boolean[]>([]);
-  const [envVariables, setEnvVariables] = useState<
-    EditEnvFormData["envVariables"]
-  >([]);
-  const [createEnvFormData, setCreateEnvFormData] = useState<CreateEnvFormData>(
-    {}
-  );
-  const [secretSelectorFormData, setSecretSelectorFormData] =
-    useState<SecretSelectorFormData>({});
+  const [envVariables, setEnvVariables] = useState<EditEnvFormData["envVariables"]>([]);
+  const [createEnvFormData, setCreateEnvFormData] = useState<CreateEnvFormData>({});
+  const [secretSelectorFormData, setSecretSelectorFormData] = useState<SecretSelectorFormData>({});
   const { isMobile, toggleSidebar } = useSidebar();
   const [repo, setRepo] = useState<string | null>(null);
+  const [hasDeletedProject, setHasDeletedProject] = useState<boolean>(false);
 
-  const hasWriteAccess =
-    project?.role === "admin" || project?.role === "editor";
+  const hasWriteAccess = project?.role === "admin" || project?.role === "editor";
 
   const prevProjectId = usePrev(projectId);
   const prevSecretId = usePrev(secretId);
@@ -111,9 +106,8 @@ export const useDashboardController = () => {
     {
       repo: project?.name as string,
       projectId: Number(projectId),
-      environment: ENVIRONMENTS.find(
-        (env) => env.label === createEnvFormData.environment
-      )?.value as string,
+      environment: ENVIRONMENTS.find((env) => env.label === createEnvFormData.environment)
+        ?.value as string,
     },
     {
       enabled: false,
@@ -171,68 +165,66 @@ export const useDashboardController = () => {
     refetch: refetchLogs,
   } = trpc.secret.getHistory.useQuery(undefined, { retry: false });
 
-  const { mutate: deleteProject, isPending: isDeletingProject } =
-    trpc.project.delete.useMutation({
-      onError: (err) => {
-        toast.error(err.message || "Something went wrong. Please try again");
-      },
-      onSuccess: () => {
-        toast.success("Project deleted successfully");
+  const { mutate: deleteProject, isPending: isDeletingProject } = trpc.project.delete.useMutation({
+    onError: (err) => {
+      toast.error(err.message || "Something went wrong. Please try again");
+    },
+    onSuccess: () => {
+      toast.success("Project deleted successfully");
 
-        if (typeof projectId === "number") {
-          deleteProjectSecretRef(projectId);
-        }
-        unStoreProject();
-      },
-    });
+      if (typeof projectId === "number") {
+        deleteProjectSecretRef(projectId);
+      }
 
-  const { mutate: updateSecret, isPending: isUpdatingSecret } =
-    trpc.secret.update.useMutation({
-      onMutate: () => {
-        setUpdateSuccess(false);
-      },
-      onSuccess: (data) => {
-        const envVariables = data.content.split("&&").map((val) => {
-          const [name, value] = val.split("=");
-          return { name, value };
-        });
+      setHasDeletedProject(true);
+    },
+  });
 
-        setEnvVariables(envVariables);
+  const { mutate: updateSecret, isPending: isUpdatingSecret } = trpc.secret.update.useMutation({
+    onMutate: () => {
+      setUpdateSuccess(false);
+    },
+    onSuccess: (data) => {
+      const envVariables = data.content.split("&&").map((val) => {
+        const [name, value] = val.split("=");
+        return { name, value };
+      });
 
-        setUpdateSuccess(true);
-        setIsActicityLogOpen(false);
+      setEnvVariables(envVariables);
 
-        setVisibleInputs((prev) => prev.map(() => false));
+      setUpdateSuccess(true);
+      setIsActicityLogOpen(false);
 
-        setSecret(data);
+      setVisibleInputs((prev) => prev.map(() => false));
 
-        refetchAuditLogs();
+      setSecret(data);
 
-        toast.success("Successfully saved .env file");
-      },
-      onError: () => {
-        toast.success("Error saving .env file");
-      },
-      onSettled: () => {
-        setUpdateMessage("");
-      },
-    });
+      refetchAuditLogs();
 
-  const { mutate: deleteSecret, isPending: isDeletingSecret } =
-    trpc.secret.delete.useMutation({
-      onSuccess: () => {
-        toast.success("Successfully deleted .env file");
+      toast.success("Successfully saved .env file");
+    },
+    onError: () => {
+      toast.success("Error saving .env file");
+    },
+    onSettled: () => {
+      setUpdateMessage("");
+    },
+  });
 
-        deleteProjectSecretRef(projectId!);
-        setSecretId(null);
-        setSecret(null);
-        setSecretSelectorFormData({});
-        setVisibleInputs((prev) => prev.map(() => false));
-      },
-      onError: (err) => {
-        toast.error(err.message || "Something went wrong. Please try again");
-      },
-    });
+  const { mutate: deleteSecret, isPending: isDeletingSecret } = trpc.secret.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Successfully deleted .env file");
+
+      deleteProjectSecretRef(projectId!);
+      setSecretId(null);
+      setSecret(null);
+      setSecretSelectorFormData({});
+      setVisibleInputs((prev) => prev.map(() => false));
+    },
+    onError: (err) => {
+      toast.error(err.message || "Something went wrong. Please try again");
+    },
+  });
 
   const { mutate: saveToHistory, isPending: isSavingToHistory } =
     trpc.secret.saveToHistory.useMutation({
@@ -241,56 +233,58 @@ export const useDashboardController = () => {
       },
     });
 
-  const { mutate: createProject, isPending: isCreatingProject } =
-    trpc.project.create.useMutation({
-      onError: () => {
-        toast.error("Error creating new project");
-      },
-      onSuccess: (data) => {
-        setRepo(null);
-        setProjectId(data.id);
-        setSecretId(null);
-        setSecret(null);
-        setIsSaved(true);
-        refetchRepos();
-        if (isMobile) {
-          toggleSidebar();
-        }
-        toast.success(`Project ${data.full_name} created successfully`);
-      },
-    });
+  const { mutate: createProject, isPending: isCreatingProject } = trpc.project.create.useMutation({
+    onError: () => {
+      toast.error("Error creating new project");
+    },
+    onSuccess: (data) => {
+      setRepo(null);
+      setProjectId(data.id);
+      setSecretId(null);
+      setSecret(null);
+      setIsSaved(true);
+      refetchRepos();
+      if (isMobile) {
+        toggleSidebar();
+      }
+      toast.success(`Project ${data.full_name} created successfully`);
+    },
+  });
 
-  const { mutate: createSecret, isPending: isCreatingSecret } =
-    trpc.secret.create.useMutation({
-      onSuccess: (data) => {
-        setSecretId(data.id);
-        setCreateEnvFormData({});
+  const { mutate: createSecret, isPending: isCreatingSecret } = trpc.secret.create.useMutation({
+    onSuccess: (data) => {
+      setSecretId(data.id);
+      setCreateEnvFormData({});
 
-        const envVariables = data.content.split("&&").map((val) => {
-          const [name, value] = val.split("=");
-          return { name, value };
-        });
+      const envVariables = data.content.split("&&").map((val) => {
+        const [name, value] = val.split("=");
+        return { name, value };
+      });
 
-        setEnvVariables(envVariables);
+      setEnvVariables(envVariables);
 
-        setUpdateSuccess(true);
-        setIsActicityLogOpen(false);
+      setUpdateSuccess(true);
+      setIsActicityLogOpen(false);
 
-        setVisibleInputs((prev) => prev.map(() => false));
+      setVisibleInputs((prev) => prev.map(() => false));
 
-        setSecret(data);
+      setSecret(data);
 
-        refetchTemplates();
-        refetchPaths();
+      refetchTemplates();
+      refetchPaths();
 
-        toast.success(
-          `${createEnvFormData.environment} .env file created successfully`
-        );
-      },
-      onError: (err) => {
-        toast.error(err.message || "Something went wrong. Please try again");
-      },
-    });
+      toast.success(`${createEnvFormData.environment} .env file created successfully`);
+    },
+    onError: (err) => {
+      toast.error(err.message || "Something went wrong. Please try again");
+    },
+  });
+
+  useEffect(() => {
+    if (hasDeletedProject) {
+      unStoreProject();
+    }
+  }, [hasDeletedProject]);
 
   useEffect(() => {
     if (!projectId && projects && projects?.length > 0) {
@@ -309,15 +303,21 @@ export const useDashboardController = () => {
         setSecretId(secretIdRef);
       }
 
-      if (secretId) {
+      if (secretId && !hasDeletedProject) {
         refetchNewSecret();
         refetchAuditLogs();
       } else {
         setSecret(null);
       }
 
-      if (secretId && projectId) {
+      if (hasDeletedProject) {
+        setSecretId(null);
+      }
+
+      if (secretId && projectId && !hasDeletedProject) {
         addProjectSecretRefs(projectId, secretId);
+      } else {
+        setHasDeletedProject(false);
       }
 
       setIsSaved(true);
@@ -361,11 +361,7 @@ export const useDashboardController = () => {
   }, [project, projectId, createEnvFormData.environment]);
 
   useEffect(() => {
-    if (
-      (!projects || projects.length === 0) &&
-      !isLoadingProjects &&
-      !isPendingProjects
-    ) {
+    if ((!projects || projects.length === 0) && !isLoadingProjects && !isPendingProjects) {
       clear();
     }
 
@@ -381,12 +377,7 @@ export const useDashboardController = () => {
   }, [secretId, prevSecretId]);
 
   useEffect(() => {
-    if (
-      !isEqual(secret, prevSecret) &&
-      prevSecret !== undefined &&
-      !secret &&
-      !secretId
-    ) {
+    if (!isEqual(secret, prevSecret) && prevSecret !== undefined && !secret && !secretId) {
       refetchLogs();
     }
 
@@ -460,7 +451,8 @@ export const useDashboardController = () => {
     isDeletingSecret ||
     isSavingToHistory ||
     isCreatingProject ||
-    isCreatingSecret;
+    isCreatingSecret ||
+    hasDeletedProject;
 
   return {
     hasWriteAccess,
