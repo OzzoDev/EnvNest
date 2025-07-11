@@ -22,7 +22,7 @@ const CollaborationPage = () => {
   }
 
   return (
-    <div className="p-6 lg:p-20">
+    <div className="p-6 lg:p-20 min-h-screen">
       <h2 className="text-xl text-text-color  mb-24">
         {selectedTab === "Accesss"
           ? "Add collaborator to your projects and control thier role to allow for others to access your projects to boost team productivity"
@@ -30,10 +30,7 @@ const CollaborationPage = () => {
       </h2>
       <Tabs
         value={selectedTab}
-        onValueChange={(val) =>
-          setSelectedTab(val as "Accesss" | "Organizations")
-        }
-      >
+        onValueChange={(val) => setSelectedTab(val as "Accesss" | "Organizations")}>
         <TabsList>
           <TabsTrigger value="Accesss">Project Accesss</TabsTrigger>
           <TabsTrigger value="Organizations">Organizations</TabsTrigger>
