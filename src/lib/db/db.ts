@@ -16,10 +16,7 @@ export const sanitizeValues = (values: unknown[]) => {
   });
 };
 
-export const executeQuery = async <T>(
-  queryText: string,
-  values: unknown[] = []
-): Promise<T[]> => {
+export const executeQuery = async <T>(queryText: string, values: unknown[] = []): Promise<T[]> => {
   const sanitizedValues = sanitizeValues(values);
   const client = await pool.connect();
 
