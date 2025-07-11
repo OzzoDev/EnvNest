@@ -16,7 +16,7 @@ export const environmentRouter = router({
 
       const db = await getDbClient();
 
-      const owner = await db.project.getProjectOwner(projectId);
+      const owner = (await db.project.getProjectOwner(projectId))?.owner;
 
       if (!owner) {
         throw new TRPCError({
@@ -34,7 +34,7 @@ export const environmentRouter = router({
               (
                 await helpers.github.getPaths(
                   String(githubId),
-                  owner.username,
+                  owner,
                   repo,
                   accessToken!,
                   projectId,

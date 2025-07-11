@@ -10,7 +10,9 @@ export const collaboratorRouter = router({
 
     const db = await getDbClient();
 
-    const projectsIds = (await db.project.getByProfile(githubId)).map((project) => project.id);
+    const projectsIds = (await db.project.getByProfile(githubId))
+      .filter((project) => !project.private)
+      .map((project) => project.id);
 
     return (
       await Promise.all(

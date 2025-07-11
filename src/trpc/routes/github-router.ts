@@ -27,9 +27,7 @@ export const githubRouter = router({
 
     const projects = await db.project.getByProfile(githubId);
 
-    return repos.filter(
-      (repo) => !projects?.some((pro) => pro.repo_id === repo.id)
-    );
+    return repos.filter((repo) => !projects?.some((pro) => pro.repo_id === repo.id));
   }),
   getPaths: privateProcedure
     .input(
@@ -48,7 +46,7 @@ export const githubRouter = router({
 
       const db = await getDbClient();
 
-      const owner = await db.project.getProjectOwner(projectId);
+      const owner = (await db.project.getProjectOwner(projectId))?.owner;
 
       if (!owner) {
         throw new TRPCError({
@@ -61,7 +59,7 @@ export const githubRouter = router({
 
       return await helpers.github.getPaths(
         String(githubId),
-        owner.username,
+        owner,
         repo,
         accessToken!,
         projectId,

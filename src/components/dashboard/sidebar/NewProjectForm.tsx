@@ -61,7 +61,7 @@ const NewProjectForm = () => {
   const canCreateInOrg = (): boolean => {
     const repoData = repos.find((rep) => rep.full_name === repo);
 
-    if (!repoData || repoData.private || !orgs || orgs.length === 0) {
+    if (!repoData || !orgs || orgs.length === 0) {
       return false;
     }
 

@@ -34,7 +34,7 @@ const secretHistory = {
             ON e.id = s.environment_id
         INNER JOIN project p
             ON p.id = e.project_id
-        WHERE sh.profile_id = $1 AND p.private = false
+        WHERE sh.profile_id = $1
         ORDER BY sh.created_at AT TIME ZONE 'UTC' DESC
       `,
       [profileId]

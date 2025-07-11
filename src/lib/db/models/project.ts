@@ -48,16 +48,12 @@ const project = {
           OR owner_profile.github_id = $1
           OR collaborator.profile_id IS NOT NULL
         )
-        AND project.private = false
       ORDER BY project.id, org_profile.role DESC;
     `,
       [githubId]
     );
   },
-  getById: async (
-    projectId: number,
-    githubId: number
-  ): Promise<ProjectWithRole | null> => {
+  getById: async (projectId: number, githubId: number): Promise<ProjectWithRole | null> => {
     return (
       (
         await executeQuery<ProjectWithRole>(
@@ -97,7 +93,6 @@ const project = {
                 OR owner_profile.github_id = $2
                 OR collaborator_profile.github_id = $2
               )
-              AND project.private = false;
           `,
           [projectId, githubId]
         )
@@ -127,34 +122,29 @@ const project = {
       [githubId]
     );
   },
-  getProjectOwner: async (projectId: number): Promise<Profile | null> => {
+  getProjectOwner: async (projectId: number): Promise<ProjectTable | null> => {
     return (
       (
-        await executeQuery<Profile>(
+        await executeQuery<ProjectTable>(
           `
             SELECT 
               p.id, 
-              p.github_id, 
-              p.username, 
-              p.email, 
-              p.name,
-              p.image, 
+              p.profile_id, 
+              p.name, 
+              p.full_name, 
+              p.owner,
+              p.url, 
+              p.private,
               p.created_at
-            FROM project pr
-            JOIN profile p 
-              ON p.id = pr.profile_id
-            WHERE pr.id = $1
-            LIMIT 1;
+            FROM project p
+            WHERE p.id = $1
           `,
           [projectId]
         )
       )[0] ?? null
     );
   },
-  getKey: async (
-    projectId: number,
-    githubId: number
-  ): Promise<ProjectKeyTable | null> => {
+  getKey: async (projectId: number, githubId: number): Promise<ProjectKeyTable | null> => {
     return (
       (
         await executeQuery<ProjectKeyTable>(
@@ -192,10 +182,7 @@ const project = {
       )[0] ?? null
     );
   },
-  isProjectOwner: async (
-    githubId: string,
-    projectId: number
-  ): Promise<boolean> => {
+  isProjectOwner: async (githubId: string, projectId: number): Promise<boolean> => {
     return !!(
       await executeQuery(
         `
@@ -210,10 +197,7 @@ const project = {
       )
     )[0];
   },
-  hasWriteAccess: async (
-    githubId: string,
-    projectId: number
-  ): Promise<boolean> => {
+  hasWriteAccess: async (githubId: string, projectId: number): Promise<boolean> => {
     return !!(
       await executeQuery(
         `
@@ -224,9 +208,8 @@ const project = {
               SELECT 1
               FROM project p
               WHERE p.id = $2
-                AND p.private = false
                 AND (
-                  p.profile_id = pr.id -- ✅ Project owner
+                  p.profile_id = pr.id
                   OR EXISTS (
                     SELECT 1
                     FROM org_project opj
@@ -263,10 +246,7 @@ const project = {
 
       const encryptionKey = generateAESKey().hex;
 
-      await project.addKey(
-        projectId,
-        aesEncrypt(encryptionKey, rootEncryptionKey)
-      );
+      await project.addKey(projectId, aesEncrypt(encryptionKey, rootEncryptionKey));
 
       if (orgId) {
         await project.addOrg(projectId, orgId);
@@ -281,15 +261,7 @@ const project = {
     }
   },
   addProject: async (projectData: CreateProject): Promise<ProjectTable> => {
-    const {
-      profile_id,
-      repo_id,
-      name,
-      full_name,
-      owner,
-      url,
-      private: isPrivate,
-    } = projectData;
+    const { profile_id, repo_id, name, full_name, owner, url, private: isPrivate } = projectData;
 
     const result = await executeQuery<ProjectTable>(
       `
@@ -302,10 +274,7 @@ const project = {
 
     return result[0];
   },
-  addKey: async (
-    projectId: number,
-    encryptedKey: string
-  ): Promise<ProjectKeyTable> => {
+  addKey: async (projectId: number, encryptedKey: string): Promise<ProjectKeyTable> => {
     const result = await executeQuery<ProjectKeyTable>(
       `
         INSERT INTO project_key (project_id, encrypted_key)
@@ -317,10 +286,7 @@ const project = {
 
     return result[0];
   },
-  addOrg: async (
-    projectId: number,
-    orgId: number
-  ): Promise<OrgProjectTable> => {
+  addOrg: async (projectId: number, orgId: number): Promise<OrgProjectTable> => {
     return (
       await executeQuery<OrgProjectTable>(
         `
@@ -332,9 +298,7 @@ const project = {
       )
     )[0];
   },
-  updateName: async (
-    project: UpdateProjectName
-  ): Promise<ProjectTable | null> => {
+  updateName: async (project: UpdateProjectName): Promise<ProjectTable | null> => {
     if (!project) {
       return null;
     }
